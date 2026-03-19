@@ -1,53 +1,53 @@
+/* 1. 引入高级感字体 */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Serif+SC:wght@200;700&display=swap');
+
 :root {
-    /* 核心：把卡片底色改为极淡的白色，接近透明 */
-    --card-bg: rgba(255, 255, 255, 0.1); 
+    --card-bg: rgba(255, 255, 255, 0.08); 
     --text-main: #ffffff;
     --text-dim: rgba(255, 255, 255, 0.6);
-    --accent: #5e5ce6;
+    --accent: #ffcc00; /* 太阳之子的金色 */
 }
 
+/* --- 全局背景与流体动画 --- */
 body {
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    
-    /* --- 动态流动背景核心修改 --- */
     background-color: #0e0e10; 
     background-image: 
         radial-gradient(at 0% 0%, #2c2c8a 0px, transparent 50%),
         radial-gradient(at 100% 100%, #156666 0px, transparent 50%),
         radial-gradient(at 80% 20%, #8a3d3d 0px, transparent 35%);
-    background-size: 200% 200%; /* 放大背景以便流动 */
-    animation: gradientFlow 15s ease infinite; /* 缓慢流动动画 */
-    
+    background-size: 200% 200%;
+    animation: gradientFlow 15s ease infinite;
     background-attachment: fixed;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
 }
 
-/* 背景流动动画定义 */
 @keyframes gradientFlow {
     0% { background-position: 0% 0%; }
     50% { background-position: 100% 100%; }
     100% { background-position: 0% 0%; }
 }
 
+/* --- 容器布局 --- */
 .container {
     display: grid;
     grid-template-columns: repeat(3, 140px);
     grid-auto-rows: 140px;
     gap: 16px;
     padding: 20px;
-    perspective: 1000px; /* 为手机端点击增加透视感 */
+    perspective: 1000px;
 }
 
+/* --- 通用卡片样式 --- */
 .bento-item {
     background: var(--card-bg);
     border-radius: 28px;
-    /* 强化毛玻璃效果 */
     backdrop-filter: blur(25px) saturate(180%);
     -webkit-backdrop-filter: blur(25px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -63,7 +63,6 @@ body {
     color: white;
 }
 
-/* 悬停特效：PC端上浮，手机端轻微缩放 */
 .bento-item:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -71,48 +70,37 @@ body {
     z-index: 10;
 }
 
-/* 手机点击时的即时反馈（针对触摸优化） */
-.bento-item:active {
-    transform: scale(0.96);
-    transition: 0.1s;
-}
-
-/* 扫光效果 */
-.bento-item::after {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -150%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.08), 
-        transparent
-    );
-    transform: rotate(45deg);
-    transition: 0.8s;
-}
-
-.bento-item:hover::after {
-    left: 150%;
-}
-
-/* 布局逻辑 */
+/* --- Profile Card 特效 --- */
 .profile-card { grid-column: span 2; grid-row: span 2; align-items: center; text-align: center; }
-.about-card { grid-column: span 1; grid-row: span 1; }
-.link-card { grid-column: span 1; grid-row: span 1; align-items: center; }
-.status-card { 
-    grid-column: span 3; 
-    grid-row: span 0.5; 
-    flex-direction: row; 
-    align-items: center; 
-    height: 60px; 
-    justify-content: flex-start; 
+
+/* 1. JAY 水印背景 */
+@keyframes watermarkSync {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-15px, -10px) rotate(-1deg); }
+    100% { transform: translate(0, 0); }
 }
 
-/* 头像细节 */
+.profile-card::before {
+    content: "JAY";
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 11rem;
+    color: rgba(255, 255, 255, 0.025);
+    position: absolute;
+    bottom: -30px;
+    right: -10px;
+    pointer-events: none;
+    z-index: 0;
+    animation: watermarkSync 15s ease-in-out infinite;
+}
+
+/* 2. 头像金色呼吸光晕 */
+@keyframes auraBreath {
+    0% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
+    50% { box-shadow: 0 0 35px rgba(255, 204, 0, 0.6), 0 0 12px rgba(255, 204, 0, 0.3); }
+    100% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
+}
+
 .avatar {
     width: 72px;
     height: 72px;
@@ -121,34 +109,80 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 20px rgba(94, 92, 230, 0.3);
-    margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffcc00;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    animation: auraBreath 4s ease-in-out infinite;
 }
 
-.avatar img {
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 3. 名字 OMEN */
+.profile-card h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, #ffffff 30%, #cccccc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+}
+
+/* 4. 太阳之子（核心修正居中问题） */
+.profile-card .description {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* 强制内容中轴线对齐 */
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    margin-top: 15px;
+    position: relative;
+    z-index: 1;
+    
+    font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 0.85rem;
+    color: #ffcc00;
+    font-weight: 600;
+    
+    /* 解决不居中的关键：letter-spacing 会导致文字重心右移，用 padding-left 补回来 */
+    letter-spacing: 0.6em;   
+    padding-left: 0.6em;     
+    
+    text-transform: uppercase;
+    opacity: 0.9;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
 }
 
-/* 文字与图标 */
-h1 { font-size: 1.5rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
-h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
-p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; }
+/* 绝对居中的装饰横线 */
+.profile-card .description::before {
+    content: "";
+    width: 30px;             
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #ffcc00, transparent);
+    margin-bottom: 12px;
+    display: block;
+    opacity: 0.6;
+}
+
+/* --- 其他卡片逻辑 --- */
+.about-card { grid-column: span 1; grid-row: span 1; }
+.link-card { grid-column: span 1; grid-row: span 1; align-items: center; }
+.status-card { grid-column: span 3; grid-row: span 0.5; flex-direction: row; align-items: center; height: 60px; justify-content: flex-start; }
 
 .link-card a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; opacity: 0.9; }
 
+h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; margin: 0; }
+
+/* 状态指示灯 */
 .dot { 
-    width: 10px; 
-    height: 10px; 
-    background: #34c759; 
-    border-radius: 50%; 
-    margin-right: 12px; 
-    box-shadow: 0 0 12px #34c759;
-    animation: pulse 2s infinite; 
+    width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px; 
+    box-shadow: 0 0 12px #34c759; animation: pulse 2s infinite; 
 }
 
 @keyframes pulse {
@@ -157,7 +191,7 @@ p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; }
     100% { opacity: 1; transform: scale(1); }
 }
 
-/* 手机端深度优化：保持 2 列，缩小间距 */
+/* --- 响应式调整 --- */
 @media (max-width: 480px) {
     .container {
         grid-template-columns: repeat(2, 1fr);
@@ -168,6 +202,5 @@ p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; }
     }
     .profile-card { grid-column: span 2; }
     .status-card { grid-column: span 2; }
-    h1 { font-size: 1.3rem; }
-    .bento-item { padding: 15px; border-radius: 24px; }
+    .profile-card::before { font-size: 7rem; }
 }
