@@ -133,39 +133,68 @@ body {
     filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
 }
 
-/* 4. 太阳之子（核心修正居中问题） */
+/* --- [修改] 太阳之子：线字同宽 + 流动光晕 --- */
 .profile-card .description {
-    display: flex;
-    flex-direction: column;
-    align-items: center;      /* 强制内容中轴线对齐 */
-    width: 100%;
-    margin-top: 15px;
-    position: relative;
-    z-index: 1;
-    
-    font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif;
-    font-size: 0.85rem;
+    /* 1. 字体：优先调用苹果/安卓/Windows自带的高级衬线体，最后才是谷歌字体 */
+    font-family: "Songti SC", "STSong", "华文宋体", "Source Han Serif SC", "Noto Serif SC", serif;
+    font-weight: 200;       /* 极细，这是复刻图片质感的关键 */
+    font-size: 1.4rem;      /* 继续放大字号 */
     color: #ffcc00;
-    font-weight: 600;
     
-    /* 解决不居中的关键：letter-spacing 会导致文字重心右移，用 padding-left 补回来 */
-    letter-spacing: 0.6em;   
-    padding-left: 0.6em;     
+    /* 2. 间距修正：解决“线不居中”的物理偏差 */
+    letter-spacing: 0.45em;   
+    padding-left: 0.45em;   /* 抵消右侧间距，确保文字物理重心居中 */
     
     text-transform: uppercase;
-    opacity: 0.9;
-    text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+    margin: 12px auto 0 auto;
+    opacity: 1;
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+    
+   /* 3. 布局：强制垂直中轴线对齐 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;    /* 宽度由文字决定 */
+    position: relative;
+    z-index: 2;
 }
 
-/* 绝对居中的装饰横线 */
+
+/* 4. [核心修改] 装饰横线：调整为和文字一样宽，并添加流动光晕 */
 .profile-card .description::before {
-    content: "";
-    width: 30px;             
-    height: 1.5px;
-    background: linear-gradient(90deg, transparent, #ffcc00, transparent);
-    margin-bottom: 12px;
+   content: "";
+    width: 100%;           /* 强制与文字容器完全等宽 */
+    height: 1.2px;         /* 线条再细一点，更精致 */
+    margin-bottom: 15px;
     display: block;
-    opacity: 0.6;
+    
+   /* 扫光背景 */
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 204, 0, 0.2) 20%, 
+        #ffcc00 50%, 
+        rgba(255, 204, 0, 0.2) 80%, 
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    
+    animation: goldenSweep 4s linear infinite;
+    
+    /* 关键：补偿文字的 padding，让线在视觉上和字对齐 */
+    margin-left: -0.45em; 
+}
+
+/* 5. 定义金色扫光动画 */
+@keyframes goldenSweep {
+    0% { background-position: 150% 0; }
+    100% { background-position: -150% 0; }
+}
+
+/* 优化主标题 OMEN，与下方大字体拉开距离 */
+.profile-card h1 {
+    font-size: 1.8rem;
+    letter-spacing: 5px;
+    margin-top: 5px;
 }
 
 /* --- 其他卡片逻辑 --- */
