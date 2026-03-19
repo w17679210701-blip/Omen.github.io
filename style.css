@@ -23,21 +23,25 @@ body {
 
 .container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    /* 核心修改：改为 3 列等宽布局 */
+    grid-template-columns: repeat(3, 120px); 
+    grid-auto-rows: 120px; /* 固定行高，让格子变成正方形基底 */
     grid-gap: 16px;
-    width: 90%;
-    max-width: 450px;
+    justify-content: center;
+    width: fit-content;
 }
 
 .bento-item {
     background: var(--card-bg);
-    padding: 24px;
-    border-radius: 28px;
+    border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(30px) saturate(200%);
-    -webkit-backdrop-filter: blur(30px) saturate(200%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s ease;
 }
 
 .bento-item:hover {
@@ -54,6 +58,59 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+
+/* 重新分配格子的位置，实现完美对称 */
+.profile-card {
+    grid-column: span 2; /* 横跨 2 列 */
+    grid-row: span 2;    /* 纵跨 2 行 */
+    align-items: center;
+    text-align: center;
+}
+
+.about-card {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.link-card {
+    grid-column: span 1;
+    grid-row: span 1;
+    align-items: center;
+}
+
+.status-card {
+    grid-column: span 3; /* 底部的状态条横跨全部 3 列，实现视觉封底 */
+    grid-row: span 0.5;
+    height: 50px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* 文字细节微调 */
+h1 { font-size: 1.4rem; margin: 10px 0 5px; }
+h3 { font-size: 0.8rem; color: var(--accent); margin-bottom: 8px; letter-spacing: 1px; }
+p { font-size: 0.85rem; line-height: 1.4; margin: 0; }
+
+.link-card a {
+    text-decoration: none;
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+}
+
+/* 移动端自动变回单列，防止太挤 */
+@media (max-width: 450px) {
+    .container {
+        grid-template-columns: repeat(2, 1fr); /* 手机端 2 列比较好操作 */
+        grid-auto-rows: auto;
+    }
+    .profile-card { grid-column: span 2; }
+    .status-card { grid-column: span 2; }
 }
 
 .about {
