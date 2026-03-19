@@ -1,8 +1,8 @@
 :root {
     /* 核心：把卡片底色改为极淡的白色，接近透明 */
-    --card-bg: rgba(255, 255, 255, 0.15); 
-    --text-main: #1d1d1f;
-    --text-dim: #515154;
+    --card-bg: rgba(255, 255, 255, 0.1); 
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.6);
     --accent: #5e5ce6;
 }
 
@@ -12,15 +12,27 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    /* 核心修改：使用高对比度的深色极光背景 */
-    background-color: #1a1a1c; /* 底色改为深灰色 */
+    
+    /* --- 动态流动背景核心修改 --- */
+    background-color: #0e0e10; 
     background-image: 
-        radial-gradient(at 0% 0%, #3a3ab9 0px, transparent 55%), /* 左上角紫色 */
-        radial-gradient(at 100% 100%, #1e8f8f 0px, transparent 55%), /* 右下角青色 */
-        radial-gradient(at 80% 20%, #ff6b6b 0px, transparent 40%); /* 右上角加一点淡红点缀 */
+        radial-gradient(at 0% 0%, #2c2c8a 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #156666 0px, transparent 50%),
+        radial-gradient(at 80% 20%, #8a3d3d 0px, transparent 35%);
+    background-size: 200% 200%; /* 放大背景以便流动 */
+    animation: gradientFlow 15s ease infinite; /* 缓慢流动动画 */
+    
     background-attachment: fixed;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased; /* 让文字在深色背景下更清晰 */
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* 背景流动动画定义 */
+@keyframes gradientFlow {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
 }
 
 .container {
@@ -29,99 +41,133 @@ body {
     grid-auto-rows: 140px;
     gap: 16px;
     padding: 20px;
+    perspective: 1000px; /* 为手机端点击增加透视感 */
 }
 
 .bento-item {
     background: var(--card-bg);
     border-radius: 28px;
-    /* 增强毛玻璃：增加模糊度和饱和度 */
-    backdrop-filter: blur(40px) saturate(220%);
-    -webkit-backdrop-filter: blur(40px) saturate(220%);
-    /* 细微的边框，像吸了背景色一样 */
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    /* 强化毛玻璃效果 */
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    color: white; /* 整体文字改为白色，提升对比度 */
+    color: white;
 }
 
-/* 2. 鼠标滑过时的效果（类名已修正） */
+/* 悬停特效：PC端上浮，手机端轻微缩放 */
 .bento-item:hover {
-    transform: translateY(-10px) scale(1.03); /* 向上浮起并稍微变大 */
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4); /* 增加深色阴影 */
-    border-color: rgba(255, 255, 255, 0.4); 
-    z-index: 10; /* 确保浮起时不会被旁边的方块挡住 */
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+    z-index: 10;
 }
 
-/* 3. 流光掠过效果（类名已修正） */
+/* 手机点击时的即时反馈（针对触摸优化） */
+.bento-item:active {
+    transform: scale(0.96);
+    transition: 0.1s;
+}
+
+/* 扫光效果 */
 .bento-item::after {
     content: "";
     position: absolute;
     top: -50%;
-    left: -50%;
+    left: -150%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+    background: linear-gradient(
+        45deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.08), 
+        transparent
+    );
     transform: rotate(45deg);
-    transition: 0.7s;
-    opacity: 0;
+    transition: 0.8s;
 }
 
 .bento-item:hover::after {
-    left: 120%;
-    opacity: 1;
+    left: 150%;
 }
 
-
-/* 布局逻辑与之前一致 */
+/* 布局逻辑 */
 .profile-card { grid-column: span 2; grid-row: span 2; align-items: center; text-align: center; }
 .about-card { grid-column: span 1; grid-row: span 1; }
 .link-card { grid-column: span 1; grid-row: span 1; align-items: center; }
-.status-card { grid-column: span 3; grid-row: span 0.5; flex-direction: row; align-items: center; height: 60px; justify-content: flex-start; }
+.status-card { 
+    grid-column: span 3; 
+    grid-row: span 0.5; 
+    flex-direction: row; 
+    align-items: center; 
+    height: 60px; 
+    justify-content: flex-start; 
+}
 
-/* 头像细节修正 */
+/* 头像细节 */
 .avatar {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%; /* 变成圆形 */
-    overflow: hidden;   /* 核心：切掉圆圈外面多余的图片 */
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    background: transparent; /* 去掉之前的紫色 */
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(94, 92, 230, 0.3);
     margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .avatar img {
-    width: 100%;       /* 图片宽度撑满 68px */
-    height: 100%;      /* 图片高度撑满 68px */
-    object-fit: cover; /* 核心：自动裁剪缩放，保证图片不压扁、不拉伸 */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* 图标样式控制 */
-.link-card a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 0.8rem; }
-.icon { 
-    stroke: white; /* 图标改为白色 */
-    width: 26px; height: 26px; 
-    stroke-width: 1.5;
+/* 文字与图标 */
+h1 { font-size: 1.5rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; }
+
+.link-card a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; opacity: 0.9; }
+
+.dot { 
+    width: 10px; 
+    height: 10px; 
+    background: #34c759; 
+    border-radius: 50%; 
+    margin-right: 12px; 
+    box-shadow: 0 0 12px #34c759;
+    animation: pulse 2s infinite; 
 }
 
-.dot { width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px; box-shadow: 0 0 15px #34c759; }
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
 
-/* 适配手机端：保持 2 列 */
+/* 手机端深度优化：保持 2 列，缩小间距 */
 @media (max-width: 480px) {
     .container {
         grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: auto;
-        width: 92vw;
+        grid-auto-rows: minmax(130px, auto);
+        gap: 12px;
+        width: 94vw;
+        padding: 10px;
     }
     .profile-card { grid-column: span 2; }
     .status-card { grid-column: span 2; }
+    h1 { font-size: 1.3rem; }
+    .bento-item { padding: 15px; border-radius: 24px; }
 }
