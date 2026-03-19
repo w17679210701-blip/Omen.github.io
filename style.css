@@ -89,20 +89,20 @@ body {
 .avatar {
     width: 68px;
     height: 68px;
-    border-radius: 50%; /* 保持圆形 */
-    overflow: hidden;   /* 核心：确保图片超出圆圈的部分被剪掉 */
+    border-radius: 50%; /* 变成圆形 */
+    overflow: hidden;   /* 核心：切掉圆圈外面多余的图片 */
     display: flex;
     justify-content: center;
     align-items: center;
     border: 2px solid rgba(255, 255, 255, 0.3);
+    background: transparent; /* 去掉之前的紫色 */
     margin-bottom: 15px;
-    background: transparent; /* 去掉之前的紫色背景 */
 }
 
 .avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 核心：图片会自动裁剪填充，不会被压扁 */
+    width: 100%;       /* 图片宽度撑满 68px */
+    height: 100%;      /* 图片高度撑满 68px */
+    object-fit: cover; /* 核心：自动裁剪缩放，保证图片不压扁、不拉伸 */
 }
 
 /* 图标样式控制 */
