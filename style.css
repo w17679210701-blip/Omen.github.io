@@ -60,12 +60,37 @@ p { color: var(--text-dim); font-size: 0.9rem; }
     display: flex;
     justify-content: center;
     align-items: center;
+    <div class="bento-item link-box">
+    <a href="#">
+        <i data-lucide="video" class="icon"></i>
+        <span>视频号</span>
+    </a>
+</div>
+
+<div class="bento-item link-box">
+    <a href="https://github.com/w17679210701-blip">
+        <i data-lucide="github" class="icon"></i>
+        <span>GitHub</span>
+    </a>
+</div>
+
+<script>lucide.createIcons();</script>
 }
 
 .link-box a {
-    color: var(--text-main);
+    display: flex;
+    flex-direction: column; /* 图标在上，文字在下 */
+    align-items: center;
+    gap: 8px;
     text-decoration: none;
-    font-weight: 500;
+    color: var(--text-main);
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    stroke: var(--accent); /* 图标颜色用你的紫色主题 */
+    stroke-width: 2;
 }
 
 .status {
