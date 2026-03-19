@@ -1,6 +1,6 @@
 :root {
     --bg-color: #f5f7fa;
-    --card-bg: rgba(255, 255, 255, 0.45); 
+    --card-bg: rgba(255, 255, 255, 0.6); 
     --text-main: #1d1d1f;
     --text-dim: #6e6e73;
     --accent: #5e5ce6;
@@ -8,127 +8,70 @@
 
 body {
     margin: 0;
-    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-color);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.25) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 199, 190, 0.25) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.9) 0px, transparent 100%);
-    background-attachment: fixed;
+    background: var(--bg-color);
+    /* 增加背景渐变，让毛玻璃更明显 */
+    background-image: radial-gradient(at 0% 0%, #e2e2ff 0px, transparent 50%), 
+                      radial-gradient(at 100% 100%, #e0ffff 0px, transparent 50%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* 容器布局 */
 .container {
     display: grid;
-    grid-template-columns: repeat(3, 120px); 
-    grid-auto-rows: 120px; 
-    grid-gap: 16px;
-    justify-content: center;
-    width: fit-content;
+    /* 桌面端/模拟器宽屏：3列布局 */
+    grid-template-columns: repeat(3, 140px);
+    grid-auto-rows: 140px;
+    gap: 16px;
+    padding: 20px;
 }
 
-/* 通用卡片样式 */
 .bento-item {
     background: var(--card-bg);
     border-radius: 28px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(25px) saturate(180%);
-    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.05);
 }
 
-.bento-item:hover {
-    transform: scale(1.02);
-    background: rgba(255, 255, 255, 0.55);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+/* 布局逻辑：谁占多大地方 */
+.profile-card { grid-column: span 2; grid-row: span 2; align-items: center; text-align: center; }
+.about-card { grid-column: span 1; grid-row: span 1; }
+.link-card { grid-column: span 1; grid-row: span 1; align-items: center; }
+.status-card { 
+    grid-column: span 3; 
+    grid-row: span 0.5; 
+    flex-direction: row; 
+    align-items: center; 
+    height: 60px;
 }
 
-/* 格子占位逻辑 */
-.profile-card {
-    grid-column: span 2;
-    grid-row: span 2;
-    align-items: center;
-    text-align: center;
-}
+/* 内部细节 */
+.avatar { width: 64px; height: 64px; background: var(--accent); color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-bottom: 12px; }
+h1 { font-size: 1.2rem; margin: 0; color: var(--text-main); }
+h3 { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 8px; }
+p { font-size: 0.8rem; color: var(--text-dim); margin: 0; line-height: 1.4; }
+.dot { width: 8px; height: 8px; background: #34c759; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 10px #34c759; }
 
-.about-card {
-    grid-column: span 1;
-    grid-row: span 1;
-}
+.link-card a { text-decoration: none; color: var(--text-main); display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 0.8rem; }
+.icon { stroke: var(--accent); width: 24px; height: 24px; }
 
-.link-card {
-    grid-column: span 1;
-    grid-row: span 1;
-    align-items: center;
-}
-
-.status-card {
-    grid-column: span 3;
-    grid-row: span 0.6; /* 稍微高一点，容纳文字 */
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    height: auto;
-    padding: 0 20px;
-}
-
-/* 内部元素样式 */
-.avatar {
-    width: 68px; height: 68px;
-    background: var(--accent);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 12px;
-}
-
-h1 { font-size: 1.4rem; margin: 0; color: var(--text-main); }
-h3 { font-size: 0.75rem; color: var(--accent); margin: 0 0 8px 0; letter-spacing: 1px; text-transform: uppercase; }
-p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; margin: 0; }
-
-.link-card a {
-    text-decoration: none;
-    color: var(--text-main);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-}
-
-.icon {
-    stroke: var(--accent);
-    width: 24px; height: 24px;
-    stroke-width: 2;
-}
-
-.dot {
-    height: 8px; width: 8px;
-    background: #34c759;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-/* 响应式适配：手机端 */
+/* 重点：解决模拟器/手机乱跳的问题 */
 @media (max-width: 480px) {
     .container {
-        grid-template-columns: repeat(2, 1fr); /* 手机端改为2列布局 */
+        grid-template-columns: repeat(2, 1fr); /* 手机端强制改为 2 列 */
         grid-auto-rows: auto;
-        width: 90%;
+        width: 90vw;
     }
     .profile-card { grid-column: span 2; }
+    .about-card { grid-column: span 1; }
+    .link-card { grid-column: span 1; }
     .status-card { grid-column: span 2; }
 }
