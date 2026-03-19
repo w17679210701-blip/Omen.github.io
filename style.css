@@ -44,43 +44,40 @@ body {
     flex-direction: column;
     justify-content: center;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: white; /* 整体文字改为白色，提升对比度 */
-}
-
-/* 1. 让方块具备平滑过渡的基础 */
-.card {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 灵动的回弹动画 */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    color: white; /* 整体文字改为白色，提升对比度 */
 }
 
-/* 2. 鼠标滑过时的视觉爆炸 */
-.card:hover {
-    transform: translateY(-8px) scale(1.02); /* 向上浮起 8 像素并轻微放大 */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); /* 增加深邃的阴影，制造悬浮感 */
-    border-color: rgba(255, 255, 255, 0.5); /* 边框微亮 */
+/* 2. 鼠标滑过时的效果（类名已修正） */
+.bento-item:hover {
+    transform: translateY(-10px) scale(1.03); /* 向上浮起并稍微变大 */
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4); /* 增加深色阴影 */
+    border-color: rgba(255, 255, 255, 0.4); 
+    z-index: 10; /* 确保浮起时不会被旁边的方块挡住 */
 }
 
-/* 3. 可选：给方块加一个流光掠过的效果 */
-.card::after {
+/* 3. 流光掠过效果（类名已修正） */
+.bento-item::after {
     content: "";
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
     transform: rotate(45deg);
-    transition: 0.8s;
+    transition: 0.7s;
     opacity: 0;
 }
 
-.card:hover::after {
+.bento-item:hover::after {
     left: 120%;
     opacity: 1;
 }
+
 
 /* 布局逻辑与之前一致 */
 .profile-card { grid-column: span 2; grid-row: span 2; align-items: center; text-align: center; }
