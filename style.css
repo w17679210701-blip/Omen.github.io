@@ -21,19 +21,20 @@ body {
     background-attachment: fixed;
 }
 
+/* 容器布局 */
 .container {
     display: grid;
-    /* 核心修改：改为 3 列等宽布局 */
     grid-template-columns: repeat(3, 120px); 
-    grid-auto-rows: 120px; /* 固定行高，让格子变成正方形基底 */
+    grid-auto-rows: 120px; 
     grid-gap: 16px;
     justify-content: center;
     width: fit-content;
 }
 
+/* 通用卡片样式 */
 .bento-item {
     background: var(--card-bg);
-    border-radius: 24px;
+    border-radius: 28px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(25px) saturate(180%);
     -webkit-backdrop-filter: blur(25px) saturate(180%);
@@ -41,7 +42,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
 }
 
 .bento-item:hover {
@@ -50,20 +52,10 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
-.profile {
-    grid-column: span 1;
-    grid-row: span 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-/* 重新分配格子的位置，实现完美对称 */
+/* 格子占位逻辑 */
 .profile-card {
-    grid-column: span 2; /* 横跨 2 列 */
-    grid-row: span 2;    /* 纵跨 2 行 */
+    grid-column: span 2;
+    grid-row: span 2;
     align-items: center;
     text-align: center;
 }
@@ -80,54 +72,18 @@ body {
 }
 
 .status-card {
-    grid-column: span 3; /* 底部的状态条横跨全部 3 列，实现视觉封底 */
-    grid-row: span 0.5;
-    height: 50px;
+    grid-column: span 3;
+    grid-row: span 0.6; /* 稍微高一点，容纳文字 */
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+    height: auto;
+    padding: 0 20px;
 }
 
-/* 文字细节微调 */
-h1 { font-size: 1.4rem; margin: 10px 0 5px; }
-h3 { font-size: 0.8rem; color: var(--accent); margin-bottom: 8px; letter-spacing: 1px; }
-p { font-size: 0.85rem; line-height: 1.4; margin: 0; }
-
-.link-card a {
-    text-decoration: none;
-    color: var(--text-main);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-}
-
-/* 移动端自动变回单列，防止太挤 */
-@media (max-width: 450px) {
-    .container {
-        grid-template-columns: repeat(2, 1fr); /* 手机端 2 列比较好操作 */
-        grid-auto-rows: auto;
-    }
-    .profile-card { grid-column: span 2; }
-    .status-card { grid-column: span 2; }
-}
-
-.about {
-    grid-column: span 1;
-}
-
-.status {
-    grid-column: span 2;
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-}
-
+/* 内部元素样式 */
 .avatar {
-    width: 64px;
-    height: 64px;
+    width: 68px; height: 68px;
     background: var(--accent);
     color: white;
     border-radius: 50%;
@@ -139,42 +95,40 @@ p { font-size: 0.85rem; line-height: 1.4; margin: 0; }
     margin-bottom: 12px;
 }
 
-h1 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
-p { color: var(--text-dim); font-size: 0.9rem; margin-top: 5px; }
+h1 { font-size: 1.4rem; margin: 0; color: var(--text-main); }
+h3 { font-size: 0.75rem; color: var(--accent); margin: 0 0 8px 0; letter-spacing: 1px; text-transform: uppercase; }
+p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; margin: 0; }
 
-.link-box a {
+.link-card a {
+    text-decoration: none;
+    color: var(--text-main);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    text-decoration: none;
-    color: var(--text-main);
     font-size: 0.85rem;
 }
 
 .icon {
     stroke: var(--accent);
-    width: 24px;
-    height: 24px;
+    width: 24px; height: 24px;
     stroke-width: 2;
 }
 
 .dot {
-    height: 8px;
-    width: 8px;
+    height: 8px; width: 8px;
     background: #34c759;
     border-radius: 50%;
-    display: inline-block;
-    margin-right: 8px;
+    margin-right: 10px;
 }
 
-/* 适配手机端 */
+/* 响应式适配：手机端 */
 @media (max-width: 480px) {
     .container {
-        grid-template-columns: 1fr;
-        padding: 20px;
+        grid-template-columns: repeat(2, 1fr); /* 手机端改为2列布局 */
+        grid-auto-rows: auto;
+        width: 90%;
     }
-    .profile, .status {
-        grid-column: span 1;
-    }
+    .profile-card { grid-column: span 2; }
+    .status-card { grid-column: span 2; }
 }
