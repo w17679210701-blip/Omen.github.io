@@ -8,19 +8,11 @@
 }
 
 body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    
-    /* 浅色极光背景 */
-    background-color: var(--bg-color);
+    background-color: #f0f2f5;
     background-image: 
-        radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 199, 190, 0.15) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.8) 0px, transparent 80%);
+        radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.3) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 199, 190, 0.3) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(255, 107, 107, 0.1) 0px, transparent 50%); /* 加一点点淡红 */
     background-attachment: fixed;
 }
 
@@ -33,22 +25,20 @@ body {
 }
 
 .bento-item {
-    background: var(--card-bg);
-    padding: 24px;
+    /* 1. 背景必须极淡，毛玻璃才明显 */
+    background: rgba(255, 255, 255, 0.2) !important; 
+    
+    /* 2. 核心：强制开启毛玻璃 */
+    -webkit-backdrop-filter: blur(30px) saturate(150%) !important;
+    backdrop-filter: blur(30px) saturate(150%) !important;
+
+    /* 3. 必须加上这行，防止手机端为了省电关闭滤镜 */
+    transform: translateZ(0); 
+    
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 24px;
-    
-    /* 毛玻璃核心参数 */
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    
-    /* 浅色边框，增加质感 */
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    
-    /* 柔和阴影 */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-    
-    transition: all 0.3s ease;
-    color: var(--text-main);
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
 }
 
 .bento-item {
