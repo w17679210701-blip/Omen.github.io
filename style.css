@@ -1,167 +1,123 @@
 :root {
-    /* 核心：背景调亮，方块改用亮色半透明 */
-    --bg-color: #f0f2f5; 
-    --card-bg: rgba(255, 255, 255, 0.4); /* 浅色半透明核心 */
-    --text-main: #1d1d1f; /* 文字改回深色，否则看不清 */
-    --text-dim: #86868b;
+    --bg-color: #f5f7fa;
+    --card-bg: rgba(255, 255, 255, 0.45); 
+    --text-main: #1d1d1f;
+    --text-dim: #6e6e73;
     --accent: #5e5ce6;
 }
 
 body {
-    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-color);
     background-image: 
-        radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.3) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 199, 190, 0.3) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(255, 107, 107, 0.1) 0px, transparent 50%); /* 加一点点淡红 */
+        radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.25) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 199, 190, 0.25) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.9) 0px, transparent 100%);
     background-attachment: fixed;
 }
 
 .container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 两列布局 */
-    grid-gap: 15px;
-    max-width: 500px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 16px;
     width: 90%;
+    max-width: 450px;
 }
 
 .bento-item {
-    /* 1. 背景必须极淡，毛玻璃才明显 */
-    background: rgba(255, 255, 255, 0.2) !important; 
-    
-    /* 2. 核心：强制开启毛玻璃 */
-    -webkit-backdrop-filter: blur(30px) saturate(150%) !important;
-    backdrop-filter: blur(30px) saturate(150%) !important;
-
-    /* 3. 必须加上这行，防止手机端为了省电关闭滤镜 */
-    transform: translateZ(0); 
-    
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 24px;
+    background: var(--card-bg);
     padding: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bento-item {
-    background: var(--card-bg); /* 使用我们刚才设置的半透明白色 */
-    padding: 20px;
-    border-radius: 20px; /* 稍微加大一点圆角，更润一些 */
-    
-    /* 关键属性：毛玻璃效果 */
-    -webkit-backdrop-filter: blur(20px) saturate(180%); /* 兼容 Safari */
-    backdrop-filter: blur(20px) saturate(180%); /* 模糊 20px，并稍微增加色彩饱和度 */
-
-    /* 增加一个非常细微的白色边框，增加质感 */
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    
-    /* 增加一个淡淡的阴影，让方块“浮”起来 */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-
-    transition: all 0.3s ease;
-}
-
-/* 调整悬停效果，让它更闪亮一点 */
 .bento-item:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .profile {
-    grid-column: span 2; /* 个人资料占满一行 */
+    grid-column: span 1;
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
 }
 
-.avatar {
-    width: 60px; height: 60px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 10px;
-    line-height: 60px;
-    font-size: 24px;
-    font-weight: bold;
+.about {
+    grid-column: span 1;
 }
 
-h1 { margin: 0; font-size: 1.5rem; }
-p { color: var(--text-dim); font-size: 0.9rem; }
+.status {
+    grid-column: span 2;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+}
 
-.link-box {
+.avatar {
+    width: 64px;
+    height: 64px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    <div class="bento-item link-box">
-    <a href="#">
-        <i data-lucide="video" class="icon"></i>
-        <span>视频号</span>
-    </a>
-</div>
-
-<div class="bento-item link-box">
-    <a href="https://github.com/w17679210701-blip">
-        <i data-lucide="github" class="icon"></i>
-        <span>GitHub</span>
-    </a>
-</div>
-
-<script>lucide.createIcons();</script>
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 12px;
 }
+
+h1 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
+p { color: var(--text-dim); font-size: 0.9rem; margin-top: 5px; }
 
 .link-box a {
     display: flex;
-    flex-direction: column; /* 图标在上，文字在下 */
+    flex-direction: column;
     align-items: center;
     gap: 8px;
     text-decoration: none;
     color: var(--text-main);
+    font-size: 0.85rem;
 }
 
 .icon {
     stroke: var(--accent);
     width: 24px;
     height: 24px;
-}
-
-.status {
-    grid-column: span 2;
-    font-size: 0.8rem;
-    color: var(--text-dim);
+    stroke-width: 2;
 }
 
 .dot {
-    height: 8px; width: 8px;
-    background-color: #00ff00;
+    height: 8px;
+    width: 8px;
+    background: #34c759;
     border-radius: 50%;
     display: inline-block;
-    margin-right: 5px;
-    box-shadow: 0 0 10px #00ff00;
+    margin-right: 8px;
 }
+
 /* 适配手机端 */
 @media (max-width: 480px) {
     .container {
         grid-template-columns: 1fr;
         padding: 20px;
     }
-}
-    
-    .profile {
+    .profile, .status {
         grid-column: span 1;
     }
-    
-    .status {
-        grid-column: span 1;
-    }
-}
-
-.link-box a {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* 图标和文字之间的距离 */
-    text-decoration: none;
-    color: white;
-}
-
-/* 设置图标的大小和颜色 */
-.link-box i {
-    width: 20px;
-    height: 20px;
-    stroke: #6c5ce7; /* 使用你主题的紫色 */
 }
