@@ -122,3 +122,18 @@ p { color: var(--text-dim); font-size: 0.9rem; }
         grid-column: span 1;
     }
 }
+
+.link-box a {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 图标和文字之间的距离 */
+    text-decoration: none;
+    color: white;
+}
+
+/* 设置图标的大小和颜色 */
+.link-box i {
+    width: 20px;
+    height: 20px;
+    stroke: #6c5ce7; /* 使用你主题的紫色 */
+}
