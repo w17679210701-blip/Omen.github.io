@@ -38,7 +38,7 @@ body {
 .container {
     display: grid;
     grid-template-columns: repeat(3, 140px);
-    grid-auto-rows: 140px;
+    grid-auto-rows: minmax(140px, auto);
     gap: 16px;
     padding: 20px;
     perspective: 1000px;
@@ -64,7 +64,7 @@ body {
 }
 
 .bento-item:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-8px) scale(1.01);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     border-color: rgba(255, 255, 255, 0.3);
     z-index: 10;
@@ -73,142 +73,132 @@ body {
 /* --- Profile Card 特效 --- */
 .profile-card { grid-column: span 2; grid-row: span 2; align-items: center; text-align: center; }
 
-/* 1. JAY 水印背景 */
-@keyframes watermarkSync {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(-15px, -10px) rotate(-1deg); }
-    100% { transform: translate(0, 0); }
-}
-
 .profile-card::before {
     content: "JAY";
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: 11rem;
-    color: rgba(255, 255, 255, 0.025);
+    color: rgba(255, 255, 255, 0.025); /* 极低透明度，若隐若现 */
     position: absolute;
     bottom: -30px;
     right: -10px;
     pointer-events: none;
     z-index: 0;
-    animation: watermarkSync 15s ease-in-out infinite;
+    
+    /* --- 核心修复：关联动画 --- */
+    /* 15s 持续时间，ease-in-out 让往返更平滑，infinite 无限循环 */
+    animation: watermarkSync 15s ease-in-out infinite; 
+    
+    /* 硬件加速，防止动画卡顿 */
+    will-change: transform; 
 }
 
-/* 2. 头像金色呼吸光晕 */
+/* 确保动画定义存在（通常在 CSS 末尾或中间） */
+@keyframes watermarkSync {
+    0% { 
+        transform: translate(0, 0) rotate(0deg); 
+    }
+    33% { 
+        transform: translate(-10px, -15px) rotate(1deg); 
+    }
+    66% { 
+        transform: translate(10px, -5px) rotate(-1deg); 
+    }
+    100% { 
+        transform: translate(0, 0) rotate(0deg); 
+    }
+}
+.avatar {
+    width: 72px; height: 72px; border-radius: 50%; overflow: hidden;
+    display: flex; justify-content: center; align-items: center;
+    border: 2px solid #ffcc00; margin-bottom: 20px;
+    position: relative; z-index: 1; animation: auraBreath 4s ease-in-out infinite;
+}
+
 @keyframes auraBreath {
     0% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
-    50% { box-shadow: 0 0 35px rgba(255, 204, 0, 0.6), 0 0 12px rgba(255, 204, 0, 0.3); }
+    50% { box-shadow: 0 0 35px rgba(255, 204, 0, 0.6); }
     100% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
-}
-
-.avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid #ffcc00;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 1;
-    animation: auraBreath 4s ease-in-out infinite;
 }
 
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* 3. 名字 OMEN */
-.profile-card h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.6rem;
-    margin: 0;
-    font-weight: 900;
-    letter-spacing: 2px;
-    position: relative;
-    z-index: 1;
-    background: linear-gradient(180deg, #ffffff 30%, #cccccc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
-}
-
-/* --- [修改] 太阳之子：线字同宽 + 流动光晕 --- */
+/* 太阳之子文字与金线 */
 .profile-card .description {
-    /* 1. 字体：优先调用苹果/安卓/Windows自带的高级衬线体，最后才是谷歌字体 */
-    font-family: "Songti SC", "STSong", "华文宋体", "Source Han Serif SC", "Noto Serif SC", serif;
-    font-weight: 200;       /* 极细，这是复刻图片质感的关键 */
-    font-size: 1.4rem;      /* 继续放大字号 */
-    color: #ffcc00;
-    
-    /* 2. 间距修正：解决“线不居中”的物理偏差 */
-    letter-spacing: 0.45em;   
-    padding-left: 0.45em;   /* 抵消右侧间距，确保文字物理重心居中 */
-    
-    text-transform: uppercase;
+    font-family: "Songti SC", "STSong", "华文宋体", serif;
+    font-weight: 200; font-size: 1.4rem; color: #ffcc00;
+    letter-spacing: 0.45em; padding-left: 0.45em;
     margin: 12px auto 0 auto;
-    opacity: 1;
-    text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
-    
-   /* 3. 布局：强制垂直中轴线对齐 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: fit-content;    /* 宽度由文字决定 */
-    position: relative;
-    z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    width: fit-content; position: relative; z-index: 2;
 }
 
-
-/* 4. [核心修改] 装饰横线：调整为和文字一样宽，并添加流动光晕 */
 .profile-card .description::before {
-   content: "";
-    width: 100%;           /* 强制与文字容器完全等宽 */
-    height: 1.2px;         /* 线条再细一点，更精致 */
-    margin-bottom: 15px;
-    display: block;
-    
-   /* 扫光背景 */
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(255, 204, 0, 0.2) 20%, 
-        #ffcc00 50%, 
-        rgba(255, 204, 0, 0.2) 80%, 
-        transparent 100%
-    );
-    background-size: 200% 100%;
-    
-    animation: goldenSweep 4s linear infinite;
-    
-    /* 关键：补偿文字的 padding，让线在视觉上和字对齐 */
-    margin-left: -0.45em; 
+    content: ""; width: 100%; height: 1.2px; margin-bottom: 15px;
+    display: block; margin-left: -0.45em;
+    background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.2), #ffcc00, rgba(255, 204, 0, 0.2), transparent);
+    background-size: 200% 100%; animation: goldenSweep 4s linear infinite;
 }
 
-/* 5. 定义金色扫光动画 */
 @keyframes goldenSweep {
     0% { background-position: 150% 0; }
     100% { background-position: -150% 0; }
 }
 
-/* 优化主标题 OMEN，与下方大字体拉开距离 */
-.profile-card h1 {
-    font-size: 1.8rem;
-    letter-spacing: 5px;
-    margin-top: 5px;
+/* --- 视频卡片 --- */
+.video-card {
+    grid-column: span 2;
+    aspect-ratio: 1 / 1;
+    padding: 0 !important;
+    background: #000;
+}
+
+.bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+/* --- GitHub 卡片：加宽并居中对齐 --- */
+.github-card {
+    grid-column: span 3; /* 横跨三列，和下面的 status-card 一样宽 */
+    min-height: 80px; 
+    flex-direction: row !important; /* 图标文字横着排 */
+    justify-content: center;
+    gap: 12px;
+}
+
+.github-card a {
+    flex-direction: row !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* --- 底部状态栏 --- */
+.status-card { 
+    grid-column: span 3; 
+    min-height: 60px; 
+    flex-direction: row; 
+    align-items: center; 
+    justify-content: flex-start;
 }
 
 /* --- 其他卡片逻辑 --- */
-.about-card { grid-column: span 1; grid-row: span 1; }
-.link-card { grid-column: span 1; grid-row: span 1; align-items: center; }
-.status-card { grid-column: span 3; grid-row: span 0.5; flex-direction: row; align-items: center; height: 60px; justify-content: flex-start; }
+.about-card { grid-column: span 1; }
+.link-card { grid-column: span 1; align-items: center; }
 
 .link-card a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; opacity: 0.9; }
+.icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; }
 
-h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+h3 { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; }
 p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; margin: 0; }
 
-/* 状态指示灯 */
 .dot { 
     width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px; 
     box-shadow: 0 0 12px #34c759; animation: pulse 2s infinite; 
@@ -220,16 +210,62 @@ p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; margin
     100% { opacity: 1; transform: scale(1); }
 }
 
-/* --- 响应式调整 --- */
 @media (max-width: 480px) {
-    .container {
-        grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: minmax(130px, auto);
-        gap: 12px;
-        width: 94vw;
-        padding: 10px;
-    }
-    .profile-card { grid-column: span 2; }
-    .status-card { grid-column: span 2; }
-    .profile-card::before { font-size: 7rem; }
+    .container { grid-template-columns: repeat(2, 1fr); width: 94vw; }
+    .profile-card, .video-card, .github-card, .status-card { grid-column: span 2; }
+}
+
+/* --- 销量卡片专项修复 --- */
+.sales-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 18px !important;
+}
+
+.sales-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.sales-header h3 {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+}
+
+#sales-count {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #ffcc00; /* 太阳之子金 */
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+    margin: 8px 0;
+    transition: transform 0.1s ease-out;
+    display: inline-block;
+}
+
+.sales-badge {
+    align-self: flex-start;
+    background: rgba(255, 204, 0, 0.1);
+    color: #ffcc00;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 204, 0, 0.2);
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.icon-small {
+    width: 14px;
+    height: 14px;
+    stroke: #ffcc00;
 }
