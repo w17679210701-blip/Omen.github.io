@@ -47,32 +47,47 @@ if (salesEl) {
     syncSales();
 }
 
-window.addEventListener('load', () => {
+// 修改这里：DOMContentLoaded 比 load 快得多！
+document.addEventListener('DOMContentLoaded', () => {
     const particleBox = document.getElementById('particle-box');
-    const particleCount = 60;
+    const particleCount = 60; 
+
     if (particleBox) {
+        // 先清空一次，防止重复生成
+        particleBox.innerHTML = ''; 
+
         for (let i = 0; i < particleCount; i++) {
             const p = document.createElement('div');
             p.className = 'custom-particle';
+            
             const size = Math.random() * 3 + 1;
             p.style.width = `${size}px`;
             p.style.height = `${size}px`;
             p.style.left = '50%';
             p.style.top = '50%';
+            
             const angle = Math.random() * Math.PI * 2;
             const dist = Math.random() * 300 + 200;
             const tx = Math.cos(angle) * dist + 'px';
             const ty = Math.sin(angle) * dist + 'px';
+            
             p.style.setProperty('--tx', tx);
             p.style.setProperty('--ty', ty);
+            
             const duration = Math.random() * 8 + 4;
-            const delay = Math.random() * -15;
+            // 关键：负延迟 (-15s) 让粒子一出来就是运动中的状态，不需要从 0 开始飞
+            const delay = Math.random() * -15; 
+            
             p.style.animation = `particleRun ${duration}s linear infinite ${delay}s`;
             particleBox.appendChild(p);
         }
     }
+
+    // 遮罩层消失的逻辑依然可以保留在 load 里，或者就在这里处理
     const loader = document.getElementById('loader-wrapper');
     const container = document.querySelector('.container');
+
+    // 这里的 4000ms 是你预设的强制展示时间，你可以根据需要缩短
     setTimeout(() => {
         if (loader) {
             loader.style.opacity = '0';
@@ -80,7 +95,7 @@ window.addEventListener('load', () => {
             if (container) container.classList.add('show');
             setTimeout(() => { loader.style.display = 'none'; }, 1500);
         }
-    }, 4000); 
+    }, 3500); // 稍微缩短一点，体感更快
 });
 
 if (window.lucide) {
