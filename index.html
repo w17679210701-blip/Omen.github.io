@@ -11,7 +11,7 @@
 
 <body>
     <div class="container">
-        
+
         <div class="bento-item profile-card" onclick="flipAllCards()">
             <div class="bento-inner">
                 <div class="bento-front">
@@ -29,17 +29,17 @@
             </div>
         </div>
 
-        <div class="bento-item video-card">
+        <div class="bento-item video-card" onclick="switchVideo(this)">
             <div class="bento-inner">
                 <div class="bento-front">
-                    <video autoplay muted loop playsinline disablePictureInPicture class="bg-video">
-                        <source src="videos/IMG_5533.MP4" type="video/mp4">
+                    <video id="video-a" autoplay muted loop playsinline disablePictureInPicture class="bg-video">
+                        <source src="videos/jayvideo1.MP4" type="video/mp4">
                     </video>
                 </div>
-                <div class="bento-back">
-                    <i data-lucide="play-circle" style="width:40px; height:40px; color:var(--accent)"></i>
-                    <h3>视频参数</h3>
-                    <p>4K H.264 High Performance</p>
+                <div class="bento-back" style="padding:0 !important; background:#000;">
+                    <video id="video-b" muted loop playsinline disablePictureInPicture class="bg-video">
+                        <source src="" type="video/mp4">
+                    </video>
                 </div>
             </div>
         </div>
@@ -106,44 +106,8 @@
     </div>
 
     <script>
-        // 1. 初始化 Lucide 图标
         lucide.createIcons();
-
-        // 2. 全场卡片矩阵同步翻转逻辑
-        function flipAllCards() {
-            const items = document.querySelectorAll('.bento-item');
-            items.forEach((item, index) => {
-                // 增加一点微小的延迟间隔，产生波浪翻转效果（可选）
-                setTimeout(() => {
-                    item.classList.toggle('is-flipped');
-                }, index * 50); 
-            });
-        }
-
-        // 3. 实时销量模拟逻辑
-        function initSalesCounter() {
-            const salesElement = document.getElementById('sales-count');
-            if (!salesElement) return;
-
-            let currentSales = 2854320;
-            const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            salesElement.innerText = formatNumber(currentSales);
-
-            setInterval(() => {
-                const now = new Date();
-                const hour = now.getHours();
-                let increment = (hour >= 10 && hour <= 22) ? Math.floor(Math.random() * 8) + 2 : Math.floor(Math.random() * 3);
-
-                currentSales += increment;
-                salesElement.innerText = formatNumber(currentSales);
-
-                salesElement.style.transform = "scale(1.05)";
-                setTimeout(() => salesElement.style.transform = "scale(1)", 100);
-            }, 2500);
-        }
-
-        initSalesCounter();
     </script>
+    <script src="script.js"></script>
 </body>
-
 </html>
