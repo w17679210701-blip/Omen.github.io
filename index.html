@@ -95,19 +95,24 @@
     </div>
 </a>
 
-        <div class="bento-item link-card github-card">
-            <div class="bento-inner">
-                <div class="bento-front">
-                        <i data-lucide="github"></i>
-                        <span>GitHub</span>
-                    </a>
-                </div>
-                <div class="bento-back">
-                    <p>SOURCE</p>
-                    <span>查看仓库</span>
-                </div>
-            </div>
+<div id="bento-overlay" onclick="closeAllBento()"></div>
+
+<div class="bento-item github-card" onclick="toggleExpand(this)">
+    <div class="bento-inner">
+        <div class="bento-front">
+            <i data-lucide="github"></i>
+            <span>GitHub</span>
         </div>
+        <div class="bento-back">查看仓库</div>
+    </div>
+
+    <div class="expanded-detail" style="display: none;">
+        <i data-lucide="github" style="width: 48px; height: 48px; color: var(--accent);"></i>
+        <h2 style="margin: 20px 0 10px;">My GitHub</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px;">这里是我的开源项目集合</p>
+        <a href="你的链接" class="visit-btn" style="padding: 10px 30px; background: var(--accent); color: #000; border-radius: 20px; text-decoration: none; font-weight: bold;">立即访问</a>
+    </div>
+</div>
 
         <div class="bento-item status-card">
             <div class="bento-inner">

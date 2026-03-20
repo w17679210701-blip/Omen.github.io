@@ -291,4 +291,3 @@ a { text-decoration: none; color: white; display: flex; flex-direction: column; 
     40% { transform: scale(1.1); filter: brightness(2); box-shadow: 0 0 50px var(--accent); }
     100% { transform: scale(0); filter: brightness(5); opacity: 0; }
 }
-
