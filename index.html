@@ -1,30 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMEN OMEN | OMEN OMEN</title>
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=4.0">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-
 <body>
-    <div class="container">
+    <div class="container" id="main-container">
 
         <div class="bento-item profile-card" onclick="flipAllCards()">
             <div class="bento-inner">
                 <div class="bento-front">
-                    <div class="avatar">
-                        <img src="images/avatar.jpg" alt="头像">
+                    <div class="avatar"><img src="images/avatar.jpg" alt="头像"></div>
+                    <div class="info-text">
+                        <h1>OMEN</h1>
+                        <p class="description">太阳之子</p>
                     </div>
-                    <h1>OMEN</h1>
-                    <p class="description">太阳之子</p>
                 </div>
                 <div class="bento-back">
                     <h2 style="color:var(--accent)">控制中心</h2>
                     <p>点击返回首页</p>
-                    <div style="margin-top:15px; font-size: 0.8rem; opacity: 0.6;">DEVICE: UNI-V</div>
                 </div>
             </div>
         </div>
@@ -32,19 +29,19 @@
         <div class="bento-item video-card" onclick="switchVideo(this)">
             <div class="bento-inner">
                 <div class="bento-front">
-                    <video id="video-a" autoplay muted loop playsinline disablePictureInPicture class="bg-video">
+                    <video id="video-a" autoplay muted loop playsinline class="bg-video">
                         <source src="videos/jayvideo1.MP4" type="video/mp4">
                     </video>
                 </div>
                 <div class="bento-back" style="padding:0 !important; background:#000;">
-                    <video id="video-b" muted loop playsinline disablePictureInPicture class="bg-video">
+                    <video id="video-b" muted loop playsinline class="bg-video">
                         <source src="" type="video/mp4">
                     </video>
                 </div>
             </div>
         </div>
 
-        <div class="bento-item about-card sales-card">
+        <div class="bento-item sales-card">
             <div class="bento-inner">
                 <div class="bento-front">
                     <div class="sales-header">
@@ -56,7 +53,7 @@
                 </div>
                 <div class="bento-back">
                     <h3>实时数据源</h3>
-                    <p>每 2.5s 自动同步全网订单数据</p>
+                    <p>每 2.5s 同步</p>
                 </div>
             </div>
         </div>
@@ -66,48 +63,47 @@
                 <div class="bento-front">
                     <a href="#">
                         <i data-lucide="video" class="icon"></i>
-                        <span>章延拉粑粑</span>
+                        <span>视频号</span>
                     </a>
                 </div>
                 <div class="bento-back">
-                    <p>WeChat Channel</p>
-                    <span>点击跳转视频号</span>
+                    <p>CHANNEL</p>
+                    <span>点击跳转</span>
                 </div>
             </div>
         </div>
 
-        <div class="bento-item link-card github-card">
-            <div class="bento-inner">
-                <div class="bento-front">
-                    <a href="https://github.com/w17679210701-blip">
-                        <i data-lucide="github"></i>
-                        <span>GitHub</span>
-                    </a>
-                </div>
-                <div class="bento-back">
-                    <p>Open Source Project</p>
-                    <span>查看我的代码仓库</span>
-                </div>
-            </div>
+        <div class="bento-item link-card">
+    <div class="bento-inner">
+        <div class="bento-front">
+            <i data-lucide="code-2" class="icon"></i>
+            <span>技术栈</span>
         </div>
+        <div class="bento-back"><p>Vue / CSS / AI</p></div>
+    </div>
+</div>
+
+<div class="bento-item link-card github-card">
+    <div class="bento-inner">
+        <div class="bento-front">
+            <a href="你的链接"><i data-lucide="github"></i><span>GitHub</span></a>
+        </div>
+        <div class="bento-back"><p>SOURCE CODE</p></div>
+    </div>
+</div>
 
         <div class="bento-item status-card">
             <div class="bento-inner">
                 <div class="bento-front">
                     <span class="dot"></span>
-                    <p>章延正在拉粑粑...</p>
+                    <p>系统运行中...</p>
                 </div>
                 <div class="bento-back">
-                    <p>System Status: Online</p>
-                    <span style="font-size: 10px;">LATENCY: 24ms</span>
+                    <p>ONLINE</p>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        lucide.createIcons();
-    </script>
     <script src="script.js"></script>
 </body>
 </html>

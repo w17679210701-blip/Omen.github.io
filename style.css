@@ -244,3 +244,148 @@ a { text-decoration: none; color: white; display: flex; flex-direction: column; 
         font-size: 1.5rem !important;
     }
 }
+
+/* 强制修复：当卡片处于翻转状态时，隐藏所有正面的装饰元素 */
+.is-flipped .bento-front *, 
+.all-flipped .bento-front * {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* 特别针对那条金线：确保它在背面绝对不出现 */
+.bento-item.is-flipped .description::before,
+.container.all-flipped .description::before {
+    display: none !important;
+}
+
+/* 如果你的金线是加在 .bento-back 上的，请用这段 */
+.bento-back::before, 
+.bento-back::after {
+    content: none !important;
+    display: none !important;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Serif+SC:wght@200;700&display=swap');
+
+:root {
+    --card-bg: rgba(255, 255, 255, 0.08); 
+    --accent: #ffcc00; 
+}
+
+body {
+    margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+    background-color: #0e0e10; 
+    background-image: radial-gradient(at 0% 0%, #2c2c8a 0px, transparent 50%), radial-gradient(at 100% 100%, #156666 0px, transparent 50%);
+    background-size: 200% 200%; animation: gradientFlow 15s ease infinite;
+}
+@keyframes gradientFlow { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
+
+.container { display: grid; grid-template-columns: repeat(3, 140px); grid-auto-rows: minmax(140px, auto); gap: 16px; }
+
+/* 翻转逻辑 */
+.bento-item { perspective: 1200px; cursor: pointer; }
+.bento-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* 独立翻转与全局翻转 */
+.bento-item.is-flipped .bento-inner,
+.container.all-flipped .bento-inner { transform: rotateY(180deg); }
+
+.bento-front, .bento-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 28px;
+    background: var(--card-bg); backdrop-filter: blur(25px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex; flex-direction: column; justify-content: center; padding: 20px; box-sizing: border-box; color: white; overflow: hidden;
+}
+.bento-back { transform: rotateY(180deg); background: rgba(255, 255, 255, 0.05); align-items: center; text-align: center; }
+
+/* 尺寸定义 */
+.profile-card { grid-column: span 2; height: 140px; }
+.video-card { grid-column: span 2; height: 296px; }
+.github-card, .status-card { grid-column: span 3; height: 60px; }
+.sales-card, .link-card { height: 140px; }
+
+/* 首页金线 */
+.profile-card .description::before {
+    content: ""; width: 40px; height: 1.2px; margin-bottom: 6px; 
+    background: linear-gradient(90deg, #ffcc00, transparent); display: block;
+}
+
+/* 强制隐藏全场翻转时的正面内容（彻底杀掉金线） */
+.container.all-flipped .bento-front * { opacity: 0 !important; }
+
+/* 销量与组件样式 */
+#sales-count { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+.avatar { width: 66px; height: 66px; border: 2px solid var(--accent); border-radius: 50%; overflow: hidden; margin-right: 20px; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-card .bento-front { flex-direction: row; align-items: center; }
+.bg-video { width: 100%; height: 100%; object-fit: cover; }
+.icon { stroke: white; width: 28px; height: 28px; }
+.dot { width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px; box-shadow: 0 0 12px #34c759; }
+a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+@media (max-width: 480px) {
+    .container { grid-template-columns: repeat(2, 1fr); width: 94vw; padding-top: 50px; }
+    .profile-card, .video-card, .github-card, .status-card { grid-column: span 2; }
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 140px);
+    grid-auto-rows: 140px; /* 👈 统一行高基准 */
+    gap: 16px;            /* 👈 所有的间距都由这里控制 */
+    padding: 20px;
+}
+
+/* 尺寸定义：使用 span 来占据网格单元 */
+.profile-card { grid-column: span 2; grid-row: span 1; height: 100%; } 
+.video-card   { grid-column: span 2; grid-row: span 2; height: 100%; } 
+.sales-card   { grid-column: span 1; grid-row: span 1; height: 100%; }
+.link-card    { grid-column: span 1; grid-row: span 1; height: 100%; }
+.github-card  { grid-column: span 3; height: 80px; } /* 底部长条保持原样 */
+.status-card  { grid-column: span 3; height: 60px; }
+
+@media (max-width: 480px) {
+    body {
+        align-items: flex-start; /* 解决顶部黑边 */
+    }
+
+    .container {
+        grid-template-columns: repeat(2, 1fr); /* 手机端强制2列 */
+        grid-auto-rows: minmax(120px, auto);
+        gap: 12px;   /* 👈 手机端间距稍微缩小一点点，更精致 */
+        width: 92vw;
+        padding: 60px 15px 20px 15px;
+    }
+
+
+    /* 手机端让所有卡片都撑满宽度或按比例排列 */
+    .profile-card, .video-card, .github-card, .status-card {
+        grid-column: span 2; 
+    }
+    
+    .sales-card, .link-card {
+        grid-column: span 1;
+    }
+
+    /* ❌ 删掉之前代码里的 .profile-card { height: 120px !important; } */
+    /* ❌ 删掉之前代码里的 .video-card { margin-top: 0 !important; } */
+    
+    /* 统一设置高度，确保视觉对齐 */
+    .profile-card { height: 130px; }
+    .video-card   { height: 280px; }
+}
+
+/* 确保 GitHub 和新卡片所在的行是并排的 */
+.github-card {
+    grid-column: span 1 !important; /* 👈 强制从全宽改为占 1 格 */
+}
+
+/* 移动端适配：确保在手机上也是两个并排，或者保持统一间距 */
+@media (max-width: 480px) {
+    /* 如果你希望 GitHub 这一行在手机上也是两个并排 */
+    .link-card, .github-card {
+        grid-column: span 1 !important;
+        height: 130px; /* 保持和上面的销量卡片高度一致，最对称 */
+    }
+    
+    
+}
