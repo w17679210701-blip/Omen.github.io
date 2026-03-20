@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="style.css?v=4.0">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <div class="container" id="main-container">
 
@@ -29,7 +31,9 @@
         <div class="bento-item video-card" onclick="switchVideo(this)">
             <div class="bento-inner">
                 <div class="bento-front">
-                    <video id="video-a" autoplay muted loop playsinline class="bg-video">
+                    <video id="video-a" webkit-playsinline playsinline x5-video-player-type="h5-page"
+                        x5-video-orientation="portrait" preload="metadata" autoplay muted loop class="bg-video"
+                        style="object-fit: cover;">
                         <source src="videos/jayvideo1.MP4" type="video/mp4">
                     </video>
                 </div>
@@ -46,7 +50,7 @@
                 <div class="bento-front">
                     <div class="sales-header">
                         <i data-lucide="trending-up" class="icon-small"></i>
-                        <h3>全网实时销量</h3>
+                        <h3>实时销量（QQ音乐）</h3>
                     </div>
                     <p id="sales-count">loading...</p>
                     <div class="sales-badge">LIVE</div>
@@ -73,30 +77,32 @@
             </div>
         </div>
 
-      <div class="bento-item link-card">
-    <div class="bento-inner">
-        <div class="bento-front">
-            <i data-lucide="code-2" class="icon"></i>
-            <span>技术栈</span>
+        <div class="bento-item link-card">
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <i data-lucide="code-2" class="icon"></i>
+                    <span>技术栈</span>
+                </div>
+                <div class="bento-back">
+                    <p>Vue / CSS / AI</p>
+                </div>
+            </div>
         </div>
-        <div class="bento-back"><p>Vue / CSS / AI</p></div>
-    </div>
-</div>
 
-<div class="bento-item link-card github-card">
-    <div class="bento-inner">
-        <div class="bento-front">
-            <a href="https://github.com/你的链接">
-                <i data-lucide="github"></i>
-                <span>GitHub</span>
-            </a>
+        <div class="bento-item link-card github-card">
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <a href="https://github.com/你的链接">
+                        <i data-lucide="github"></i>
+                        <span>GitHub</span>
+                    </a>
+                </div>
+                <div class="bento-back">
+                    <p>SOURCE</p>
+                    <span>查看仓库</span>
+                </div>
+            </div>
         </div>
-        <div class="bento-back">
-            <p>SOURCE</p>
-            <span>查看仓库</span>
-        </div>
-    </div>
-</div>
 
         <div class="bento-item status-card">
             <div class="bento-inner">
@@ -112,4 +118,5 @@
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>
