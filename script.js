@@ -8,82 +8,117 @@ const myVideos = [
 let videoIndex = 0;
 let isVideoFlipping = false;
 
-// --- 逻辑 A: 视频卡片独立循环切换 ---
 function switchVideo(card) {
     if (isVideoFlipping) return;
     isVideoFlipping = true;
-
     const isCurrentlyFlipped = card.classList.toggle('is-flipped');
     videoIndex = (videoIndex + 1) % myVideos.length;
     const nextSrc = myVideos[videoIndex];
-
-    const nextVideoElement = isCurrentlyFlipped ? 
-        document.getElementById('video-b') : 
-        document.getElementById('video-a');
-
+    const nextVideoElement = isCurrentlyFlipped ? document.getElementById('video-b') : document.getElementById('video-a');
     if (nextVideoElement) {
         nextVideoElement.src = nextSrc;
         nextVideoElement.load();
         nextVideoElement.play();
     }
-
-    setTimeout(() => {
-        isVideoFlipping = false;
-    }, 800);
+    setTimeout(() => { isVideoFlipping = false; }, 800);
 }
 
-// --- 逻辑 B: 点击第一个卡片触发全场翻转 ---
 function flipAllCards() {
-    // 找到页面上所有的 bento-item
     const allCards = document.querySelectorAll('.bento-item');
-    
-    allCards.forEach(card => {
-        // 如果是视频卡片，我们只翻转它，不触发视频源切换逻辑
-        // 如果你想让视频也跟着转，就保留下面这一行
-        card.classList.toggle('is-flipped');
-    });
+    allCards.forEach(card => { card.classList.toggle('is-flipped'); });
 }
 
-// --- 销量逻辑：全球时间同步版 ---
-const START_COUNT = 415113; // 初始销量
-const START_TIME = new Date('2026-03-20T10:00:00').getTime(); // 设置一个开售时间（必须是过去的时间）
-const RATE_PER_SECOND = 2; // 平均每秒涨2个 (即2秒4个)
-
+const START_COUNT = 415113;
+const START_TIME = new Date('2026-03-20T10:00:00').getTime();
+const RATE_PER_SECOND = 2;
 const salesEl = document.getElementById('sales-count');
 
 function syncSales() {
     const now = new Date().getTime();
     const secondsPassed = Math.floor((now - START_TIME) / 1000);
-    
-    // 如果还没到开售时间，就显示初始值
     let currentTotal = START_COUNT;
-    if (secondsPassed > 0) {
-        currentTotal += secondsPassed * RATE_PER_SECOND;
-    }
-
-    // 为了让它看起来有跳动感，加一个 3~5 的随机微调
+    if (secondsPassed > 0) { currentTotal += secondsPassed * RATE_PER_SECOND; }
     const jitter = Math.floor(Math.random() * 3) + 3;
-    salesEl.innerText = (currentTotal + jitter).toLocaleString();
+    if (salesEl) salesEl.innerText = (currentTotal + jitter).toLocaleString();
 }
 
 if (salesEl) {
-    // 2秒刷新一次
     setInterval(syncSales, 2000);
-    syncSales(); // 初始化
+    syncSales();
 }
 
 window.addEventListener('load', () => {
+    const particleBox = document.getElementById('particle-box');
+    const particleCount = 60;
+    if (particleBox) {
+        for (let i = 0; i < particleCount; i++) {
+            const p = document.createElement('div');
+            p.className = 'custom-particle';
+            const size = Math.random() * 3 + 1;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = '50%';
+            p.style.top = '50%';
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * 300 + 200;
+            const tx = Math.cos(angle) * dist + 'px';
+            const ty = Math.sin(angle) * dist + 'px';
+            p.style.setProperty('--tx', tx);
+            p.style.setProperty('--ty', ty);
+            const duration = Math.random() * 8 + 4;
+            const delay = Math.random() * -15;
+            p.style.animation = `particleRun ${duration}s linear infinite ${delay}s`;
+            particleBox.appendChild(p);
+        }
+    }
     const loader = document.getElementById('loader-wrapper');
     const container = document.querySelector('.container');
-
-    // 1.5秒后开始淡出，给用户留出看Logo的时间
     setTimeout(() => {
-        loader.classList.add('fade-out'); // 遮罩淡出
-        container.classList.add('show');  // 内容浮现
-    }, 1500);
+        if (loader) {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            if (container) container.classList.add('show');
+            setTimeout(() => { loader.style.display = 'none'; }, 1500);
+        }
+    }, 4000); 
 });
 
-// 初始化 Lucide 图标（确保图标渲染）
 if (window.lucide) {
     window.lucide.createIcons();
 }
+
+document.querySelector('.link-card .card-anchor').addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetUrl = this.href;
+    const card = this.closest('.link-card');
+    const x = e.clientX;
+    const y = e.clientY;
+
+    let overlay = document.querySelector('.portal-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'portal-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    overlay.style.setProperty('--x', x + 'px');
+    overlay.style.setProperty('--y', y + 'px');
+    
+    // 1. 卡片坍缩（蓄力）
+    card.classList.add('card-implode');
+
+    // 2. 稍微缩短等待时间，让蒙版更早出发
+    setTimeout(() => {
+        document.body.classList.add('portal-active');
+        
+        // 3. 【核心优化】在蒙版扩散到一半（约 400ms）时，就开始让浏览器拉取新页面
+        // 这时候用户视觉上还在看“扩散动画”，其实后台已经在 load 了
+        setTimeout(() => {
+            window.location.href = targetUrl;
+        }, 400); 
+
+    }, 250);
+
+    // 注意：这里不需要再写移除 overlay 的代码
+    // 让它一直全黑挡着，直到跳转成功。
+});

@@ -10,69 +10,108 @@
     --accent: #ffcc00;
 }
 
-/* --- 高级开场遮罩 --- */
 #loader-wrapper {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: #050505; /* 纯黑背景 */
+    background: radial-gradient(circle at center, #0a0a12 0%, #050505 100%);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
+    overflow: hidden;
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sun-halo {
+    position: absolute;
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, rgba(255, 204, 0, 0.25) 0%, rgba(255, 153, 0, 0.1) 40%, transparent 75%);
+    border-radius: 50%;
+    filter: blur(50px);
+    animation: haloBreath 5s ease-in-out infinite;
+    z-index: 1;
+}
+
+.custom-particle {
+    position: absolute;
+    background: #ffcc00;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+}
+
+@keyframes particleRun {
+    0% { transform: translate(0, 0) scale(1); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.6; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+@keyframes haloBreath {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
 }
 
 .loader-content {
+    position: relative;
+    display: inline-block;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    z-index: 10;
+    animation: contentEntrance 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards, contentBreath 4s ease-in-out infinite 1.2s;
 }
 
 .loader-logo {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: 3rem;
-    color: #fff;
-    letter-spacing: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.15);
     margin: 0;
-    /* 文字呼吸渐起动画 */
-    animation: logoFade 2s ease-in-out forwards;
-    opacity: 0;
+    white-space: nowrap;
 }
 
-.loader-line {
-    width: 0;
-    height: 1.5px;
-    background: linear-gradient(90deg, transparent, #ffcc00, transparent);
-    margin-top: 15px;
-    /* 金线向两边延展 */
-    animation: lineExtend 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.5s;
+.shimmer-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 3rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: goldSweepAction 2.5s ease-in-out infinite;
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
 }
 
-/* 退出状态 */
-#loader-wrapper.fade-out {
-    opacity: 0;
-    visibility: hidden;
+@keyframes goldSweepAction {
+    0% { clip-path: polygon(-30% 0%, -10% 0%, 0% 100%, -20% 100%); }
+    70%, 100% { clip-path: polygon(110% 0%, 130% 0%, 120% 100%, 100% 100%); }
 }
 
-/* --- 动画定义 --- */
-@keyframes logoFade {
-    0% { opacity: 0; transform: translateY(10px); filter: blur(5px); }
-    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+@keyframes contentEntrance {
+    0% { opacity: 0; transform: scale(0.8); filter: blur(10px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
 }
 
-@keyframes lineExtend {
-    0% { width: 0; opacity: 0; }
-    100% { width: 120px; opacity: 1; }
+@keyframes contentBreath {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
 }
 
-/* 让主体内容初始状态稍微往下沉一点点，产生进场感 */
 .container {
     opacity: 0;
     transform: translateY(20px);
-    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s;
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: grid;
+    grid-template-columns: repeat(3, 140px);
+    grid-auto-rows: 140px;
+    gap: 16px;
+    padding: 20px;
 }
 
 .container.show {
@@ -80,9 +119,6 @@
     transform: translateY(0);
 }
 
-/* =========================================
-   2. 全局动态背景
-   ========================================= */
 body {
     margin: 0;
     display: flex;
@@ -90,10 +126,7 @@ body {
     align-items: center;
     min-height: 100vh;
     background-color: #0e0e10;
-    background-image:
-        radial-gradient(at 0% 0%, #2c2c8a 0px, transparent 50%),
-        radial-gradient(at 100% 100%, #156666 0px, transparent 50%),
-        radial-gradient(at 80% 20%, #8a3d3d 0px, transparent 35%);
+    background-image: radial-gradient(at 0% 0%, #2c2c8a 0px, transparent 50%), radial-gradient(at 100% 100%, #156666 0px, transparent 50%), radial-gradient(at 80% 20%, #8a3d3d 0px, transparent 35%);
     background-size: 200% 200%;
     animation: gradientFlow 15s ease infinite;
     background-attachment: fixed;
@@ -107,20 +140,6 @@ body {
     50% { background-position: 100% 100%; }
 }
 
-/* =========================================
-   3. 布局容器
-   ========================================= */
-.container {
-    display: grid;
-    grid-template-columns: repeat(3, 140px);
-    grid-auto-rows: 140px; /* 统一行高基准 */
-    gap: 16px;
-    padding: 20px;
-}
-
-/* =========================================
-   4. 矩阵翻转逻辑
-   ========================================= */
 .bento-item {
     position: relative;
     perspective: 1200px;
@@ -141,15 +160,11 @@ body {
     transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 翻转状态 */
 .bento-item.is-flipped .bento-inner,
 .container.all-flipped .bento-inner {
     transform: rotateY(180deg);
 }
 
-/* =========================================
-   5. 正反面共有样式
-   ========================================= */
 .bento-front, .bento-back {
     position: absolute;
     width: 100%;
@@ -178,148 +193,98 @@ body {
     text-align: center;
 }
 
-/* =========================================
-   6. 卡片尺寸定义
-   ========================================= */
 .profile-card { grid-column: span 2; grid-row: span 1; height: 100%; }
 .video-card   { grid-column: span 2; grid-row: span 2; height: 100%; }
 .sales-card, .link-card { grid-column: span 1; grid-row: span 1; height: 100%; }
-.github-card  { grid-column: span 1; height: 100%; } /* 对称版：占1格 */
+.github-card  { grid-column: span 1; height: 100%; }
 .status-card  { grid-column: span 3; height: 60px; margin-top: 4px; }
 
-/* =========================================
-   7. Profile Card 特别定制
-   ========================================= */
-.profile-card .bento-front {
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 20px;
-    padding-left: 25px;
-}
-
-.avatar {
-    width: 66px;
-    height: 66px;
-    border: 2px solid var(--accent);
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    animation: auraBreath 4s ease-in-out infinite;
-}
-
+.profile-card .bento-front { flex-direction: row; align-items: center; justify-content: flex-start; gap: 20px; padding-left: 25px; }
+.avatar { width: 66px; height: 66px; border: 2px solid var(--accent); border-radius: 50%; overflow: hidden; flex-shrink: 0; animation: auraBreath 4s ease-in-out infinite; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-card h1 { margin: 0; font-size: 1.6rem; line-height: 1.1; margin-bottom: 4px; }
+.profile-card .description { font-size: 0.95rem; letter-spacing: 0.15em; color: var(--accent); display: flex; flex-direction: column; align-items: flex-start; }
+.profile-card .description::before { content: ""; width: 40px; height: 1.2px; margin-bottom: 6px; background: linear-gradient(90deg, var(--accent), transparent); display: block; }
+.profile-card .bento-front::before { content: "JAY"; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 6rem; color: rgba(255, 255, 255, 0.025); position: absolute; bottom: -15px; right: 10px; z-index: 0; }
 
-.profile-card h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    line-height: 1.1;
-    margin-bottom: 4px;
-}
-
-.profile-card .description {
-    font-size: 0.95rem;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.profile-card .description::before {
-    content: "";
-    width: 40px;
-    height: 1.2px;
-    margin-bottom: 6px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-    display: block;
-}
-
-/* JAY 水印 */
-.profile-card .bento-front::before {
-    content: "JAY";
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: 6rem;
-    color: rgba(255, 255, 255, 0.025);
-    position: absolute;
-    bottom: -15px;
-    right: 10px;
-    z-index: 0;
-}
-
-/* =========================================
-   8. 其他组件特效
-   ========================================= */
-@keyframes auraBreath {
-    0%, 100% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
-    50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.5); }
-}
+@keyframes auraBreath { 0%, 100% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); } 50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.5); } }
 
 .video-card .bento-front { padding: 0 !important; background: #000; }
 .bg-video { width: 100%; height: 100%; object-fit: cover; }
 
-#sales-count {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.8rem; font-weight: 900; color: var(--accent);
-    text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
-    margin: 5px 0;
-}
-
-.sales-badge {
-    background: rgba(255, 204, 0, 0.1); color: var(--accent);
-    font-size: 10px; padding: 2px 8px; border-radius: 10px;
-    border: 1px solid rgba(255, 204, 0, 0.2);
-}
-
-.dot {
-    width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px;
-    box-shadow: 0 0 12px #34c759; animation: pulse 2s infinite;
-}
-
+#sales-count { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 15px rgba(255, 204, 0, 0.5); margin: 5px 0; }
+.sales-badge { background: rgba(255, 204, 0, 0.1); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255, 204, 0, 0.2); }
+.dot { width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px; box-shadow: 0 0 12px #34c759; animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-/* =========================================
-   9. 图标与通用
-   ========================================= */
 .icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; }
 .icon-small { width: 14px; height: 14px; stroke: var(--accent); }
 h3 { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 5px 0; }
 p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; margin: 0; }
 a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 
-/* =========================================
-   10. 手机端适配
-   ========================================= */
 @media (max-width: 480px) {
     body { align-items: flex-start; }
-
-    .container {
-        grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: minmax(120px, auto);
-        width: 92vw;
-        padding: 60px 15px 20px 15px;
-        gap: 12px;
-    }
-
-    .profile-card, .video-card, .status-card {
-        grid-column: span 2 !important;
-    }
-
-    .sales-card, .link-card, .github-card {
-        grid-column: span 1 !important;
-    }
-
+    .container { grid-template-columns: repeat(2, 1fr); grid-auto-rows: minmax(120px, auto); width: 92vw; padding: 60px 15px 20px 15px; gap: 12px; }
+    .profile-card, .video-card, .status-card { grid-column: span 2 !important; }
+    .sales-card, .link-card, .github-card { grid-column: span 1 !important; }
     .profile-card { height: 130px; }
     .video-card   { height: 280px; }
     #sales-count  { font-size: 1.5rem !important; }
 }
 
-/* =========================================
-   11. 翻转隐藏逻辑 (彻底修复穿帮)
-   ========================================= */
+.sos-cover {
+    background-image: url('images/sos.jpg'); 
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+.card-anchor { display: block; width: 100%; height: 100%; text-decoration: none; color: inherit; }
+.link-card { cursor: pointer; }
+
 .is-flipped .bento-front *,
 .container.all-flipped .bento-front * {
     opacity: 0 !important;
     visibility: hidden !important;
+}
+
+/* --- 日蚀转场核心样式 --- */
+.portal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #050505; /* 最终背景色 */
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    /* 初始蒙版为一个点 */
+    clip-path: circle(0% at var(--x) var(--y));
+    transition: opacity 0.2s ease;
+    fill-mode: forwards;
+}
+
+.portal-active .portal-overlay {
+    visibility: visible;
+    opacity: 1;
+    /* 关键：把 circle 放大到足够大，并且去掉 opacity 的淡出逻辑 */
+    clip-path: circle(150% at var(--x) var(--y));
+    /* 增加 transition 时间，让它“余味悠长”，掩盖加载 */
+    transition: clip-path 1.2s cubic-bezier(0.65, 0, 0.35, 1); 
+}
+
+/* 卡片坍缩蓄力动画 */
+.card-implode {
+    pointer-events: none;
+    /* 先轻微缩小并发出金光，然后彻底消失 */
+    animation: implodeAction 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+@keyframes implodeAction {
+    0% { transform: scale(1); filter: brightness(1); }
+    40% { transform: scale(1.1); filter: brightness(2); box-shadow: 0 0 50px var(--accent); }
+    100% { transform: scale(0); filter: brightness(5); opacity: 0; }
 }
