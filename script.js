@@ -137,3 +137,4 @@ document.querySelector('.link-card .card-anchor').addEventListener('click', func
     // 注意：这里不需要再写移除 overlay 的代码
     // 让它一直全黑挡着，直到跳转成功。
 });
+

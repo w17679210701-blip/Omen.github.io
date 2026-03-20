@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOS | 影像馆</title>
+    <style>
+        :root { 
+            --accent: #ffcc00; 
+            --bg: #0b0b0b; 
+            --card: #161616;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        /* 1. 重置所有边距，防止元素乱跳 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: #eee;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .header { padding: 50px 20px 30px; text-align: center; }
+        .header h1 {
+            font-size: 22px; letter-spacing: 4px; color: var(--accent);
+            text-transform: uppercase; font-weight: 300;
+        }
+
+        /* 2. 密码锁屏：改为中心缩放进入，不再从顶部落下 */
+        #lock-screen {
+            position: fixed; inset: 0; 
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .pw-box { 
+            width: 85%; max-width: 320px;
+            background: var(--card); padding: 45px 25px; 
+            border-radius: 24px; border: 1px solid var(--glass);
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            /* 核心动画：中心平滑放大 */
+            animation: modalShow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes modalShow {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .pw-box input { 
+            width: 100%; background: #000; border: 1px solid #333; 
+            color: #fff; padding: 15px; border-radius: 12px; 
+            font-size: 18px; margin-bottom: 20px; text-align: center;
+            outline: none; -webkit-appearance: none; /* 移除iOS默认内阴影 */
+        }
+        .pw-box input:focus { border-color: var(--accent); }
+
+        .pw-box button { 
+            width: 100%; background: linear-gradient(135deg, #ffcc00, #ff9900); 
+            color: #000; border: none; padding: 16px; 
+            border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px;
+        }
+
+        /* 3. 照片墙布局 */
+        .photo-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; padding: 15px; opacity: 0; transition: 1s ease;
+        }
+        @media (min-width: 768px) {
+            .photo-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 30px; }
+        }
+
+        .photo-item { 
+            aspect-ratio: 1 / 1; border-radius: 15px; 
+            overflow: hidden; background: var(--card); border: 1px solid var(--glass);
+        }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* 4. 灯箱 */
+        #lightbox {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: none; align-items: center; justify-content: center; z-index: 10000;
+        }
+        #lightbox img { max-width: 95%; max-height: 85%; border-radius: 4px; }
+        
+        #msg { font-size: 12px; color: #666; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>SOS Vault</h1>
+    </div>
+
+    <div id="lock-screen">
+        <div class="pw-box">
+            <h3 style="margin-bottom:30px; color:var(--accent); font-weight: 400;">IDENTITY VERIFY</h3>
+            <input type="password" id="pw-input" placeholder="PASSCODE" autofocus>
+            <button onclick="checkPw()">ACCESS</button>
+            <p id="msg">PRIVATE STORAGE SERVICE</p>
+        </div>
+    </div>
+
+    <div class="photo-grid" id="grid"></div>
+
+    <div id="lightbox" onclick="this.style.display='none'">
+        <img id="lb-img">
+    </div>
+
+    <script>
+        const CONFIG = {
+            serviceName: 'hiomen-photos', 
+            operator: 'omen',
+            password: '6hA0CDbep28AtjeGB5I1Es6ftxCMWMMh',
+            accessKey: '8888', 
+            domain: 'http://hiomen-photos.test.upcdn.net'
+        };
+
+        function checkPw() {
+            const input = document.getElementById('pw-input').value;
+            if(input === CONFIG.accessKey) {
+                const lock = document.getElementById('lock-screen');
+                lock.style.opacity = '0';
+                setTimeout(() => {
+                    lock.style.display = 'none';
+                    document.getElementById('grid').style.opacity = '1';
+                    loadPhotos(); 
+                }, 600);
+            } else {
+                const msg = document.getElementById('msg');
+                msg.innerText = "ACCESS DENIED";
+                msg.style.color = "#ff4444";
+                document.getElementById('pw-input').value = '';
+            }
+        }
+
+        async function fetchPhotoList() {
+            const url = `https://v0.api.upyun.com/${CONFIG.serviceName}/`;
+            const auth = 'Basic ' + btoa(`${CONFIG.operator}:${CONFIG.password}`);
+            try {
+                const response = await fetch(url, { headers: { 'Authorization': auth } });
+                const text = await response.text();
+                return text.split('\n')
+                           .map(line => line.split('\t')[0])
+                           .filter(name => name && name.match(/\.(jpg|jpeg|png|webp|gif)$/i));
+            } catch (e) { return []; }
+        }
+
+        async function loadPhotos() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '<p style="text-align:center;width:100%;color:#444">DECRYPTING...</p>';
+            const files = await fetchPhotoList();
+            grid.innerHTML = ''; 
+            files.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                const imgUrl = `${CONFIG.domain}/${name}`;
+                item.innerHTML = `<img src="${imgUrl}" onclick="showLightbox('${imgUrl}')" loading="lazy">`;
+                grid.appendChild(item);
+            });
+        }
+
+        function showLightbox(src) {
+            document.getElementById('lb-img').src = src;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        document.getElementById('pw-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPw();
+        });
+    </script>
+</body>
+</html>
