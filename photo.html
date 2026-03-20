@@ -164,10 +164,48 @@
             color: #666;
             margin-top: 15px;
         }
+
+        /* 返回按钮样式 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10001; /* 确保在所有层级之上 */
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        /* 隐藏逻辑：在锁屏界面时不显示返回按钮，增加私密感（可选） */
+        #lock-screen[style*="display: flex"] ~ .back-btn {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <a href="index.html" class="back-btn" title="返回主页">
+        <i data-lucide="chevron-left"></i>
+    </a>
 
     <div class="header">
         <h1>SOS Vault</h1>
@@ -284,6 +322,8 @@
         document.getElementById('pw-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') checkPw();
         });
+
+        lucide.createIcons();
     </script>
 </body>
 
