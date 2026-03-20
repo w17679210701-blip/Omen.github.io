@@ -44,28 +44,32 @@ function flipAllCards() {
     });
 }
 
-// --- 销量数字逻辑：2秒加3~5个 ---
-let count = 414439; // 这里填你当前的起始数字
+// --- 销量逻辑：全球时间同步版 ---
+const START_COUNT = 415113; // 初始销量
+const START_TIME = new Date('2026-03-20T10:00:00').getTime(); // 设置一个开售时间（必须是过去的时间）
+const RATE_PER_SECOND = 2; // 平均每秒涨2个 (即2秒4个)
+
 const salesEl = document.getElementById('sales-count');
 
-if (salesEl) {
-    // 初始显示一次
-    salesEl.innerText = count.toLocaleString();
+function syncSales() {
+    const now = new Date().getTime();
+    const secondsPassed = Math.floor((now - START_TIME) / 1000);
+    
+    // 如果还没到开售时间，就显示初始值
+    let currentTotal = START_COUNT;
+    if (secondsPassed > 0) {
+        currentTotal += secondsPassed * RATE_PER_SECOND;
+    }
 
-    setInterval(() => {
-        // 核心逻辑：生成 3 到 5 之间的随机整数
-        // Math.random() * 3 得到 0~2.99，加 3 得到 3~5.99，floor 掉小数就是 3, 4, 5
-        const increment = Math.floor(Math.random() * 3) + 3;
-        
-        count += increment;
-        
-        // 更新显示并加个千分位逗号，显高级
-        salesEl.innerText = count.toLocaleString();
-        
-        // 调试用（可选）：控制台看下加了多少
-        // console.log('当前增加:', increment, '总计:', count);
-        
-    }, 2000); // 👈 严格 2000 毫秒（2秒）触发一次
+    // 为了让它看起来有跳动感，加一个 3~5 的随机微调
+    const jitter = Math.floor(Math.random() * 3) + 3;
+    salesEl.innerText = (currentTotal + jitter).toLocaleString();
+}
+
+if (salesEl) {
+    // 2秒刷新一次
+    setInterval(syncSales, 2000);
+    syncSales(); // 初始化
 }
 
 // 初始化 Lucide 图标（确保图标渲染）
