@@ -45,7 +45,7 @@ function flipAllCards() {
 }
 
 // --- 逻辑 C: 销量数字更新 ---
-let count = 89234;
+let count = 823255;
 const salesEl = document.getElementById('sales-count');
 if (salesEl) {
     setInterval(() => {
