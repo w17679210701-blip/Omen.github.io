@@ -72,6 +72,17 @@ if (salesEl) {
     syncSales(); // 初始化
 }
 
+window.addEventListener('load', () => {
+    const loader = document.getElementById('loader-wrapper');
+    const container = document.querySelector('.container');
+
+    // 1.5秒后开始淡出，给用户留出看Logo的时间
+    setTimeout(() => {
+        loader.classList.add('fade-out'); // 遮罩淡出
+        container.classList.add('show');  // 内容浮现
+    }, 1500);
+});
+
 // 初始化 Lucide 图标（确保图标渲染）
 if (window.lucide) {
     window.lucide.createIcons();

@@ -10,6 +10,76 @@
     --accent: #ffcc00;
 }
 
+/* --- 高级开场遮罩 --- */
+#loader-wrapper {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #050505; /* 纯黑背景 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
+}
+
+.loader-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loader-logo {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 3rem;
+    color: #fff;
+    letter-spacing: 10px;
+    margin: 0;
+    /* 文字呼吸渐起动画 */
+    animation: logoFade 2s ease-in-out forwards;
+    opacity: 0;
+}
+
+.loader-line {
+    width: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #ffcc00, transparent);
+    margin-top: 15px;
+    /* 金线向两边延展 */
+    animation: lineExtend 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.5s;
+}
+
+/* 退出状态 */
+#loader-wrapper.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* --- 动画定义 --- */
+@keyframes logoFade {
+    0% { opacity: 0; transform: translateY(10px); filter: blur(5px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes lineExtend {
+    0% { width: 0; opacity: 0; }
+    100% { width: 120px; opacity: 1; }
+}
+
+/* 让主体内容初始状态稍微往下沉一点点，产生进场感 */
+.container {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s;
+}
+
+.container.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* =========================================
    2. 全局动态背景
    ========================================= */
