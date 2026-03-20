@@ -115,6 +115,7 @@
     grid-auto-rows: 140px;
     gap: 16px;
     padding: 20px;
+    margin-top: -30px !important;
 }
 
 .container.show {
