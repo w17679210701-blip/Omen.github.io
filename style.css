@@ -1,14 +1,14 @@
-/* 1. 引入高级感字体 */
+/* 1. 基础配置与字体 */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Serif+SC:wght@200;700&display=swap');
 
 :root {
     --card-bg: rgba(255, 255, 255, 0.08); 
     --text-main: #ffffff;
     --text-dim: rgba(255, 255, 255, 0.6);
-    --accent: #ffcc00; /* 太阳之子的金色 */
+    --accent: #ffcc00; 
 }
 
-/* --- 全局背景与流体动画 --- */
+/* 2. 全局动态背景 */
 body {
     margin: 0;
     display: flex;
@@ -34,230 +34,182 @@ body {
     100% { background-position: 0% 0%; }
 }
 
-/* --- 容器布局 --- */
+/* 3. 布局容器 */
 .container {
     display: grid;
     grid-template-columns: repeat(3, 140px);
     grid-auto-rows: minmax(140px, auto);
     gap: 16px;
     padding: 20px;
-    perspective: 1000px;
 }
 
-/* --- 通用卡片样式 --- */
+/* 4. 矩阵翻转逻辑 */
 .bento-item {
-    background: var(--card-bg);
-    border-radius: 28px;
-    backdrop-filter: blur(25px) saturate(180%);
-    -webkit-backdrop-filter: blur(25px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    cursor: pointer;
     position: relative;
-    overflow: hidden;
-    color: white;
+    perspective: 1200px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
 .bento-item:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-5px);
     z-index: 10;
 }
 
-/* --- Profile Card 特效 --- */
-.profile-card { grid-column: span 2; grid-row: span 2; align-items: center; text-align: center; }
+.bento-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-.profile-card::before {
+.bento-item.is-flipped .bento-inner {
+    transform: rotateY(180deg);
+}
+
+/* 5. 正反面共有样式 */
+.bento-front, .bento-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 28px;
+    background: var(--card-bg);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 20px;
+    color: white;
+    overflow: hidden;
+}
+
+.bento-back {
+    transform: rotateY(180deg);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    align-items: center;
+    text-align: center;
+}
+
+/* 6. 卡片尺寸定义 - 核心：让顶部变扁平 */
+.profile-card { grid-column: span 2; height: 140px; } /* 👈 高度降为 140px */
+.video-card { grid-column: span 2; height: 296px; } 
+.github-card { grid-column: span 3; height: 80px; }
+.status-card { grid-column: span 3; height: 60px; }
+.sales-card, .link-card { height: 140px; }
+
+/* 7. Profile Card 特别定制 (横向对齐) */
+.profile-card .bento-front {
+    flex-direction: row;      /* 👈 改为横向 */
+    align-items: center;      /* 垂直居中 */
+    justify-content: flex-start;
+    gap: 20px;                /* 头像和文字的间距 */
+    padding-left: 25px;
+}
+
+.profile-card .avatar {
+    width: 66px;              /* 稍微缩小以适配矮卡片 */
+    height: 66px;
+    margin-bottom: 0;         /* 清除之前的下边距，防止撑开 */
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;           /* 防止被挤压 */
+    animation: auraBreath 4s ease-in-out infinite;
+}
+
+.profile-card .info-text {
+    display: flex;
+    flex-direction: column;   /* 文字内部垂直排列 */
+    align-items: flex-start;
+}
+
+.profile-card h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1.1;
+    margin-bottom: 4px;       /* 👈 精准控制名字和描述的距离 */
+}
+
+.profile-card .description {
+    font-size: 0.95rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* 紧贴描述文字下方的金线 */
+.profile-card .description::before {
+    content: "";
+    width: 40px;
+    height: 1.2px;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, #ffcc00, transparent);
+    display: block;
+}
+
+/* 8. 其他组件特效 */
+.profile-card .bento-front::before {
     content: "JAY";
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    font-size: 11rem;
+    font-size: 6rem;
     color: rgba(255, 255, 255, 0.025);
     position: absolute;
-    bottom: -30px;
-    right: -10px;
-    pointer-events: none;
+    bottom: -15px;
+    right: 10px;
     z-index: 0;
-    animation: watermarkSync 15s ease-in-out infinite; 
-    will-change: transform; 
-}
-
-@keyframes watermarkSync {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    33% { transform: translate(-10px, -15px) rotate(1deg); }
-    66% { transform: translate(10px, -5px) rotate(-1deg); }
-    100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-.avatar {
-    width: 72px; height: 72px; border-radius: 50%; overflow: hidden;
-    display: flex; justify-content: center; align-items: center;
-    border: 2px solid #ffcc00; margin-bottom: 20px;
-    position: relative; z-index: 1; animation: auraBreath 4s ease-in-out infinite;
-}
-
-@keyframes auraBreath {
-    0% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
-    50% { box-shadow: 0 0 35px rgba(255, 204, 0, 0.6); }
-    100% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
 }
 
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.profile-card .description {
-    font-family: "Songti SC", "STSong", "华文宋体", serif;
-    font-weight: 200; font-size: 1.4rem; color: #ffcc00;
-    letter-spacing: 0.45em; padding-left: 0.45em;
-    margin: 12px auto 0 auto;
-    display: flex; flex-direction: column; align-items: center;
-    width: fit-content; position: relative; z-index: 2;
+@keyframes auraBreath {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.5); }
 }
 
-.profile-card .description::before {
-    content: ""; width: 100%; height: 1.2px; margin-bottom: 15px;
-    display: block; margin-left: -0.45em;
-    background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.2), #ffcc00, rgba(255, 204, 0, 0.2), transparent);
-    background-size: 200% 100%; animation: goldenSweep 4s linear infinite;
-}
-
-@keyframes goldenSweep {
-    0% { background-position: 150% 0; }
-    100% { background-position: -150% 0; }
-}
-
-/* --- 视频卡片 --- */
-.video-card {
-    grid-column: span 2;
-    aspect-ratio: 1 / 1;
-    padding: 0 !important;
-    background: #000;
-}
-
-.bg-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    pointer-events: none;
-}
-
-/* --- GitHub 卡片 --- */
-.github-card {
-    grid-column: span 3;
-    min-height: 80px; 
-    flex-direction: row !important;
-    justify-content: center;
-    gap: 12px;
-}
-
-.github-card a {
-    flex-direction: row !important;
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-decoration: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* --- 底部状态栏 --- */
-.status-card { 
-    grid-column: span 3; 
-    min-height: 60px; 
-    flex-direction: row; 
-    align-items: center; 
-    justify-content: flex-start;
-}
-
-/* --- 销量卡片 --- */
-.sales-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 18px !important;
-}
-
-.sales-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 5px;
-}
-
-.sales-header h3 {
-    margin: 0;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-}
+.video-card .bento-front { padding: 0 !important; background: #000; }
+.bg-video { width: 100%; height: 100%; object-fit: cover; }
 
 #sales-count {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: #ffcc00;
+    font-size: 1.8rem; font-weight: 900; color: var(--accent);
     text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
-    margin: 8px 0;
-    transition: transform 0.1s ease-out;
-    display: inline-block;
-    /* 增加基础溢出保护 */
-    width: 100%;
-    overflow-wrap: break-word;
+    margin: 5px 0;
 }
 
 .sales-badge {
-    align-self: flex-start;
-    background: rgba(255, 204, 0, 0.1);
-    color: #ffcc00;
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 10px;
+    background: rgba(255, 204, 0, 0.1); color: var(--accent);
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
     border: 1px solid rgba(255, 204, 0, 0.2);
-    animation: blink 2s infinite;
 }
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-
-/* --- 其他逻辑 --- */
-.about-card { grid-column: span 1; }
-.link-card { grid-column: span 1; align-items: center; }
-.link-card a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; }
-.icon-small { width: 14px; height: 14px; stroke: #ffcc00; }
-h3 { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; }
-p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; margin: 0; }
 
 .dot { 
     width: 10px; height: 10px; background: #34c759; border-radius: 50%; margin-right: 12px; 
     box-shadow: 0 0 12px #34c759; animation: pulse 2s infinite; 
 }
 
-@keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.2); }
-    100% { opacity: 1; transform: scale(1); }
-}
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-/* --- 响应式适配 --- */
+/* 9. 图标与通用 */
+.icon { stroke: white; width: 28px; height: 28px; stroke-width: 1.5; }
+.icon-small { width: 14px; height: 14px; stroke: var(--accent); }
+h3 { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 5px 0; }
+p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4; margin: 0; }
+a { text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+/* 10. 手机端适配 */
 @media (max-width: 480px) {
     .container { grid-template-columns: repeat(2, 1fr); width: 94vw; padding: 10px; }
     .profile-card, .video-card, .github-card, .status-card { grid-column: span 2; }
-    
-    /* 解决销量溢出的关键 */
-    #sales-count {
-        font-size: 1.4rem; /* 手机端缩小字号 */
-        letter-spacing: -1px;
-    }
-    .sales-card {
-        padding: 12px !important;
-    }
+    .profile-card { height: 120px; }
+    .video-card { height: auto; aspect-ratio: 1/1; }
 }

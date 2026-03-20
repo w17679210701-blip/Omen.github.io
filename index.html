@@ -5,92 +5,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMEN OMEN | OMEN OMEN</title>
-    <link rel="stylesheet" href="style.css?v=1.5">
+    <link rel="stylesheet" href="style.css?v=2.0">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
     <div class="container">
-        <div class="bento-item profile-card">
-            <div class="avatar">
-                <img src="images/avatar.jpg" alt="头像">
+        
+        <div class="bento-item profile-card" onclick="flipAllCards()">
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <div class="avatar">
+                        <img src="images/avatar.jpg" alt="头像">
+                    </div>
+                    <h1>OMEN</h1>
+                    <p class="description">太阳之子</p>
+                </div>
+                <div class="bento-back">
+                    <h2 style="color:var(--accent)">控制中心</h2>
+                    <p>点击返回首页</p>
+                    <div style="margin-top:15px; font-size: 0.8rem; opacity: 0.6;">DEVICE: UNI-V</div>
+                </div>
             </div>
-            <h1>OMEN</h1>
-            <p class="description">太阳之子</p>
         </div>
 
         <div class="bento-item video-card">
-            <video autoplay muted loop playsinline disablePictureInPicture class="bg-video">
-                <source src="videos/IMG_5533.MP4" type="video/mp4">
-                您的浏览器不支持视频播放。
-            </video>
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <video autoplay muted loop playsinline disablePictureInPicture class="bg-video">
+                        <source src="videos/IMG_5533.MP4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="bento-back">
+                    <i data-lucide="play-circle" style="width:40px; height:40px; color:var(--accent)"></i>
+                    <h3>视频参数</h3>
+                    <p>4K H.264 High Performance</p>
+                </div>
+            </div>
         </div>
 
         <div class="bento-item about-card sales-card">
-            <div class="sales-header">
-                <i data-lucide="trending-up" class="icon-small"></i>
-                <h3>全网实时销量</h3>
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <div class="sales-header">
+                        <i data-lucide="trending-up" class="icon-small"></i>
+                        <h3>全网实时销量</h3>
+                    </div>
+                    <p id="sales-count">loading...</p>
+                    <div class="sales-badge">LIVE</div>
+                </div>
+                <div class="bento-back">
+                    <h3>实时数据源</h3>
+                    <p>每 2.5s 自动同步全网订单数据</p>
+                </div>
             </div>
-            <p id="sales-count">loading...</p>
-            <div class="sales-badge">LIVE</div>
         </div>
 
         <div class="bento-item link-card">
-            <a href="#">
-                <i data-lucide="video" class="icon"></i>
-                <span>章延拉粑粑</span>
-            </a>
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <a href="#">
+                        <i data-lucide="video" class="icon"></i>
+                        <span>章延拉粑粑</span>
+                    </a>
+                </div>
+                <div class="bento-back">
+                    <p>WeChat Channel</p>
+                    <span>点击跳转视频号</span>
+                </div>
+            </div>
         </div>
 
         <div class="bento-item link-card github-card">
-            <a href="https://github.com/...">
-                <i data-lucide="github"></i>
-                <span>GitHub</span>
-            </a>
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <a href="https://github.com/w17679210701-blip">
+                        <i data-lucide="github"></i>
+                        <span>GitHub</span>
+                    </a>
+                </div>
+                <div class="bento-back">
+                    <p>Open Source Project</p>
+                    <span>查看我的代码仓库</span>
+                </div>
+            </div>
         </div>
 
         <div class="bento-item status-card">
-            <span class="dot"></span>
-            <p>章延正在拉粑粑...</p>
+            <div class="bento-inner">
+                <div class="bento-front">
+                    <span class="dot"></span>
+                    <p>章延正在拉粑粑...</p>
+                </div>
+                <div class="bento-back">
+                    <p>System Status: Online</p>
+                    <span style="font-size: 10px;">LATENCY: 24ms</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 初始化 Lucide 图标
+        // 1. 初始化 Lucide 图标
         lucide.createIcons();
 
+        // 2. 全场卡片矩阵同步翻转逻辑
+        function flipAllCards() {
+            const items = document.querySelectorAll('.bento-item');
+            items.forEach((item, index) => {
+                // 增加一点微小的延迟间隔，产生波浪翻转效果（可选）
+                setTimeout(() => {
+                    item.classList.toggle('is-flipped');
+                }, index * 50); 
+            });
+        }
+
+        // 3. 实时销量模拟逻辑
         function initSalesCounter() {
             const salesElement = document.getElementById('sales-count');
+            if (!salesElement) return;
 
-            // 1. 设定当前初始销量（你可以根据实际看到的新闻随时修改这个数字）
             let currentSales = 2854320;
-
             const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-            // 2. 初始显示
             salesElement.innerText = formatNumber(currentSales);
 
-            // 3. 动态模拟逻辑
             setInterval(() => {
                 const now = new Date();
                 const hour = now.getHours();
-                let increment;
-
-                // 模拟真实场景：白天 10点-22点 是下单高峰
-                if (hour >= 10 && hour <= 22) {
-                    increment = Math.floor(Math.random() * 8) + 2; // 增长 2-10 张
-                } else {
-                    increment = Math.floor(Math.random() * 3); // 深夜增长 0-2 张
-                }
+                let increment = (hour >= 10 && hour <= 22) ? Math.floor(Math.random() * 8) + 2 : Math.floor(Math.random() * 3);
 
                 currentSales += increment;
                 salesElement.innerText = formatNumber(currentSales);
 
-                // 给数字增加一个瞬间放大的动画效果（需配合CSS）
                 salesElement.style.transform = "scale(1.05)";
                 setTimeout(() => salesElement.style.transform = "scale(1)", 100);
-
-            }, 2500); // 每 2.5 秒更新一次
+            }, 2500);
         }
 
         initSalesCounter();
