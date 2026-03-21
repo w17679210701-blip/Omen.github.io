@@ -1,330 +1,178 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOS | 影像馆</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相册分类</title>
     <style>
-        :root {
-            --accent: #ffcc00;
-            --bg: #0b0b0b;
-            --card: #161616;
-            --glass: rgba(255, 255, 255, 0.05);
-        }
-
-        /* 1. 重置所有边距，防止元素乱跳 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: var(--bg);
-            color: #eee;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        .header {
-            padding: 50px 20px 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            letter-spacing: 4px;
-            color: var(--accent);
-            text-transform: uppercase;
-            font-weight: 300;
-        }
-
-        /* 2. 密码锁屏：改为中心缩放进入，不再从顶部落下 */
-        #lock-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .pw-box {
-            width: 85%;
-            max-width: 320px;
-            background: var(--card);
-            padding: 45px 25px;
-            border-radius: 24px;
-            border: 1px solid var(--glass);
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            /* 核心动画：中心平滑放大 */
-            animation: modalShow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-
-        @keyframes modalShow {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .pw-box input {
-            width: 100%;
-            background: #000;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 18px;
-            margin-bottom: 20px;
-            text-align: center;
-            outline: none;
-            -webkit-appearance: none;
-            /* 移除iOS默认内阴影 */
-        }
-
-        .pw-box input:focus {
-            border-color: var(--accent);
-        }
-
-        .pw-box button {
-            width: 100%;
-            background: linear-gradient(135deg, #ffcc00, #ff9900);
-            color: #000;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        /* 3. 照片墙布局 */
-        .photo-grid {
+        :root { --bg: #0a0a0a; --card: #1a1a1a; --gold: #ffcc00; }
+        body { background: var(--bg); color: #eee; font-family: sans-serif; padding: 40px 20px; }
+        h1 { text-align: center; letter-spacing: 4px; color: var(--gold); }
+        
+        /* 相册封面网格 */
+        .album-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 15px;
-            opacity: 0;
-            transition: 1s ease;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 40px auto;
         }
 
-        @media (min-width: 768px) {
-            .photo-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-                padding: 30px;
-            }
-        }
-
-        .photo-item {
-            aspect-ratio: 1 / 1;
-            border-radius: 15px;
-            overflow: hidden;
+        .album-card {
             background: var(--card);
-            border: 1px solid var(--glass);
-        }
-
-        .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* 4. 灯箱 */
-        #lightbox {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        #lightbox img {
-            max-width: 95%;
-            max-height: 85%;
-            border-radius: 4px;
-        }
-
-        #msg {
-            font-size: 12px;
-            color: #666;
-            margin-top: 15px;
-        }
-
-        /* 返回按钮样式 */
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 10001; /* 确保在所有层级之上 */
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
             cursor: pointer;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s ease;
+            transition: 0.3s;
+            border: 1px solid #333;
+            position: relative;
         }
 
-        .back-btn:hover {
-            background: var(--accent);
-            color: #000;
-            transform: scale(1.05);
+        .album-card:hover { transform: translateY(-10px); border-color: var(--gold); }
+        
+        /* 文件夹图标装饰 */
+        .album-card::before {
+            content: "📁";
+            font-size: 50px;
+            display: block;
+            margin-bottom: 10px;
         }
 
-        /* 隐藏逻辑：在锁屏界面时不显示返回按钮，增加私密感（可选） */
-        #lock-screen[style*="display: flex"] ~ .back-btn {
-            display: none;
-        }
+        .album-name { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
+
+        /* 隐藏的照片显示区域 */
+        #photo-viewer { display: none; }
+        .back-btn { background: var(--gold); border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+        
+        .photo-list { column-count: 3; column-gap: 15px; }
+        .photo-list img { width: 100%; margin-bottom: 15px; border-radius: 8px; }
     </style>
 </head>
-
 <body>
-    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <a href="index.html" class="back-btn" title="返回主页">
-        <i data-lucide="chevron-left"></i>
-    </a>
-
-    <div class="header">
-        <h1>SOS Vault</h1>
+    <div id="category-view">
+        <h1>MY ALBUMS</h1>
+        <div class="album-grid" id="album-grid">
+            </div>
     </div>
 
-    <div id="lock-screen">
-        <div class="pw-box">
-            <h3 style="margin-bottom:30px; color:var(--accent); font-weight: 400;">身份验证</h3>
-            <input type="password" id="pw-input" placeholder="请输入访问密码" autofocus>
-            <button onclick="checkPw()">访问</button>
-            <p id="msg">由又拍云提供云储存服务</p>
-        </div>
+    <div id="photo-viewer">
+        <button class="back-btn" onclick="showCategories()">← 返回分类</button>
+        <h2 id="current-album-title" style="color: var(--gold);"></h2>
+        <div class="photo-list" id="photo-list"></div>
     </div>
 
-    <div class="photo-grid" id="grid"></div>
+ <script>
+    // 🔴 基础配置
+    const CONFIG = {
+        username: 'w17679210701-blip',
+        repo: 'Public',
+        basePath: 'gallery',
+        // 990701 的 Base64 编码，防止明文暴露
+        s: "OTkwNzAx" 
+    };
 
-    <div id="lightbox" onclick="this.style.display='none'">
-        <img id="lb-img">
-    </div>
+    // 1. 扫描 gallery 文件夹并生成相册卡片
+    async function loadAlbums() {
+        const grid = document.getElementById('album-grid');
+        grid.innerHTML = "<p style='text-align:center;'>正在扫描云端相册...</p>";
 
-    <script>
-        const CONFIG = {
-            serviceName: 'hiomen-photos',
-            operator: 'omen',
-            password: '6hA0CDbep28AtjeGB5I1Es6ftxCMWMMh',
-            passwordHash: 'e021379226ea0c7e22959106dcab374b768e39695897e6ee64c046d80cbc9e65',
-            domain: 'https://img.hiomen.cn'
-        };
+        try {
+            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.basePath}`;
+            const res = await fetch(url);
+            
+            if (!res.ok) throw new Error('仓库路径不正确或 API 达到上限');
+            
+            const data = await res.json();
+            // 只筛选文件夹 (type === 'dir')
+            const folders = data.filter(item => item.type === 'dir');
 
-        // 验证逻辑
-        async function checkPw() {
-            const inputField = document.getElementById('pw-input');
-            const msg = document.getElementById('msg');
-
-            // 1. 获取输入并强行转为字符串，去掉前后空格
-            const rawInput = String(inputField.value).trim();
-
-            if (!rawInput) {
-                msg.innerText = "请输入口令";
+            if (folders.length === 0) {
+                grid.innerHTML = "<p style='text-align:center;'>gallery 文件夹内没有子文件夹，请先去 GitHub 上传。</p>";
                 return;
             }
 
-            try {
-                // 2. 使用浏览器原生加密 API
-                const msgUint8 = new TextEncoder().encode(rawInput);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const inputHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            // 生成卡片 HTML
+            grid.innerHTML = folders.map(f => `
+                <div class="album-card" onclick="handleEntry('${f.name}')">
+                    <div class="album-name">${f.name}</div>
+                </div>
+            `).join('');
 
-                // 调试用：如果还错，请看 F12 控制台输出的这行字
-                console.log("你的输入哈希是:", inputHash);
+        } catch (e) {
+            console.error(e);
+            grid.innerHTML = `<p style='text-align:center; color:red;'>加载失败: ${e.message}</p>`;
+        }
+    }
 
-                // 3. 比对
-                if (inputHash === CONFIG.passwordHash) {
-                    const lock = document.getElementById('lock-screen');
-                    lock.style.opacity = '0';
-                    setTimeout(() => {
-                        lock.style.display = 'none';
-                        document.getElementById('grid').style.opacity = '1';
-                        loadPhotos();
-                    }, 600);
-                } else {
-                    msg.innerText = "口令错误，请重试";
-                    msg.style.color = "#ff4444";
-                    inputField.value = '';
-                }
-            } catch (e) {
-                console.error("加密失败，请确保在 HTTPS 环境下运行", e);
-                msg.innerText = "浏览器环境不支持加密";
+    // 2. 入口校验逻辑
+    function handleEntry(folderName) {
+        // 🔴 需要输入密码的文件夹名单（这里你可以根据需要增减）
+        const lockFolders = ['hidden', 'private', 'secret'];
+
+        if (lockFolders.includes(folderName.toLowerCase())) {
+            const input = prompt(`相册 [${folderName}] 已加密，请输入 6 位访问密码：`);
+            
+            if (!input) return; // 用户点取消
+
+            // 使用 btoa 转码比对，绝对稳准狠
+            if (window.btoa(input.trim()) === CONFIG.s) {
+                loadPhotos(folderName);
+            } else {
+                alert("密码错误，无法进入！");
             }
+        } else {
+            // 不在加密名单里的直接进入
+            loadPhotos(folderName);
         }
+    }
 
-        // 拉取又拍云文件
-        async function fetchPhotoList() {
-            const url = `https://v0.api.upyun.com/${CONFIG.serviceName}/`;
-            const auth = 'Basic ' + btoa(`${CONFIG.operator}:${CONFIG.password}`);
-            try {
-                const response = await fetch(url, { headers: { 'Authorization': auth } });
-                const text = await response.text();
-                return text.split('\n')
-                    .map(line => line.split('\t')[0])
-                    .filter(name => name && name.match(/\.(jpg|jpeg|png|webp|gif|avif)$/i));
-            } catch (e) {
-                console.error("无法连接又拍云:", e);
-                return [];
+    // 3. 读取并展示照片流
+    async function loadPhotos(folderName) {
+        // 切换视图
+        document.getElementById('category-view').style.display = 'none';
+        document.getElementById('photo-viewer').style.display = 'block';
+        document.getElementById('current-album-title').innerText = `正在开启：${folderName}`;
+        
+        const list = document.getElementById('photo-list');
+        list.innerHTML = "<p style='text-align:center;'>正在提取照片...</p>";
+
+        try {
+            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.basePath}/${folderName}`;
+            const res = await fetch(url);
+            const files = await res.json();
+            
+            // 过滤图片文件
+            const photos = files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
+
+            if (photos.length === 0) {
+                list.innerHTML = "<p style='text-align:center;'>该相册内暂无图片文件。</p>";
+            } else {
+                list.innerHTML = photos.map(p => `
+                    <div style="break-inside: avoid; margin-bottom: 15px;">
+                        <img src="${p.download_url}" 
+                             style="width: 100%; border-radius: 10px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"
+                             loading="lazy">
+                    </div>
+                `).join('');
             }
+            document.getElementById('current-album-title').innerText = folderName;
+            
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = "<p style='text-align:center; color:red;'>照片读取失败，请检查文件夹名是否包含特殊字符。</p>";
         }
+    }
 
-        // 渲染照片
-        async function loadPhotos() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '<p style="text-align:center;width:100%;color:#444">正在解密影像库...</p>';
-            const files = await fetchPhotoList();
-            grid.innerHTML = '';
-            if (files.length === 0) {
-                grid.innerHTML = '<p style="text-align:center;width:100%">暂无照片或配置错误</p>';
-                return;
-            }
-            files.forEach(name => {
-                const item = document.createElement('div');
-                item.className = 'photo-item';
-                const imgUrl = `${CONFIG.domain}/${name}`;
-                item.innerHTML = `<img src="${imgUrl}" onclick="showLightbox('${imgUrl}')" loading="lazy">`;
-                grid.appendChild(item);
-            });
-        }
+    // 返回分类视图
+    function showCategories() {
+        document.getElementById('category-view').style.display = 'block';
+        document.getElementById('photo-viewer').style.display = 'none';
+    }
 
-        function showLightbox(src) {
-            document.getElementById('lb-img').src = src;
-            document.getElementById('lightbox').style.display = 'flex';
-        }
-
-        // 监听回车
-        document.getElementById('pw-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkPw();
-        });
-
-        lucide.createIcons();
-    </script>
+    // 页面加载完成执行扫描
+    window.onload = loadAlbums;
+</script>
 </body>
-
 </html>

@@ -50,34 +50,34 @@ if (salesEl) {
 // 修改这里：DOMContentLoaded 比 load 快得多！
 document.addEventListener('DOMContentLoaded', () => {
     const particleBox = document.getElementById('particle-box');
-    const particleCount = 60; 
+    const particleCount = 60;
 
     if (particleBox) {
         // 先清空一次，防止重复生成
-        particleBox.innerHTML = ''; 
+        particleBox.innerHTML = '';
 
         for (let i = 0; i < particleCount; i++) {
             const p = document.createElement('div');
             p.className = 'custom-particle';
-            
+
             const size = Math.random() * 3 + 1;
             p.style.width = `${size}px`;
             p.style.height = `${size}px`;
             p.style.left = '50%';
             p.style.top = '50%';
-            
+
             const angle = Math.random() * Math.PI * 2;
             const dist = Math.random() * 300 + 200;
             const tx = Math.cos(angle) * dist + 'px';
             const ty = Math.sin(angle) * dist + 'px';
-            
+
             p.style.setProperty('--tx', tx);
             p.style.setProperty('--ty', ty);
-            
+
             const duration = Math.random() * 8 + 4;
             // 关键：负延迟 (-15s) 让粒子一出来就是运动中的状态，不需要从 0 开始飞
-            const delay = Math.random() * -15; 
-            
+            const delay = Math.random() * -15;
+
             p.style.animation = `particleRun ${duration}s linear infinite ${delay}s`;
             particleBox.appendChild(p);
         }
@@ -91,18 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         if (loader) {
             loader.style.opacity = '0';
-            loader.style.transition = 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            loader.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
             if (container) container.classList.add('show');
             setTimeout(() => { loader.style.display = 'none'; }, 1500);
         }
-    }, 3500); // 稍微缩短一点，体感更快
+    }, 1500); // 稍微缩短一点，体感更快
 });
 
 if (window.lucide) {
     window.lucide.createIcons();
 }
 
-document.querySelector('.link-card .card-anchor').addEventListener('click', function(e) {
+document.querySelector('.link-card .card-anchor').addEventListener('click', function (e) {
     e.preventDefault();
     const targetUrl = this.href;
     const card = this.closest('.link-card');
@@ -118,19 +118,19 @@ document.querySelector('.link-card .card-anchor').addEventListener('click', func
 
     overlay.style.setProperty('--x', x + 'px');
     overlay.style.setProperty('--y', y + 'px');
-    
+
     // 1. 卡片坍缩（蓄力）
     card.classList.add('card-implode');
 
     // 2. 稍微缩短等待时间，让蒙版更早出发
     setTimeout(() => {
         document.body.classList.add('portal-active');
-        
+
         // 3. 【核心优化】在蒙版扩散到一半（约 400ms）时，就开始让浏览器拉取新页面
         // 这时候用户视觉上还在看“扩散动画”，其实后台已经在 load 了
         setTimeout(() => {
             window.location.href = targetUrl;
-        }, 400); 
+        }, 400);
 
     }, 250);
 

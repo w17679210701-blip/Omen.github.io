@@ -1,0 +1,42 @@
+:root { --bg: #0a0a0a; --card: #1a1a1a; --gold: #ffcc00; }
+        body { background: var(--bg); color: #eee; font-family: sans-serif; padding: 40px 20px; }
+        h1 { text-align: center; letter-spacing: 4px; color: var(--gold); }
+        
+        /* 相册封面网格 */
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .album-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .album-card:hover { transform: translateY(-10px); border-color: var(--gold); }
+        
+        /* 文件夹图标装饰 */
+        .album-card::before {
+            content: "📁";
+            font-size: 50px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .album-name { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
+
+        /* 隐藏的照片显示区域 */
+        #photo-viewer { display: none; }
+        .back-btn { background: var(--gold); border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+        
+        .photo-list { column-count: 3; column-gap: 15px; }
+        .photo-list img { width: 100%; margin-bottom: 15px; border-radius: 8px; }
