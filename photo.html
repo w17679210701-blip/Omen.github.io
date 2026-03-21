@@ -4,135 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>相册分类</title>
-    <style>
-        :root {
-            --bg: #0a0a0a;
-            --card: #1a1a1a;
-            --gold: #ffcc00;
-        }
-
-        body {
-            background: var(--bg);
-            color: #eee;
-            font-family: sans-serif;
-            padding: 40px 20px;
-        }
-
-        h1 {
-            text-align: center;
-            letter-spacing: 4px;
-            color: var(--gold);
-        }
-
-       .modal {
-    display: none; /* 初始隐藏 */
-    position: fixed; 
-    z-index: 2000; 
-    left: 0; top: 0; 
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); /* 遮罩颜色 */
-    backdrop-filter: blur(5px); /* 背景模糊 */
-    
-    /* 🔴 居中核心代码 */
-    display: none; /* JS 脚本会控制改为 flex 或 block，初始设为 block 配合 JS 改 */
-    align-items: center; /* 垂直居中 */
-    justify-content: center; /* 水平居中 */
-}
-
-/* 2. 弹窗主体：去掉原来的 margin-top，改用 flex 自动对齐 */
-.modal-content {
-    background: #1a1a1a;
-    padding: 30px;
-    border: 1px solid #ffcc00;
-    border-radius: 15px;
-    width: 300px;
-    text-align: center;
-    box-shadow: 0 0 30px rgba(255,204,0,0.2);
-    /* 🔴 不需要 margin 了，因为父级在控制 */
-}
-
-/* 其他样式保持不变，为了方便你也粘一下 */
-.modal-content h3 { color: #ffcc00; margin-top: 0; }
-#password-input {
-    width: 80%; padding: 10px; margin: 20px 0; background: #000; border: 1px solid #444;
-    border-radius: 5px; color: #fff; text-align: center; font-size: 1.2rem; letter-spacing: 5px;
-}
-.modal-btns { display: flex; justify-content: space-around; }
-.modal-btns button { padding: 10px 25px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; }
-.btn-confirm { background: #ffcc00; color: #000; }
-.btn-cancel { background: #333; color: #ccc; }
-
-        /* 相册封面网格 */
-        .album-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            max-width: 1200px;
-            margin: 40px auto;
-        }
-
-        .album-card {
-            background: var(--card);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid #333;
-            position: relative;
-        }
-
-        .album-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--gold);
-        }
-
-        /* 文件夹图标装饰 */
-        .album-card::before {
-            content: "📁";
-            font-size: 50px;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .album-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* 隐藏的照片显示区域 */
-        #photo-viewer {
-            display: none;
-        }
-
-        .back-btn {
-            background: var(--gold);
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .photo-list {
-            column-count: 3;
-            column-gap: 15px;
-        }
-
-        .photo-list img {
-            width: 100%;
-            margin-bottom: 15px;
-            border-radius: 8px;
-        }
-    </style>
+    <title>相册</title>
+    <link rel="stylesheet" href="photo.css">
 </head>
 
 <body>
 
     <div id="category-view">
-        <h1>MY ALBUMS</h1>
+        <h1>OMEN's GALLERY</h1>
         <div class="album-grid" id="album-grid">
         </div>
     </div>
@@ -148,138 +27,18 @@
     </div>
 </div>
 
-    <div id="photo-viewer">
-        <button class="back-btn" onclick="showCategories()">← 返回分类</button>
-        <h2 id="current-album-title" style="color: var(--gold);"></h2>
-        <div class="photo-list" id="photo-list"></div>
+    <div id="photo-viewer" style="display: none;">
+    <div class="nav-bar">
+        <button class="back-btn" onclick="showCategories()">
+            <span class="icon">←</span> 返回相册集
+        </button>
     </div>
+    
+    <h2 id="current-album-title" style="color: #ffcc00; text-align: center; margin-top: 20px;"></h2>
+    <div class="photo-list" id="photo-list"></div>
+</div>
 
-    <script>
-        // 🔴 基础配置
-        const CONFIG = {
-            username: 'w17679210701-blip',
-            repo: 'Public',
-            basePath: 'gallery',
-            // 990701 的 Base64 编码，防止明文暴露
-            s: "OTkwNzAx"
-        };
-
-        // 1. 扫描 gallery 文件夹并生成相册卡片
-        async function loadAlbums() {
-            const grid = document.getElementById('album-grid');
-            grid.innerHTML = "<p style='text-align:center;'>正在扫描云端相册...</p>";
-
-            try {
-                const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.basePath}`;
-                const res = await fetch(url);
-
-                if (!res.ok) throw new Error('仓库路径不正确或 API 达到上限');
-
-                const data = await res.json();
-                // 只筛选文件夹 (type === 'dir')
-                const folders = data.filter(item => item.type === 'dir');
-
-                if (folders.length === 0) {
-                    grid.innerHTML = "<p style='text-align:center;'>gallery 文件夹内没有子文件夹，请先去 GitHub 上传。</p>";
-                    return;
-                }
-
-                // 生成卡片 HTML
-                grid.innerHTML = folders.map(f => `
-                <div class="album-card" onclick="handleEntry('${f.name}')">
-                    <div class="album-name">${f.name}</div>
-                </div>
-            `).join('');
-
-            } catch (e) {
-                console.error(e);
-                grid.innerHTML = `<p style='text-align:center; color:red;'>加载失败: ${e.message}</p>`;
-            }
-        }
-
-   let currentFolder = ""; // 记录当前点击的文件夹
-
-// 1. 点击加密文件夹时，打开弹窗 (适配 Flex 居中)
-function handleEntry(folderName) {
-    const lockFolders = ['hidden', 'private', 'secret'];
-    currentFolder = folderName; 
-
-    if (lockFolders.includes(folderName.toLowerCase())) {
-        // 🔴 这里改为用 'flex' 显示，这样才能实现 CSS 的 Flex 垂直居中效果
-        document.getElementById('password-modal').style.display = 'flex';
-        document.getElementById('password-input').focus(); 
-    } else {
-        loadPhotos(folderName);
-    }
-}
-
-// 2. 确认按钮点击、回车键确认、关闭弹窗的逻辑保持不变 (复制过来供参考)
-function submitPassword() {
-    const input = document.getElementById('password-input').value;
-    if (window.btoa(input.trim()) === CONFIG.s) {
-        closeModal();
-        loadPhotos(currentFolder);
-    } else {
-        alert("密码错误！");
-        document.getElementById('password-input').value = ""; 
-    }
-}
-function closeModal() {
-    document.getElementById('password-modal').style.display = 'none';
-    document.getElementById('password-input').value = "";
-}
-
-// 监听回车键：输入完敲回车也能确认
-document.getElementById('password-input')?.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') submitPassword();
-});
-
-        // 3. 读取并展示照片流
-        async function loadPhotos(folderName) {
-            // 切换视图
-            document.getElementById('category-view').style.display = 'none';
-            document.getElementById('photo-viewer').style.display = 'block';
-            document.getElementById('current-album-title').innerText = `正在开启：${folderName}`;
-
-            const list = document.getElementById('photo-list');
-            list.innerHTML = "<p style='text-align:center;'>正在提取照片...</p>";
-
-            try {
-                const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.basePath}/${folderName}`;
-                const res = await fetch(url);
-                const files = await res.json();
-
-                // 过滤图片文件
-                const photos = files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
-
-                if (photos.length === 0) {
-                    list.innerHTML = "<p style='text-align:center;'>该相册内暂无图片文件。</p>";
-                } else {
-                    list.innerHTML = photos.map(p => `
-                    <div style="break-inside: avoid; margin-bottom: 15px;">
-                        <img src="${p.download_url}" 
-                             style="width: 100%; border-radius: 10px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"
-                             loading="lazy">
-                    </div>
-                `).join('');
-                }
-                document.getElementById('current-album-title').innerText = folderName;
-
-            } catch (e) {
-                console.error(e);
-                list.innerHTML = "<p style='text-align:center; color:red;'>照片读取失败，请检查文件夹名是否包含特殊字符。</p>";
-            }
-        }
-
-        // 返回分类视图
-        function showCategories() {
-            document.getElementById('category-view').style.display = 'block';
-            document.getElementById('photo-viewer').style.display = 'none';
-        }
-
-        // 页面加载完成执行扫描
-        window.onload = loadAlbums;
-    </script>
+    <script src="photo.js"></script>
 </body>
 
 </html>
