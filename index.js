@@ -137,3 +137,106 @@ document.querySelector('.link-card .card-anchor').addEventListener('click', func
     // 注意：这里不需要再写移除 overlay 的代码
     // 让它一直全黑挡着，直到跳转成功。
 });
+
+// 1. 实时时钟逻辑 (保持不变)
+function updateBentoClock() {
+    const clockEl = document.getElementById('bento-clock');
+    if (!clockEl) return;
+    const now = new Date();
+    
+    // 苹果风格通常更倾向于简洁
+    // 如果想要带秒针：'HH:mm:ss'
+    // 如果只想要分秒：'HH:mm'
+    clockEl.textContent = now.toLocaleTimeString('zh-CN', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit' // 如果想更简洁可以把这一行删了
+    });
+}
+setInterval(updateBentoClock, 1000);
+updateBentoClock();
+
+// 2. 自动定位并获取天气
+async function updateWeatherByLocation() {
+    const tempEl = document.getElementById('weather-temp');
+    const descEl = document.getElementById('weather-desc');
+
+    // 检查浏览器是否支持定位
+    if (!navigator.geolocation) {
+        descEl.textContent = "浏览器不支持定位";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude; // 纬度
+        const lon = position.coords.longitude; // 经度
+
+        try {
+            // 使用 wttr.in 接口，传入经纬度
+            // format=j1 返回详细 JSON，lang=zh-cn 返回中文描述
+            const response = await fetch(`https://wttr.in/${lat},${lon}?format=j1&lang=zh-cn`);
+            const data = await response.json();
+            
+            const current = data.current_condition[0];
+            const city = data.nearest_area[0].areaName[0].value; // 获取最近的城市名
+
+            tempEl.textContent = `${current.temp_C}°C`;
+            // 如果接口有中文描述就用中文，否则用英文
+            descEl.textContent = `${city} | ${current.lang_zh ? current.lang_zh[0].value : current.weatherDesc[0].value}`;
+        } catch (error) {
+            tempEl.textContent = "N/A";
+            descEl.textContent = "天气服务请求失败";
+        }
+    }, (error) => {
+        // 定位失败处理
+        console.error(error);
+        descEl.textContent = "定位被拒绝或失败";
+        // 失败后可以调用一个默认城市作为兜底
+        updateWeatherDefault("NanChang"); 
+    });
+}
+
+// 兜底函数：如果定位失败，显示默认城市
+async function updateWeatherDefault(city) {
+    const tempEl = document.getElementById('weather-temp');
+    const descEl = document.getElementById('weather-desc');
+    try {
+        const response = await fetch(`https://wttr.in/${city}?format=j1&lang=zh-cn`);
+        const data = await response.json();
+        const current = data.current_condition[0];
+        tempEl.textContent = `${current.temp_C}°C`;
+        descEl.textContent = `${city} | ${current.lang_zh ? current.lang_zh[0].value : current.weatherDesc[0].value}`;
+    } catch (e) {
+        tempEl.textContent = "N/A";
+        descEl.textContent = "获取失败";
+    }
+}
+
+// 页面加载运行
+updateWeatherByLocation();
+// 每 30 分钟刷新一次
+setInterval(updateWeatherByLocation, 1800000);
+
+// 1. 引入不蒜子访问量统计脚本
+const script = document.createElement('script');
+script.src = "//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js";
+script.async = true;
+document.head.appendChild(script);
+
+// 2. 获取用户 IP 地址
+async function getUserIP() {
+    const ipEl = document.getElementById('user-ip');
+    try {
+        // 使用 ipify 免费接口获取 IP
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        ipEl.textContent = data.ip;
+    } catch (error) {
+        ipEl.textContent = "127.0.0.1"; // 出错时的 fallback
+        console.error("无法获取IP:", error);
+    }
+}
+
+// 页面加载时执行
+getUserIP();

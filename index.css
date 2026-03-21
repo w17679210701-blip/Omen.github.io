@@ -595,3 +595,52 @@ a {
         opacity: 0;
     }
 }
+
+#bento-clock {
+    /* 🔴 核心：优先调用苹果系统的苹方和 SF 字体 */
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "STHeiti", "Microsoft YaHei", sans-serif;
+    
+    font-size: 2.2rem;       /* 稍微加大一点，苹果体很耐看 */
+    font-weight: 600;        /* 苹方体用 600 粗细最显高级 */
+    letter-spacing: -1px;    /* 苹果设计的精髓是略微紧凑的字间距 */
+    color: var(--gold);
+    
+    /* 增加一点文字阴影，让时间更有立体感 */
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+    
+    /* 确保数字不会因为宽度不同而跳动 */
+    font-variant-numeric: tabular-nums; 
+}
+
+.bento-front span {
+    font-family: -apple-system, "PingFang SC", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 2px;     /* 下方小字用宽间距，形成对比 */
+    text-transform: uppercase;
+    margin-top: -5px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: #00ff88; /* 亮绿色 */
+    border-radius: 50%;
+    margin-bottom: 10px;
+    box-shadow: 0 0 10px #00ff88;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.status-card .bento-front, 
+.status-card .bento-back {
+    /* 确保内容上下排列 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
