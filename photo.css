@@ -1,36 +1,46 @@
 :root {
-            --bg: #0a0a0a;
-            --card: #1a1a1a;
-            --gold: #ffcc00;
-        }
+    --bg: #0a0a0a;
+    --card: #1a1a1a;
+    --gold: #ffcc00;
+}
 
-       h1 {
+h1 {
     text-align: center;
     letter-spacing: 4px;
     color: var(--gold);
-    
+
     /* 🔴 核心修改：给标题顶部加一个巨大的外边距 */
     /* 如果 60 没感觉，直接上 100px！ */
-    margin-top: 10px !important; 
+    margin-top: 10px !important;
     margin-bottom: 40px;
-    
+
     /* 确保它不是绝对定位，否则 margin 会失效 */
-    position: relative; 
+    position: relative;
 }
 
-        /* =========================================
+/* =========================================
    🟢 新增：流动渐变背景 (和 index 一致)
    ========================================= */
 
 /* 1. 定义流动动画关键帧 */
 @keyframes omen_bgFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
-#category-view, #photo-viewer {
-    background: transparent; /* 🟢 确保容器背景透明 */
+#category-view,
+#photo-viewer {
+    background: transparent;
+    /* 🟢 确保容器背景透明 */
     /* 其他样式保持不变... */
 }
 
@@ -40,27 +50,31 @@ body {
     padding: 0;
     min-height: 100vh;
     width: 100%;
-    overflow-x: hidden; 
+    overflow-x: hidden;
     display: block;
     padding-top: 60px;
-    
+     background-color: #0e0e10;
+
     /* 背景保持流动 */
-    background: linear-gradient(-45deg, #000000, #1a1a1a, #443300, #1a1a1a, #000000);
+
+    background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%), radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%), radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
     background-size: 400% 400%;
     animation: omen_bgFlow 15s ease infinite;
-    
+
     color: #e0e0e0;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    
+
     /* 🔴 删掉之前的 display: flex 和 align-items: center */
     /* 这样 category-view 就会恢复正常的块级布局，自动水平居中 */
 }
 
 /* 确保容器本身是居中的 */
-#category-view, #photo-viewer {
+#category-view,
+#photo-viewer {
     background: transparent;
     width: 100%;
-    display: block; /* 确保是块级 */
+    display: block;
+    /* 确保是块级 */
 }
 
 /* 修正相册网格 */
@@ -70,22 +84,31 @@ body {
     gap: 25px;
     width: 90%;
     max-width: 1200px;
-    margin: 40px auto; /* 🔴 margin: 0 auto 改为 40px auto，给顶部留点空隙 */
+    margin: 40px auto;
+    /* 🔴 margin: 0 auto 改为 40px auto，给顶部留点空隙 */
 }
 
-       .modal {
-    display: none; /* 初始隐藏 */
-    position: fixed; 
-    z-index: 2000; 
-    left: 0; top: 0; 
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); /* 遮罩颜色 */
-    backdrop-filter: blur(5px); /* 背景模糊 */
-    
+.modal {
+    display: none;
+    /* 初始隐藏 */
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    /* 遮罩颜色 */
+    backdrop-filter: blur(5px);
+    /* 背景模糊 */
+
     /* 🔴 居中核心代码 */
-    display: none; /* JS 脚本会控制改为 flex 或 block，初始设为 block 配合 JS 改 */
-    align-items: center; /* 垂直居中 */
-    justify-content: center; /* 水平居中 */
+    display: none;
+    /* JS 脚本会控制改为 flex 或 block，初始设为 block 配合 JS 改 */
+    align-items: center;
+    /* 垂直居中 */
+    justify-content: center;
+    /* 水平居中 */
 }
 
 /* 2. 弹窗主体：去掉原来的 margin-top，改用 flex 自动对齐 */
@@ -96,78 +119,117 @@ body {
     border-radius: 15px;
     width: 300px;
     text-align: center;
-    box-shadow: 0 0 30px rgba(255,204,0,0.2);
+    box-shadow: 0 0 30px rgba(255, 204, 0, 0.2);
     /* 🔴 不需要 margin 了，因为父级在控制 */
 }
 
 /* 其他样式保持不变，为了方便你也粘一下 */
-.modal-content h3 { color: #ffcc00; margin-top: 0; }
-#password-input {
-    width: 80%; padding: 10px; margin: 20px 0; background: #000; border: 1px solid #444;
-    border-radius: 5px; color: #fff; text-align: center; font-size: 1.2rem; letter-spacing: 5px;
+.modal-content h3 {
+    color: #ffcc00;
+    margin-top: 0;
 }
-.modal-btns { display: flex; justify-content: space-around; }
-.modal-btns button { padding: 10px 25px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; }
-.btn-confirm { background: #ffcc00; color: #000; }
-.btn-cancel { background: #333; color: #ccc; }
+
+#password-input {
+    width: 80%;
+    padding: 10px;
+    margin: 20px 0;
+    background: #000;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 5px;
+}
+
+.modal-btns {
+    display: flex;
+    justify-content: space-around;
+}
+
+.modal-btns button {
+    padding: 10px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+}
+
+.btn-confirm {
+    background: #ffcc00;
+    color: #000;
+}
+
+.btn-cancel {
+    background: #333;
+    color: #ccc;
+}
 
 
-        .album-card {
-            background: var(--card);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid #333;
-            position: relative;
-        }
+.album-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border-radius: 28px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    position: relative;
+}
 
-        .album-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--gold);
-        }
+.album-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 204, 0, 0.5);
+    /* 金色边框也变半透明 */
+    background: rgba(40, 40, 40, 0.8);
+    /* 悬停时稍微加深一点 */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* 增加阴影，更有浮起感 */
+}
 
-        /* 文件夹图标装饰 */
-        .album-card::before {
-            content: "📁";
-            font-size: 50px;
-            display: block;
-            margin-bottom: 10px;
-        }
+/* 文件夹图标装饰 */
+.album-card::before {
+    content: "📁";
+    font-size: 50px;
+    display: block;
+    margin-bottom: 10px;
+}
 
-        .album-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+.album-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
 
-        /* 隐藏的照片显示区域 */
-        #photo-viewer {
-            display: none;
-        }
+/* 隐藏的照片显示区域 */
+#photo-viewer {
+    display: none;
+}
 
-        .back-btn {
-            background: var(--gold);
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+.back-btn {
+    background: var(--gold);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
 
-        .photo-list {
-            column-count: 3;
-            column-gap: 15px;
-        }
+.photo-list {
+    column-count: 3;
+    column-gap: 15px;
+}
 
-        .photo-list img {
-            width: 100%;
-            margin-bottom: 15px;
-            border-radius: 8px;
-        }
+.photo-list img {
+    width: 100%;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
 
-        /* 导航条布局 */
+/* 导航条布局 */
 .nav-bar {
     max-width: 1200px;
     margin: 0 auto;
@@ -195,7 +257,8 @@ body {
     background: #ffcc00;
     color: #000;
     box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
-    transform: translateX(-5px); /* 往左微微移动，有动感 */
+    transform: translateX(-5px);
+    /* 往左微微移动，有动感 */
 }
 
 .back-btn .icon {
@@ -213,15 +276,30 @@ body {
 
 /* 流光旋转动画 */
 @keyframes omen_glowRotate {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 /* 呼吸灯特效 */
 @keyframes omen_breathe {
-    0%, 100% { box-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
-    50% { box-shadow: 0 0 25px rgba(255, 204, 0, 0.6); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(255, 204, 0, 0.6);
+    }
 }
 
 /* 按钮基础样式：高度设为 60px（约卡片一半），金色流光边框 */
@@ -230,36 +308,54 @@ body {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    
-    /* 🔴 修改这里：宽度设为 100%，由外部容器控制间距 */
     width: 100%; 
-    height: 45px; 
-    margin: 0; 
-    padding: 0;
-    
-    border: 2px solid transparent;
-    border-radius: 12px;
-    background-image: linear-gradient(#1a1a1a, #1a1a1a), 
-                      linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    background-size: 100% 100%, 400% 100%;
-    animation: omen_glowRotate 4s linear infinite;
+    height: 45px;
+    border-radius: 28px;
     cursor: pointer;
-    transition: 0.3s;
+    position: relative; /* 🔴 必须为 relative，给边框当基准 */
+    
+    /* 1. 按钮中间：100% 透明毛玻璃 */
+    background: rgba(255, 255, 255, 0.05) !important; 
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    
+    /* 2. 这里的边框设为透明，用来占位 */
+    border: 2px solid transparent; 
+    overflow: hidden;
+}
+
+/* 3. 🔴 关键：用伪元素单独画流光边框 */
+.omen-back-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0; /* 铺满整个按钮边缘 */
+    border-radius: 28px; 
+    padding: 2px; /* 🔴 这里的厚度就是你的金色边框厚度 */
+    
+    /* 金色流光渐变 */
+    background: linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
+    background-size: 400% 100%;
+    animation: omen_glowRotate 4s linear infinite;
+    
+    /* 🔴 魔法：只显示边框部分的背景，中间掏空 */
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    
+    pointer-events: none; /* 不影响点击 */
+}
+
+.omen-back-btn span {
+    color: #ffcc00;
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+    z-index: 2; /* 确保箭头在流光之上 */
+    transform: translateY(-5px);
 }
 
 .omen-back-btn:hover {
     animation: omen_glowRotate 1.5s linear infinite, omen_breathe 1s ease-in-out infinite;
 }
 
-/* 按钮内部图标：金色加粗箭头 */
-.omen-back-btn span {
-    color: #ffcc00;
-    font-size: 3rem;      /* 🔴 稍微调小一点，2.5rem 在 45px 的盒子里太挤了 */
-    font-weight: 900;
-    line-height: 1;         /* 🔴 强制行高为 1，防止上下撑开 */
-    display: flex;          /* 🔴 内部也开启 flex 确保对齐 */
-    align-items: center;
-    margin-top: -10px;
-}

@@ -211,7 +211,7 @@ body {
     align-items: center;
     min-height: 100vh;
     background-color: #0e0e10;
-    background-image: radial-gradient(at 0% 0%, #2c2c8a 0px, transparent 50%), radial-gradient(at 100% 100%, #156666 0px, transparent 50%), radial-gradient(at 80% 20%, #8a3d3d 0px, transparent 35%);
+    background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%), radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%), radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
     background-size: 200% 200%;
     animation: gradientFlow 15s ease infinite;
     background-attachment: fixed;
