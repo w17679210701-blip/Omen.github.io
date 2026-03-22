@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMEN | 个人博客</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+        /* --- 1. 基础重置与背景 --- */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* 1. 使用和 Photo 一模一样的径向渐变动画逻辑 */
         @keyframes bgFlow {
             0% {
                 background-position: 0% 50%;
@@ -25,134 +27,292 @@
             }
         }
 
-        .bg-flow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            /* 这里的颜色组合直接复刻 photo，保证视觉一致且动效明显 */
-            background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%),
-                radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%),
-                radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
-            background-color: #0e0e10;
-            background-size: 400% 400%;
-            animation: bgFlow 15s ease infinite;
-        }
-
         body {
             margin: 0;
             min-height: 100vh;
             display: flex;
-            align-items: flex-start;
-            padding-top: 40px;
+            /* 建议恢复 center，然后通过容器微调，这样最稳，不会出界 */
+            align-items: center;
             justify-content: center;
-            font-family: 'Inter', sans-serif;
+            background-color: #0e0e10;
+            background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%),
+                radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
+            background-size: 400% 400%;
+            animation: bgFlow 15s ease infinite;
+            font-family: system-ui, -apple-system, sans-serif;
             color: white;
+            overflow-x: hidden;
+            padding: 20px 20px 150px 20px;
         }
 
-        /* 2. 优化卡片透明度，让背景流光能透出来 */
+        /* --- 2. 核心布局容器 --- */
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 440px;
+            margin-top: 0;
+            /* 关键：整体往上挪 */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* --- 3. 玻璃卡片通用样式 --- */
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
-        /* 3. 加载层淡出效果 */
-        #loader.fade-out {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.8s ease-out;
+        .glass-card:active {
+            transform: scale(0.98);
         }
 
-        /* 隐藏所有可能的视频原生控件 */
+        /* --- 4. 具体组件样式 --- */
+        .profile-card {
+            grid-column: span 2;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 204, 0, 0.5);
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.15);
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-card {
+            grid-row: span 2;
+            background: #000;
+        }
+
+        .video-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+
+        /* 封死控件 */
         video::-webkit-media-controls {
             display: none !important;
         }
 
-        video::-webkit-media-controls-enclosure {
-            display: none !important;
+        .icon-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+            height: 120px;
         }
 
-        video::-webkit-media-controls-panel {
-            display: none !important;
+        .icon-bg {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: background 0.3s ease;
         }
 
-        /* 针对不同浏览器的投屏/下载隐藏 */
-        video::-internal-media-controls-download-button {
-            display: none !important;
+        .icon-link:hover .icon-bg {
+            background: rgba(255, 204, 0, 0.15);
         }
 
-        video::-webkit-media-controls-remote-playback-button {
-            display: none !important;
+        .status-bar {
+            grid-column: span 2;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .status-bar {
+                grid-column: span 3;
+            }
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        /* --- 6. 高级感微光光圈 --- */
+@keyframes glowPulse {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(255, 204, 0, 0.2), inset 0 0 5px rgba(255, 204, 0, 0.1);
+        border-color: rgba(255, 204, 0, 0.3);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(255, 204, 0, 0.6), inset 0 0 10px rgba(255, 204, 0, 0.3);
+        border-color: rgba(255, 204, 0, 0.8);
+    }
+}
+
+.avatar-halo {
+    position: relative;
+    padding: 2px;
+    border-radius: 50%;
+    /* 核心：不再用旋转色块，改用呼吸边框和外阴影 */
+    border: 1.5px solid rgba(255, 204, 0, 0.3);
+    animation: glowPulse 3s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+/* 增加一个背后的氛围扩散光（可选，如果不想要光晕可以删掉这段） */
+.avatar-halo::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 204, 0, 0.4) 0%, transparent 70%);
+    filter: blur(8px);
+    z-index: -1;
+    opacity: 0.5;
+}
+
+        /* --- 5. 加载层与动画 --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+
+        .loader-text {
+            color: #ffcc00;
+            font-weight: bold;
+            letter-spacing: 0.3em;
+            font-size: 1.25rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
 
-<body class="p-4">
+<body>
 
-    <div class="bg-flow"></div>
-
-    <div id="loader" class="fixed inset-0 z-[100] bg-[#020617] flex items-center justify-center">
-        <div class="text-[#ffcc00] font-['Montserrat'] font-black text-2xl tracking-[0.2em] animate-pulse">
-            OMEN SYSTEM
-        </div>
+    <div id="loader">
+        <div class="loader-text">OMEN SYSTEM</div>
     </div>
 
-    <div id="main-content"
-        class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-md opacity-0 translate-y-4 transition-all duration-1000 ease-out">
+    <div id="main-content" class="main-container">
 
-        <div class="glass-card col-span-2 p-5 flex items-center gap-4 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-orange-500/20 opacity-50"></div>
+        <div class="glass-card profile-card">
             <div
-                class="relative z-10 w-16 h-16 rounded-full border-2 border-[#ffcc00]/50 overflow-hidden shrink-0 shadow-[0_0_15px_rgba(255,204,0,0.2)]">
-                <img src="images/avatar.jpg" class="w-full h-full object-cover" alt="Avatar">
+                style="position: absolute; inset: 0; background: linear-gradient(to bottom right, rgba(37,99,235,0.1), rgba(249,115,22,0.1)); pointer-events: none;">
             </div>
-            <div class="relative z-10">
-                <h1 class="text-xl font-bold tracking-tight">OMEN | 个人博客</h1>
-                <p class="text-[10px] text-[#ffcc00] mt-1 font-medium opacity-90">预祝我哥新专《太阳之子》大卖！！！</p>
+            <div class="avatar-halo">
+                <div class="avatar-box">
+                    <img src="images/avatar.jpg" alt="Avatar">
+                </div>
+            </div>
+            <div style="position: relative; z-index: 1;">
+                <div style="font-weight: bold; font-size: 1.1rem; letter-spacing: -0.02em;">OMEN | 个人博客</div>
+                <div style="font-size: 10px; color: #ffcc00; margin-top: 4px; font-weight: 500;">预祝《太阳之子》大卖！！！</div>
             </div>
         </div>
 
-        <div class="glass-card row-span-2 overflow-hidden bg-black">
-            <video class="w-full h-full object-cover opacity-80" autoplay muted loop playsinline webkit-playsinline
-                disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback" preload="metadata">
+        <div class="glass-card video-card">
+            <video autoplay muted loop playsinline webkit-playsinline preload="metadata" disablePictureInPicture
+                controlsList="nodownload nofullscreen noremoteplayback">
                 <source src="videos/jayvideo1.MP4" type="video/mp4">
             </video>
         </div>
 
-        <div class="glass-card h-[120px]"></div>
+        <div class="glass-card" style="height: 120px;"></div>
 
-        <a href="photo.html" class="glass-card h-[120px] flex flex-col items-center justify-center gap-2 group">
-            <div class="p-3 rounded-2xl bg-white/5 group-hover:bg-[#ffcc00]/10 transition-colors">
-                <i data-lucide="camera" class="w-6 h-6 text-white/80 group-hover:text-[#ffcc00]"></i>
+        <a href="photo.html" class="glass-card icon-link">
+            <div class="icon-bg">
+                <i data-lucide="camera" style="width: 24px; height: 24px; opacity: 0.8;"></i>
             </div>
-            <span class="text-[10px] font-bold tracking-[0.2em] text-white/60 group-hover:text-white">私人影像馆</span>
+            <span
+                style="font-size: 10px; font-weight: bold; letter-spacing: 0.2em; color: rgba(255,255,255,0.6);">影像馆</span>
         </a>
 
-        <div class="glass-card h-[120px]"></div>
+        <div class="glass-card" style="height: 120px;"></div>
 
-        <div class="glass-card col-span-2 md:col-span-3 h-14 flex items-center justify-center gap-3">
-            <div class="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-pulse shadow-[0_0_8px_#00ff88]"></div>
-            <span class="text-[10px] font-medium tracking-[0.3em] text-white/40 uppercase">系统运行中...</span>
+        <div class="glass-card status-bar">
+            <div class="dot"></div>
+            <span
+                style="font-size: 10px; font-weight: 500; letter-spacing: 0.3em; color: rgba(255,255,255,0.4); text-transform: uppercase;">System
+                Active</span>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
-        window.addEventListener('load', () => {
+        window.onload = () => {
+            // 确保 Lucide 加载后初始化
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
             const loader = document.getElementById('loader');
             const main = document.getElementById('main-content');
+
+            // 稍微缩短加载等待，体感更快
             setTimeout(() => {
                 loader.classList.add('fade-out');
-                main.classList.remove('opacity-0', 'translate-y-4');
-                main.classList.add('opacity-100', 'translate-y-0');
-            }, 1000);
-        });
+                main.style.opacity = "1";
+                main.style.transform = "translateY(-100px)";
+            }, 500);
+        };
     </script>
 </body>
 
