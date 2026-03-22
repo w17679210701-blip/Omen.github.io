@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,50 +10,91 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
-        /* 自定义背景流光 */
-        @keyframes flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* 1. 使用和 Photo 一模一样的径向渐变动画逻辑 */
+        @keyframes bgFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .bg-flow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* 这里的颜色组合直接复刻 photo，保证视觉一致且动效明显 */
+            background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%),
+                radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
+            background-color: #0e0e10;
+            background-size: 400% 400%;
+            animation: bgFlow 15s ease infinite;
         }
 
         body {
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #1e293b, #020617);
-            background-size: 400% 400%;
-            animation: flow 15s ease infinite;
+            margin: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif;
             color: white;
-            margin: 0;
         }
 
-        /* 毛玻璃卡片基础样式 */
+        /* 2. 优化卡片透明度，让背景流光能透出来 */
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
-        .glass-card:hover {
-            border-color: rgba(255, 204, 0, 0.4);
-            transform: translateY(-2px);
-        }
-
-        /* 隐藏加载层动画 */
+        /* 3. 加载层淡出效果 */
         #loader.fade-out {
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.8s ease-out;
         }
+
+        /* 隐藏所有可能的视频原生控件 */
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
+
+        video::-webkit-media-controls-panel {
+            display: none !important;
+        }
+
+        /* 针对不同浏览器的投屏/下载隐藏 */
+        video::-internal-media-controls-download-button {
+            display: none !important;
+        }
+
+        video::-webkit-media-controls-remote-playback-button {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body class="p-4">
+
+    <div class="bg-flow"></div>
 
     <div id="loader" class="fixed inset-0 z-[100] bg-[#020617] flex items-center justify-center">
         <div class="text-[#ffcc00] font-['Montserrat'] font-black text-2xl tracking-[0.2em] animate-pulse">
@@ -60,12 +102,13 @@
         </div>
     </div>
 
-    <div id="main-content" class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-md opacity-0 translate-y-4 transition-all duration-1000 ease-out">
-        
+    <div id="main-content"
+        class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-md opacity-0 translate-y-4 transition-all duration-1000 ease-out">
+
         <div class="glass-card col-span-2 p-5 flex items-center gap-4 relative overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-orange-500/20 opacity-50"></div>
-            
-            <div class="relative z-10 w-16 h-16 rounded-full border-2 border-[#ffcc00]/50 overflow-hidden shrink-0 shadow-[0_0_15px_rgba(255,204,0,0.2)]">
+            <div
+                class="relative z-10 w-16 h-16 rounded-full border-2 border-[#ffcc00]/50 overflow-hidden shrink-0 shadow-[0_0_15px_rgba(255,204,0,0.2)]">
                 <img src="images/avatar.jpg" class="w-full h-full object-cover" alt="Avatar">
             </div>
             <div class="relative z-10">
@@ -75,7 +118,8 @@
         </div>
 
         <div class="glass-card row-span-2 overflow-hidden bg-black">
-            <video class="w-full h-full object-cover opacity-80" autoplay muted loop playsinline>
+            <video class="w-full h-full object-cover opacity-80" autoplay muted loop playsinline webkit-playsinline
+                disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback">
                 <source src="videos/jayvideo1.MP4" type="video/mp4">
             </video>
         </div>
@@ -95,25 +139,20 @@
             <div class="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-pulse shadow-[0_0_8px_#00ff88]"></div>
             <span class="text-[10px] font-medium tracking-[0.3em] text-white/40 uppercase">系统运行中...</span>
         </div>
-
     </div>
 
     <script>
-         // 初始化图标
         lucide.createIcons();
-
-        // 页面入场逻辑
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             const main = document.getElementById('main-content');
-            
             setTimeout(() => {
                 loader.classList.add('fade-out');
                 main.classList.remove('opacity-0', 'translate-y-4');
                 main.classList.add('opacity-100', 'translate-y-0');
             }, 1000);
         });
-
     </script>
 </body>
+
 </html>
