@@ -45,7 +45,8 @@
             margin: 0;
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            padding-top: 40px;
             justify-content: center;
             font-family: 'Inter', sans-serif;
             color: white;
@@ -119,7 +120,7 @@
 
         <div class="glass-card row-span-2 overflow-hidden bg-black">
             <video class="w-full h-full object-cover opacity-80" autoplay muted loop playsinline webkit-playsinline
-                disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback">
+                disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback" preload="metadata">
                 <source src="videos/jayvideo1.MP4" type="video/mp4">
             </video>
         </div>
