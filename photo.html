@@ -1,44 +1,87 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>相册</title>
-    <link rel="stylesheet" href="photo.css">
+    <title>OMEN's GALLERY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
+    <style>
+        /* 1. 流动背景动画 */
+        @keyframes bgFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animate-bg-flow {
+            background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%), 
+                              radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%), 
+                              radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
+            background-size: 400% 400%;
+            animation: bgFlow 15s ease infinite;
+        }
+
+        /* 2. 流光边框动画 */
+        @keyframes glowRotate {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        .omen-glow-border {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 2px solid transparent;
+            overflow: hidden;
+        }
+        .omen-glow-border::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            background: linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
+            background-size: 400% 100%;
+            animation: glowRotate 4s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+    </style>
 </head>
+<body class="bg-[#0e0e10] min-height-screen text-gray-200 animate-bg-flow pt-12 font-sans overflow-x-hidden">
 
-<body>
+    <div id="category-view" class="block w-full">
+        <h1 class="text-center text-[#ffcc00] text-3xl font-bold tracking-[4px] mb-10 uppercase">OMEN's GALLERY</h1>
+        <div id="album-grid" class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 w-[90%] max-w-[1200px] mx-auto pb-10">
+            </div>
+    </div>
 
-    <div id="category-view">
-        <h1>OMEN's GALLERY</h1>
-        <div class="album-grid" id="album-grid">
+    <div id="password-modal" class="hidden fixed inset-0 z-[2000] flex items-center justify-center bg-black/85 backdrop-blur-sm px-4">
+        <div class="bg-[#1a1a1a] p-8 border border-[#ffcc00] rounded-2xl w-full max-w-[320px] text-center shadow-[0_0_30px_rgba(255,204,0,0.2)]">
+            <h3 class="text-[#ffcc00] text-xl font-bold mb-4">请输入访问密码</h3>
+            <input type="password" id="password-input" 
+                   class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white text-center text-2xl tracking-[8px] focus:outline-none focus:border-[#ffcc00] transition-colors" 
+                   placeholder="******" maxlength="6">
+            <div class="flex justify-around mt-6 gap-4">
+                <button onclick="closeModal()" class="flex-1 px-4 py-2 bg-gray-800 text-gray-400 rounded-lg font-bold hover:bg-gray-700 transition-all">取消</button>
+                <button onclick="submitPassword()" class="flex-1 px-4 py-2 bg-[#ffcc00] text-black rounded-lg font-bold hover:shadow-[0_0_15px_rgba(255,204,0,0.5)] transition-all">确认</button>
+            </div>
         </div>
     </div>
 
-    <div id="password-modal" class="modal">
-    <div class="modal-content">
-        <h3>请输入访问密码</h3>
-        <input type="password" id="password-input" placeholder="6 位数字密码" maxlength="6">
-        <div class="modal-btns">
-            <button class="btn-cancel" onclick="closeModal()">取消</button>
-            <button class="btn-confirm" onclick="submitPassword()">确认</button>
+    <div id="photo-viewer" class="hidden w-full px-4">
+        <div class="max-w-[1200px] mx-auto py-6">
+            <button onclick="showCategories()" 
+                    class="group flex items-center gap-2 px-5 py-2 border border-[#ffcc00] text-[#ffcc00] rounded-full font-bold hover:bg-[#ffcc00] hover:text-black transition-all active:scale-95 shadow-lg">
+                <span class="text-xl">←</span> 返回相册集
+            </button>
         </div>
+        <h2 id="current-album-title" class="text-[#ffcc00] text-2xl text-center font-bold mb-8"></h2>
+        <div id="photo-list" class="max-w-[1200px] mx-auto pb-20">
+            </div>
     </div>
-</div>
-
-    <div id="photo-viewer" style="display: none;">
-    <div class="nav-bar">
-        <button class="back-btn" onclick="showCategories()">
-            <span class="icon">←</span> 返回相册集
-        </button>
-    </div>
-    
-    <h2 id="current-album-title" style="color: #ffcc00; text-align: center; margin-top: 20px;"></h2>
-    <div class="photo-list" id="photo-list"></div>
-</div>
 
     <script src="photo.js"></script>
 </body>
-
 </html>
