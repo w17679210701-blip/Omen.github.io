@@ -1,146 +1,103 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMEN OMEN | OMEN OMEN</title>
-    <link rel="stylesheet" href="index.css?v=4.0">
+    <title>OMEN | 个人博客</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+
+        /* 自定义背景流光 */
+        @keyframes flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #1e293b, #020617);
+            background-size: 400% 400%;
+            animation: flow 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: white;
+            margin: 0;
+        }
+
+        /* 毛玻璃卡片基础样式 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 204, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* 隐藏加载层动画 */
+        #loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-out;
+        }
+    </style>
 </head>
+<body class="p-4">
 
-<body>
-   <div id="loader-wrapper">
-    <div class="sun-halo"></div>
-    <div class="global-sweep-light"></div>
-    <div class="particle-container" id="particle-box"></div>
-
-    <div class="loader-content">
-        <h1 class="loader-logo">HI OMEN</h1>
-        <div class="shimmer-layer">HI OMEN</div>
-    </div>
-</div>
-</div>
-</div>
-    <div class="container" id="main-container">
-
-        <div class="bento-item profile-card" onclick="flipAllCards()">
-            <div class="bento-inner">
-                <div class="bento-front">
-                    <div class="avatar"><img src="images/avatar.jpg" alt="头像"></div>
-                    <div class="info-text">
-                        <h1>OMEN丨个人博客</h1>
-                        <p class="description">预祝我哥新专《太阳之子》大卖！！！</p>
-                    </div>
-                </div>
-                <div class="bento-back">
-                    <h2 style="color:var(--accent)">控制中心</h2>
-                    <p>点击返回首页</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bento-item video-card" onclick="switchVideo(this)">
-            <div class="bento-inner">
-                <div class="bento-front">
-                    <video id="video-a" webkit-playsinline playsinline x5-video-player-type="h5-page"
-                        x5-video-orientation="portrait" preload="metadata" autoplay muted loop class="bg-video"
-                        style="object-fit: cover;">
-                        <source src="videos/jayvideo1.MP4" type="video/mp4">
-                    </video>
-                </div>
-                <div class="bento-back" style="padding:0 !important; background:#000;">
-                    <video id="video-b" muted loop playsinline class="bg-video">
-                        <source src="" type="video/mp4">
-                    </video>
-                </div>
-            </div>
-        </div>
-
-        <div class="bento-item sales-card">
-            <div class="bento-inner">
-                <div class="bento-front">
-                    <div class="sales-header">
-                        <i data-lucide="trending-up" class="icon-small"></i>
-                        <h3>实时销量（QQ音乐）</h3>
-                    </div>
-                    <p id="sales-count">loading...</p>
-                    <div class="sales-badge">LIVE</div>
-                </div>
-                <div class="bento-back">
-                    <h3>实时数据源</h3>
-                    <p>每 2.5s 同步</p>
-                </div>
-            </div>
-        </div>
-
-    <div class="bento-item link-card">
-    <a href="https://c6.y.qq.com/base/fcgi-bin/u?__=lcfibEzma6aR" target="_blank" class="card-anchor">
-        <div class="bento-inner">
-            <div class="bento-front sos-cover"></div>
-            <div class="bento-back sos-cover"></div>
-        </div>
-    </a>
-</div>
-
-       <a href="photo.html" style="text-decoration: none; color: inherit; display: block;">
-    <div class="bento-item link-card">
-        <div class="bento-inner">
-            <div class="bento-front">
-                <i data-lucide="camera" class="icon"></i> <span>私人影像馆</span>
-            </div>
-            <div class="bento-back">
-                <p>Upyun / 密码访问</p>
-            </div>
+    <div id="loader" class="fixed inset-0 z-[100] bg-[#020617] flex items-center justify-center">
+        <div class="text-[#ffcc00] font-['Montserrat'] font-black text-2xl tracking-[0.2em] animate-pulse">
+            OMEN SYSTEM
         </div>
     </div>
-</a>
 
-
-<div class="bento-item github-card" onclick="toggleExpand(this)">
-    <div class="bento-inner">
-        <div class="bento-front">
-            <div id="bento-clock" style="font-size: 2rem; font-weight: bold; color: var(--gold); font-family: monospace;">00:00:00</div>
-            <span style="font-size: 0.8rem; opacity: 0.6;">CURRENT TIME</span>
-        </div>
+    <div id="main-content" class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-md opacity-0 translate-y-4 transition-all duration-1000 ease-out">
         
-        <div class="bento-back">
-            <div id="weather-info">
-                <div id="weather-temp" style="font-size: 1.8rem; font-weight: bold; color: var(--gold);">--°C</div>
-                <div id="weather-desc" style="font-size: 0.9rem; opacity: 0.8;">加载中...</div>
+        <div class="glass-card col-span-2 p-5 flex items-center gap-4 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-orange-500/20 opacity-50"></div>
+            
+            <div class="relative z-10 w-16 h-16 rounded-full border-2 border-[#ffcc00]/50 overflow-hidden shrink-0 shadow-[0_0_15px_rgba(255,204,0,0.2)]">
+                <img src="images/avatar.jpg" class="w-full h-full object-cover" alt="Avatar">
+            </div>
+            <div class="relative z-10">
+                <h1 class="text-xl font-bold tracking-tight">OMEN | 个人博客</h1>
+                <p class="text-[10px] text-[#ffcc00] mt-1 font-medium opacity-90">预祝我哥新专《太阳之子》大卖！！！</p>
             </div>
         </div>
+
+        <div class="glass-card row-span-2 overflow-hidden bg-black">
+            <video class="w-full h-full object-cover opacity-80" autoplay muted loop playsinline>
+                <source src="videos/jayvideo1.MP4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="glass-card h-[120px]"></div>
+
+        <a href="photo.html" class="glass-card h-[120px] flex flex-col items-center justify-center gap-2 group">
+            <div class="p-3 rounded-2xl bg-white/5 group-hover:bg-[#ffcc00]/10 transition-colors">
+                <i data-lucide="camera" class="w-6 h-6 text-white/80 group-hover:text-[#ffcc00]"></i>
+            </div>
+            <span class="text-[10px] font-bold tracking-[0.2em] text-white/60 group-hover:text-white">私人影像馆</span>
+        </a>
+
+        <div class="glass-card h-[120px]"></div>
+
+        <div class="glass-card col-span-2 md:col-span-3 h-14 flex items-center justify-center gap-3">
+            <div class="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-pulse shadow-[0_0_8px_#00ff88]"></div>
+            <span class="text-[10px] font-medium tracking-[0.3em] text-white/40 uppercase">系统运行中...</span>
+        </div>
+
     </div>
 
-    <div class="expanded-detail" style="display: none;">
-        <i data-lucide="cloud-sun" style="width: 48px; height: 48px; color: var(--gold);"></i>
-        <h2 style="margin: 20px 0 10px;">Status Board</h2>
-        <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px;">实时时间与气象数据同步中</p>
-    </div>
-</div>
-
-       <div class="bento-item status-card">
-    <div class="bento-inner">
-        <div class="bento-front">
-            <span class="dot"></span>
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <p id="user-ip" style="font-family: monospace; font-size: 1.1rem; color: var(--gold); margin: 5px 0;">加载中...</p>
-                <span style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px;">YOUR IP ADDRESS</span>
-            </div>
-        </div>
-        
-        <div class="bento-back">
-            <div style="text-align: center;">
-                <p id="busuanzi_container_site_pv" style="display:none; margin: 0;">
-                    <span id="busuanzi_value_site_pv" style="font-family: monospace; font-size: 1.5rem; font-weight: bold; color: var(--gold);">--</span>
-                </p>
-                <span style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 1px;">TOTAL VISITS</span>
-            </div>
-        </div>
-    </div>
-</div>
-    </div>
     <script src="index.js"></script>
 </body>
-
 </html>
