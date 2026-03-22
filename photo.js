@@ -1,140 +1,165 @@
-// 🔴 基础配置
+/**
+ * 🔴 1. 基础配置参数
+ * 注意：SecretKey 是非常敏感的信息，请确保不要泄露给他人。
+ */
 const CONFIG = {
-    username: 'w17679210701-blip',
-    repo: 'Public',
-    basePath: 'gallery',
-    s: "OTkwNzAx" // 990701 的 Base64
+    SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi', 
+    SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS', 
+    Bucket: 'hiomen-1312408524', 
+    Region: 'ap-guangzhou', 
+    s: "OTkwNzAx", 
+    albumList: ['日常', '猫', '加密相册'], 
+    lockFolders: ['加密相册', 'hidden', 'private'] 
 };
 
-// 用 var 或者直接挂载，防止 let 重复声明报错
-var OMEN_STATE = {
-    currentFolder: ""
-};
+/**
+ * 🛠️ 2. 初始化
+ */
+const cos = new COS({ SecretId: CONFIG.SecretId, SecretKey: CONFIG.SecretKey });
+var OMEN_STATE = { currentFolder: "", allPhotos: {} };
 
-// 1. 扫描文件夹并生成相册卡片
+/**
+ * 📂 3. 加载云端数据
+ */
 async function loadAlbums() {
     const grid = document.getElementById('album-grid');
-    if (!grid) return;
-    grid.innerHTML = "<p style='text-align:center;'>正在扫描云端相册...</p>";
+    grid.innerHTML = `<p class="col-span-full text-center text-white/50 animate-pulse py-20 text-sm tracking-widest">正在扫描云端相册...</p>`;
 
-    try {
-        const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.basePath}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('API 连接失败');
+    cos.getBucket({
+        Bucket: CONFIG.Bucket,
+        Region: CONFIG.Region,
+        Prefix: '', 
+    }, function(err, data) {
+        if (err) {
+            grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-20 text-sm">加载失败：请检查密钥和跨域设置</p>`;
+            return;
+        }
 
-        const data = await res.json();
-        const folders = data.filter(item => item.type === 'dir');
+        const files = data.Contents || [];
+        files.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
 
-        // A. 生成正常的相册卡片
-        let htmlContent = folders.map(f => `
-            <div class="album-card" onclick="handleEntry('${f.name}')">
-                <div class="album-name">${f.name}</div>
+        // 初始化容器
+        const albumMap = {};
+        CONFIG.albumList.forEach(name => albumMap[name] = []);
+
+        files.forEach(item => {
+            if (item.Size > 0) {
+                const parts = item.Key.split('/');
+                const folderName = parts.length > 1 ? parts[0] : '默认相册';
+                const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${item.Key}`;
+                if (!albumMap[folderName]) albumMap[folderName] = [];
+                albumMap[folderName].push(url);
+            }
+        });
+
+        OMEN_STATE.allPhotos = albumMap;
+        renderAlbumCards(Object.keys(albumMap));
+    });
+}
+
+/**
+ * 🎨 4. 渲染相册卡片 (修复为：一行两个)
+ */
+function renderAlbumCards(folders) {
+    const grid = document.getElementById('album-grid');
+    
+    // 强制修改 grid 的类名确保一行两个
+    grid.className = "grid grid-cols-2 gap-4 w-[95%] max-w-[800px] mx-auto pb-10";
+
+    const sortedFolders = folders.sort((a, b) => {
+        let indexA = CONFIG.albumList.indexOf(a);
+        let indexB = CONFIG.albumList.indexOf(b);
+        return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+    });
+
+    let html = sortedFolders.map(name => `
+        <div onclick="handleEntry('${name}')" 
+             class="group relative cursor-pointer bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 text-center transition-all duration-300 hover:bg-white/10 active:scale-95 shadow-lg">
+            <div class="text-4xl mb-3 grayscale group-hover:grayscale-0 transition-all">📁</div>
+            <div class="text-sm font-bold text-white uppercase tracking-tighter truncate">${name}</div>
+            <div class="text-[10px] text-white/30 mt-1">${OMEN_STATE.allPhotos[name].length} PHOTOS</div>
+        </div>
+    `).join('');
+
+    // 🔴 5. 返回按钮修复：修正了 ID 和显示问题
+    html += `
+        <div class="col-span-full flex justify-center pt-8">
+            <a href="index.html" class="omen-glow-border w-full h-[50px] flex items-center justify-center rounded-full active:scale-95 transition-transform">
+                <span class="text-[#ffcc00] text-3xl font-black mb-1">←</span>
+            </a>
+        </div>
+    `;
+    grid.innerHTML = html;
+}
+
+/**
+ * 📸 6. 展示照片 (两列瀑布流)
+ */
+function showPhotos(folderName) {
+    const catView = document.getElementById('category-view');
+    const photoView = document.getElementById('photo-viewer');
+
+    catView.classList.replace('block', 'hidden');
+    photoView.classList.replace('hidden', 'block');
+    
+    document.getElementById('current-album-title').innerText = folderName;
+    const list = document.getElementById('photo-list');
+    const photos = OMEN_STATE.allPhotos[folderName] || [];
+
+    list.className = "columns-2 gap-3 px-2";
+
+    if (photos.length === 0) {
+        list.innerHTML = `<div class="col-span-2 py-40 text-center text-white/20 italic">空空如也</div>`;
+    } else {
+        list.innerHTML = photos.map(url => `
+            <div class="break-inside-avoid mb-3">
+                <img src="${url}" 
+                     class="w-full rounded-xl border border-white/10 shadow-lg"
+                     loading="lazy">
             </div>
         `).join('');
-
-        // B. 🔴 修正：把返回按钮放进一个占位容器里，确保间距和宽度与上面完全对齐
-        // 我们不给这个容器加 album-card 类，避免它出现背景色或多余边距
-        htmlContent += `
-            <div style="padding: 0; width: 100%; display: flex; justify-content: center; margin-top: 1px;">
-                <a href="index.html" class="omen-back-btn">
-                    <span>&larr;</span>
-                </a>
-            </div>
-        `;
-
-        grid.innerHTML = htmlContent;
-
-    } catch (e) {
-        grid.innerHTML = `<p style='text-align:center; color:red;'>加载失败: ${e.message}</p>`;
     }
 }
 
-// 2. 文件夹入口处理
-function handleEntry(folderName) {
-    const lockFolders = ['hidden', 'private', 'secret'];
-    OMEN_STATE.currentFolder = folderName; 
-
-    if (lockFolders.includes(folderName.toLowerCase())) {
+/**
+ * 🔐 7. 密码与交互逻辑
+ */
+function handleEntry(name) {
+    OMEN_STATE.currentFolder = name;
+    const isLocked = CONFIG.lockFolders.some(f => f.toLowerCase() === name.toLowerCase());
+    if (isLocked) {
         const modal = document.getElementById('password-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-            document.getElementById('password-input').focus(); 
-        }
+        modal.classList.replace('hidden', 'flex');
+        document.getElementById('password-input').focus();
     } else {
-        loadPhotos(folderName);
+        showPhotos(name);
     }
 }
 
-// 3. 密码验证
+function showCategories() {
+    document.getElementById('photo-viewer').classList.replace('block', 'hidden');
+    document.getElementById('category-view').classList.replace('hidden', 'block');
+    window.scrollTo(0, 0);
+}
+
+function closeModal() {
+    document.getElementById('password-modal').classList.replace('flex', 'hidden');
+    document.getElementById('password-input').value = "";
+}
+
 function submitPassword() {
-    const input = document.getElementById('password-input');
-    if (!input) return;
-    
-    if (window.btoa(input.value.trim()) === CONFIG.s) {
+    const val = document.getElementById('password-input').value.trim();
+    if (window.btoa(val) === CONFIG.s) {
         closeModal();
-        loadPhotos(OMEN_STATE.currentFolder);
+        showPhotos(OMEN_STATE.currentFolder);
     } else {
         alert("密码错误！");
-        input.value = ""; 
+        document.getElementById('password-input').value = "";
     }
 }
 
-// 4. 关闭弹窗
-function closeModal() {
-    const modal = document.getElementById('password-modal');
-    const input = document.getElementById('password-input');
-    if (modal) modal.style.display = 'none';
-    if (input) input.value = "";
-}
-
-// 5. 照片流展示
-async function loadPhotos(folderName) {
-    document.getElementById('category-view').style.display = 'none';
-    document.getElementById('photo-viewer').style.display = 'block';
-    
-    const title = document.getElementById('current-album-title');
-    const list = document.getElementById('photo-list');
-    
-    title.innerText = `正在开启：${folderName}`;
-    list.innerHTML = "<p style='text-align:center;'>正在提取照片...</p>";
-
-    try {
-        const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.basePath}/${folderName}`;
-        const res = await fetch(url);
-        const files = await res.json();
-        const photos = files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
-
-        if (photos.length === 0) {
-            list.innerHTML = "<p style='text-align:center;'>该相册内暂无图片。</p>";
-        } else {
-            list.innerHTML = photos.map(p => `
-                <div style="break-inside: avoid; margin-bottom: 15px;">
-                    <img src="${p.download_url}" 
-                         style="width: 100%; border-radius: 10px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"
-                         loading="lazy">
-                </div>
-            `).join('');
-        }
-        title.innerText = folderName;
-    } catch (e) {
-        list.innerHTML = "<p style='text-align:center; color:red;'>读取失败</p>";
-    }
-}
-
-// 6. 返回分类
-function showCategories() {
-    document.getElementById('category-view').style.display = 'block';
-    document.getElementById('photo-viewer').style.display = 'none';
-    document.title = "OMEN'S GALLERY";
-}
-
-// 初始化
+// 初始化启动
 window.onload = loadAlbums;
-
-// 全局监听回车
-document.addEventListener('keypress', function (e) {
-    const modal = document.getElementById('password-modal');
-    if (e.key === 'Enter' && modal && modal.style.display === 'flex') {
-        submitPassword();
-    }
+document.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !document.getElementById('password-modal').classList.contains('hidden')) submitPassword();
 });
