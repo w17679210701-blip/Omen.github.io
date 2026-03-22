@@ -3,24 +3,27 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OMEN's GALLERY</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
     <style>
-        /* 1. 流动背景动画 */
+        /* --- 1. 基础重置 --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0;
+            background-color: #0e0e10;
+            color: #e5e7eb;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding-top: 3rem;
+            overflow-x: hidden;
+        }
+
+        /* --- 2. 流动背景 --- */
         @keyframes bgFlow {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .animate-bg-flow {
@@ -31,85 +34,168 @@
             animation: bgFlow 15s ease infinite;
         }
 
-        /* 2. 流光边框动画 */
-        @keyframes glowRotate {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            100% {
-                background-position: 100% 50%;
-            }
+        /* --- 3. 核心布局 --- */
+        .container { width: 90%; max-width: 1200px; mx-auto: auto; margin-left: auto; margin-right: auto; }
+        
+        h1.title {
+            text-align: center;
+            color: #ffcc00;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            margin-bottom: 2.5rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
         }
 
-        .omen-glow-border {
+        /* 相册网格 - 强制一行两个 */
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding-bottom: 2.5rem;
+        }
+
+        /* 相册卡片样式 */
+        .album-card {
             position: relative;
+            cursor: pointer;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
-            border: 2px solid transparent;
-            overflow: hidden;
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
         }
 
-        .omen-glow-border::before {
-            content: "";
-            position: absolute;
+        .album-card:active { transform: scale(0.95); }
+        .album-card .icon { font-size: 2.5rem; margin-bottom: 0.75rem; filter: grayscale(1); transition: 0.3s; }
+        .album-card:hover .icon { filter: grayscale(0); }
+        .album-card .name { font-size: 0.875rem; font-weight: bold; color: white; text-transform: uppercase; }
+        .album-card .count { font-size: 10px; color: rgba(255, 255, 255, 0.3); margin-top: 4px; }
+
+        /* --- 4. 瀑布流展示 --- */
+        .photo-list {
+            column-count: 2;
+            column-gap: 0.75rem;
+            padding-bottom: 5rem;
+        }
+        .photo-item { break-inside: avoid; margin-bottom: 0.75rem; }
+        .photo-item img {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: block;
+        }
+
+        /* --- 5. 密码弹窗 --- */
+        #password-modal {
+            display: none;
+            position: fixed;
             inset: 0;
-            padding: 2px;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            padding: 1rem;
+        }
+        .modal-content {
+            background: #1a1a1a;
+            padding: 2rem;
+            border: 1px solid #ffcc00;
+            border-radius: 1.25rem;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.2);
+        }
+        #password-input {
+            width: 100%;
+            background: black;
+            border: 1px solid #374151;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            letter-spacing: 8px;
+            margin-bottom: 1.5rem;
+        }
+        #password-input:focus { outline: none; border-color: #ffcc00; }
+        .btn-group { display: flex; gap: 1rem; }
+        .btn { flex: 1; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
+        .btn-cancel { background: #374151; color: #9ca3af; }
+        .btn-confirm { background: #ffcc00; color: black; }
+
+        /* --- 6. 底部返回按钮与流光 --- */
+        .back-nav { display: flex; align-items: center; gap: 0.5rem; color: #ffcc00; font-weight: bold; border: 1px solid #ffcc00; padding: 0.5rem 1.25rem; border-radius: 999px; background: none; cursor: pointer; margin-bottom: 2rem; }
+
+        .footer-back-box { grid-column: span 2; display: flex; justify-content: center; padding-top: 2rem; }
+        
+        @keyframes glowRotate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        .omen-glow-border {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            text-decoration: none;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .omen-glow-border::before {
+            content: ""; position: absolute; inset: 0; padding: 2px;
             background: linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
             background-size: 400% 100%;
             animation: glowRotate 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
+            -webkit-mask-composite: xor; mask-composite: exclude;
             pointer-events: none;
         }
+
+        /* 隐藏逻辑类 */
+        .hidden { display: none !important; }
+        .block { display: block !important; }
+        .flex { display: flex !important; }
     </style>
 </head>
 
-<body class="bg-[#0e0e10] min-height-screen text-gray-200 animate-bg-flow pt-12 font-sans overflow-x-hidden">
+<body class="animate-bg-flow">
 
-    <div id="category-view" class="block w-full">
-        <h1 class="text-center text-[#ffcc00] text-3xl font-bold tracking-[4px] mb-10 uppercase">OMEN's GALLERY</h1>
-        <div id="album-grid"
-            class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 w-[90%] max-w-[1200px] mx-auto pb-10">
-        </div>
+    <div id="category-view" class="container">
+        <h1 class="title">OMEN's GALLERY</h1>
+        <div id="album-grid" class="album-grid">
+            </div>
     </div>
 
-    <div id="password-modal"
-        class="hidden fixed inset-0 z-[2000] flex items-center justify-center bg-black/85 backdrop-blur-sm px-4">
-        <div
-            class="bg-[#1a1a1a] p-8 border border-[#ffcc00] rounded-2xl w-full max-w-[320px] text-center shadow-[0_0_30px_rgba(255,204,0,0.2)]">
-            <h3 class="text-[#ffcc00] text-xl font-bold mb-4">请输入访问密码</h3>
-            <input type="password" id="password-input"
-                class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white text-center text-2xl tracking-[8px] focus:outline-none focus:border-[#ffcc00] transition-colors"
-                placeholder="******" maxlength="6">
-            <div class="flex justify-around mt-6 gap-4">
-                <button onclick="closeModal()"
-                    class="flex-1 px-4 py-2 bg-gray-800 text-gray-400 rounded-lg font-bold hover:bg-gray-700 transition-all">取消</button>
-                <button onclick="submitPassword()"
-                    class="flex-1 px-4 py-2 bg-[#ffcc00] text-black rounded-lg font-bold hover:shadow-[0_0_15px_rgba(255,204,0,0.5)] transition-all">确认</button>
+    <div id="password-modal">
+        <div class="modal-content">
+            <h3 style="color:#ffcc00; margin-top:0;">请输入访问密码</h3>
+            <input type="password" id="password-input" placeholder="******" maxlength="6">
+            <div class="btn-group">
+                <button onclick="closeModal()" class="btn btn-cancel">取消</button>
+                <button onclick="submitPassword()" class="btn btn-confirm">确认</button>
             </div>
         </div>
     </div>
 
-    <div id="photo-viewer" class="hidden w-full px-4">
-        <div class="max-w-[1200px] mx-auto py-6">
-            <button onclick="showCategories()"
-                class="group flex items-center gap-2 px-5 py-2 border border-[#ffcc00] text-[#ffcc00] rounded-full font-bold hover:bg-[#ffcc00] hover:text-black transition-all active:scale-95 shadow-lg">
-                <span class="text-xl">←</span> 返回相册集
-            </button>
-        </div>
-        <h2 id="current-album-title" class="text-[#ffcc00] text-2xl text-center font-bold mb-8"></h2>
-        <div id="photo-list" class="max-w-[1200px] mx-auto pb-20">
-        </div>
+    <div id="photo-viewer" class="container hidden">
+        <button onclick="showCategories()" class="back-nav">
+            <span>←</span> 返回相册集
+        </button>
+        <h2 id="current-album-title" style="color:#ffcc00; text-align:center; margin-bottom:2rem;"></h2>
+        <div id="photo-list" class="photo-list">
+            </div>
     </div>
 
     <script>
-        /**
- * 🔴 1. 基础配置参数
- * 注意：SecretKey 是非常敏感的信息，请确保不要泄露给他人。
- */
         const CONFIG = {
             SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi',
             SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS',
@@ -120,18 +206,12 @@
             lockFolders: ['加密相册', 'hidden', 'private']
         };
 
-        /**
-         * 🛠️ 2. 初始化
-         */
         const cos = new COS({ SecretId: CONFIG.SecretId, SecretKey: CONFIG.SecretKey });
         var OMEN_STATE = { currentFolder: "", allPhotos: {} };
 
-        /**
-         * 📂 3. 加载云端数据
-         */
         async function loadAlbums() {
             const grid = document.getElementById('album-grid');
-            grid.innerHTML = `<p class="col-span-full text-center text-white/50 animate-pulse py-20 text-sm tracking-widest">正在扫描云端相册...</p>`;
+            grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.5; padding:5rem 0;">正在扫描云端相册...</p>`;
 
             cos.getBucket({
                 Bucket: CONFIG.Bucket,
@@ -139,14 +219,13 @@
                 Prefix: '',
             }, function (err, data) {
                 if (err) {
-                    grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-20 text-sm">加载失败：请检查密钥和跨域设置</p>`;
+                    grid.innerHTML = `<p style="grid-column: span 2; text-align:center; color:#ef4444;">加载失败：请检查密钥和跨域设置</p>`;
                     return;
                 }
 
                 const files = data.Contents || [];
                 files.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
 
-                // 初始化容器
                 const albumMap = {};
                 CONFIG.albumList.forEach(name => albumMap[name] = []);
 
@@ -165,15 +244,8 @@
             });
         }
 
-        /**
-         * 🎨 4. 渲染相册卡片 (修复为：一行两个)
-         */
         function renderAlbumCards(folders) {
             const grid = document.getElementById('album-grid');
-
-            // 强制修改 grid 的类名确保一行两个
-            grid.className = "grid grid-cols-2 gap-4 w-[95%] max-w-[800px] mx-auto pb-10";
-
             const sortedFolders = folders.sort((a, b) => {
                 let indexA = CONFIG.albumList.indexOf(a);
                 let indexB = CONFIG.albumList.indexOf(b);
@@ -181,62 +253,48 @@
             });
 
             let html = sortedFolders.map(name => `
-        <div onclick="handleEntry('${name}')" 
-             class="group relative cursor-pointer bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 text-center transition-all duration-300 hover:bg-white/10 active:scale-95 shadow-lg">
-            <div class="text-4xl mb-3 grayscale group-hover:grayscale-0 transition-all">📁</div>
-            <div class="text-sm font-bold text-white uppercase tracking-tighter truncate">${name}</div>
-            <div class="text-[10px] text-white/30 mt-1">${OMEN_STATE.allPhotos[name].length} PHOTOS</div>
-        </div>
-    `).join('');
+                <div onclick="handleEntry('${name}')" class="album-card">
+                    <div class="icon">📁</div>
+                    <div class="name">${name}</div>
+                    <div class="count">${OMEN_STATE.allPhotos[name].length} PHOTOS</div>
+                </div>
+            `).join('');
 
-            // 🔴 5. 返回按钮修复：修正了 ID 和显示问题
             html += `
-        <div class="col-span-full flex justify-center pt-8">
-            <a href="index.html" class="omen-glow-border w-full h-[50px] flex items-center justify-center rounded-full active:scale-95 transition-transform">
-                <span class="text-[#ffcc00] text-3xl font-black mb-1">←</span>
-            </a>
-        </div>
-    `;
+                <div class="footer-back-box">
+                    <a href="index.html" class="omen-glow-border">
+                        <span style="color:#ffcc00; font-size:1.5rem; font-weight:bold;">← BACK</span>
+                    </a>
+                </div>
+            `;
             grid.innerHTML = html;
         }
 
-        /**
-         * 📸 6. 展示照片 (两列瀑布流)
-         */
         function showPhotos(folderName) {
-            const catView = document.getElementById('category-view');
-            const photoView = document.getElementById('photo-viewer');
-
-            catView.classList.replace('block', 'hidden');
-            photoView.classList.replace('hidden', 'block');
-
+            document.getElementById('category-view').classList.add('hidden');
+            document.getElementById('photo-viewer').classList.remove('hidden');
             document.getElementById('current-album-title').innerText = folderName;
+            
             const list = document.getElementById('photo-list');
             const photos = OMEN_STATE.allPhotos[folderName] || [];
 
-            list.className = "columns-2 gap-3 px-2";
-
             if (photos.length === 0) {
-                list.innerHTML = `<div class="col-span-2 py-40 text-center text-white/20 italic">空空如也</div>`;
+                list.innerHTML = `<div style="text-align:center; opacity:0.2; padding:5rem 0;">空空如也</div>`;
             } else {
                 list.innerHTML = photos.map(url => `
-    <div class="break-inside-avoid mb-3">
-        <img src="${url}" 
-             class="w-full rounded-xl border border-white/10 shadow-lg"
-             loading="lazy"> </div>
-`).join('');
+                    <div class="photo-item">
+                        <img src="${url}" loading="lazy">
+                    </div>
+                `).join('');
             }
+            window.scrollTo(0, 0);
         }
 
-        /**
-         * 🔐 7. 密码与交互逻辑
-         */
         function handleEntry(name) {
             OMEN_STATE.currentFolder = name;
             const isLocked = CONFIG.lockFolders.some(f => f.toLowerCase() === name.toLowerCase());
             if (isLocked) {
-                const modal = document.getElementById('password-modal');
-                modal.classList.replace('hidden', 'flex');
+                document.getElementById('password-modal').classList.add('flex');
                 document.getElementById('password-input').focus();
             } else {
                 showPhotos(name);
@@ -244,13 +302,13 @@
         }
 
         function showCategories() {
-            document.getElementById('photo-viewer').classList.replace('block', 'hidden');
-            document.getElementById('category-view').classList.replace('hidden', 'block');
+            document.getElementById('photo-viewer').classList.add('hidden');
+            document.getElementById('category-view').classList.remove('hidden');
             window.scrollTo(0, 0);
         }
 
         function closeModal() {
-            document.getElementById('password-modal').classList.replace('flex', 'hidden');
+            document.getElementById('password-modal').classList.remove('flex');
             document.getElementById('password-input').value = "";
         }
 
@@ -265,10 +323,9 @@
             }
         }
 
-        // 初始化启动
         window.onload = loadAlbums;
         document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !document.getElementById('password-modal').classList.contains('hidden')) submitPassword();
+            if (e.key === 'Enter' && document.getElementById('password-modal').classList.contains('flex')) submitPassword();
         });
     </script>
 </body>
