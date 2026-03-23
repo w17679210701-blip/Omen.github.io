@@ -5,25 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMEN | 个人博客</title>
-    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* --- 1. 基础重置与背景 --- */
+        /* --- 1. 基础重置 --- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* --- 核心动画：升级版动态流体 --- */
         @keyframes bgFlow {
             0% {
-                background-position: 0% 50%;
+                background-position: 0% 0%;
+                filter: hue-rotate(0deg);
             }
 
             50% {
-                background-position: 100% 50%;
+                background-position: 100% 100%;
+                filter: hue-rotate(8deg);
+                /* 细微的色偏，增加动态层次 */
             }
 
             100% {
-                background-position: 0% 50%;
+                background-position: 0% 0%;
+                filter: hue-rotate(0deg);
             }
         }
 
@@ -31,74 +36,201 @@
             margin: 0;
             min-height: 100vh;
             display: flex;
-            /* 建议恢复 center，然后通过容器微调，这样最稳，不会出界 */
+            flex-direction: column;
+            align-items: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            padding: 100px 20px 50px 20px;
+            transition: background 0.8s ease, color 0.5s ease;
+
+            /* --- 深色模式：暗夜极光 --- */
+            background-color: #050505;
+            /* 提高光晕的 Alpha 值至 0.25 和 0.2，对比度更强 */
+            background-image:
+                radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.25) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(168, 133, 0, 0.2) 0px, transparent 50%),
+                linear-gradient(135deg, #050505 0%, #1a1a1f 50%, #050505 100%);
+            background-size: 200% 200%;
+            /* 尺寸缩小，流动感更明显 */
+            background-attachment: fixed;
+            animation: bgFlow 12s ease-in-out infinite;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* --- 浅色模式：梦幻冰川 --- */
+        body.light-mode {
+            background-color: #ffffff;
+            /* 浅色模式通过对比冷色与暖色来增强视觉效果 */
+            background-image:
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 40%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 40%),
+                linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+            background-size: 200% 200%;
+            background-attachment: fixed;
+            animation: bgFlow 12s ease-in-out infinite;
+            color: #1a1a1a;
+        }
+
+        /* --- 2. 悬浮导航按钮 --- */
+        .floating-btn {
+            position: fixed;
+            top: 25px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #0e0e10;
-            background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%),
-                radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%),
-                radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
-            background-size: 400% 400%;
-            animation: bgFlow 15s ease infinite;
-            font-family: system-ui, -apple-system, sans-serif;
-            color: white;
-            overflow-x: hidden;
-            padding: 20px 20px 150px 20px;
+            z-index: 1000;
+            cursor: pointer;
+            transition: 0.3s;
+            color: inherit;
         }
 
-        /* --- 2. 核心布局容器 --- */
-        .main-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+        body.light-mode .floating-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-left {
+            left: 20px;
+        }
+
+        .btn-right {
+            right: 20px;
+        }
+
+        /* --- 3. 顶部标题区 --- */
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .sub-title {
+            font-size: 0.9rem;
+            color: rgba(150, 150, 150, 0.6);
+            margin-top: 8px;
+            letter-spacing: 4px;
+        }
+
+        body.light-mode .main-title {
+            color: #1a1a1a;
+        }
+
+        /* --- 4. 滚动公告栏 --- */
+        .notice-bar {
             width: 100%;
             max-width: 440px;
-            margin-top: 0;
-            /* 关键：整体往上挪 */
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        @media (min-width: 768px) {
-            .main-container {
-                grid-template-columns: repeat(3, 1fr);
+        body.light-mode .notice-bar {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .notice-content {
+            white-space: nowrap;
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-size: 13px;
+            color: #ffcc00;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
             }
         }
 
-        /* --- 3. 玻璃卡片通用样式 --- */
+        /* --- 5. 核心布局容器 --- */
+        .main-container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        /* --- 6. 玻璃卡片 --- */
         .glass-card {
             background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            position: relative;
+            border-radius: 28px;
             overflow: hidden;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.3s ease, background 0.5s ease;
         }
 
-        .glass-card:active {
-            transform: scale(0.98);
+        body.light-mode .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         }
 
-        /* --- 4. 具体组件样式 --- */
-        .profile-card {
-            grid-column: span 2;
-            padding: 20px;
+        /* --- 7. 个人名片特化 --- */
+        .profile-card-large {
+            padding: 40px 20px 25px 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 16px;
+        }
+
+        .avatar-halo {
+            padding: 3px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            animation: glowPulse 3s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);
+                border-color: rgba(255, 204, 0, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
+                border-color: rgba(255, 204, 0, 0.7);
+            }
         }
 
         .avatar-box {
-            width: 64px;
-            height: 64px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 204, 0, 0.5);
             overflow: hidden;
-            flex-shrink: 0;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.15);
         }
 
         .avatar-box img {
@@ -107,187 +239,69 @@
             object-fit: cover;
         }
 
-        .video-card {
-            grid-row: span 2;
-            background: #000;
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
         }
 
-        .video-card video {
+        .contact-group {
+            display: flex;
+            gap: 15px;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.8;
-        }
-
-        /* 封死控件 */
-        video::-webkit-media-controls {
-            display: none !important;
-        }
-
-        .icon-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
-            text-decoration: none;
-            color: white;
-            height: 120px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
         }
 
-        .icon-bg {
-            padding: 12px;
+        body.light-mode .contact-group {
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            transition: background 0.3s ease;
-        }
-
-        .icon-link:hover .icon-bg {
-            background: rgba(255, 204, 0, 0.15);
-        }
-
-        .status-bar {
-            grid-column: span 2;
-            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: inherit;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        body.light-mode .contact-btn {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .contact-btn:hover {
+            background: rgba(255, 204, 0, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        @media (min-width: 768px) {
-            .status-bar {
-                grid-column: span 3;
-            }
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: #00ff88;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00ff88;
-            animation: pulse 2s infinite;
-        }
-
-        /* --- 6. 高级感微光光圈 --- */
-        @keyframes glowPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 5px rgba(255, 204, 0, 0.2), inset 0 0 5px rgba(255, 204, 0, 0.1);
-                border-color: rgba(255, 204, 0, 0.3);
-            }
-
-            50% {
-                box-shadow: 0 0 20px rgba(255, 204, 0, 0.6), inset 0 0 10px rgba(255, 204, 0, 0.3);
-                border-color: rgba(255, 204, 0, 0.8);
-            }
-        }
-
-        .avatar-halo {
-            position: relative;
-            padding: 2px;
-            border-radius: 50%;
-            /* 核心：不再用旋转色块，改用呼吸边框和外阴影 */
-            border: 1.5px solid rgba(255, 204, 0, 0.3);
-            animation: glowPulse 3s ease-in-out infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-        }
-
-        /* 增加一个背后的氛围扩散光（可选，如果不想要光晕可以删掉这段） */
-        .avatar-halo::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 204, 0, 0.4) 0%, transparent 70%);
-            filter: blur(8px);
-            z-index: -1;
-            opacity: 0.5;
-        }
-
-        /* --- 5. 加载层与动画 --- */
+        /* 加载层 */
         #loader {
             position: fixed;
             inset: 0;
-            z-index: 100;
-            background: #020617;
+            z-index: 2000;
+            background: #0a0a0c;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.6s ease;
-        }
-
-        .loader-text {
-            color: #ffcc00;
-            font-weight: bold;
-            letter-spacing: 0.3em;
-            font-size: 1.25rem;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.4;
-            }
+            transition: 0.6s;
         }
 
         .fade-out {
             opacity: 0;
             pointer-events: none;
-        }
-
-        /* --- 7. 极简倒计时样式 --- */
-        .countdown-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .countdown-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: #ffcc00;
-            margin-bottom: 8px;
-        }
-
-        .countdown-timer {
-            /* 核心：使用等宽字体防止数字抖动 */
-            font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Consolas, monospace;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: #ffcc00;
-            /* 呼应你的金色主题 */
-            display: flex;
-            gap: 4px;
-            align-items: baseline;
-            font-variant-numeric: tabular-nums;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
-        }
-
-        .countdown-ms {
-            font-family: ui-monospace, 'SF Mono', Consolas, monospace;
-            font-size: 1rem;
-            color: rgba(255, 0, 0, 0.6);
-            width: 38px;
-            /* 固定宽度，确保毫秒跑起来时不晃动整体 */
-            text-align: left;
         }
     </style>
 </head>
@@ -295,113 +309,96 @@
 <body>
 
     <div id="loader">
-        <div class="loader-text">OMEN SYSTEM</div>
+        <div style="color:#ffcc00; letter-spacing:5px; animation: pulse 1s infinite;">LOADING...</div>
+    </div>
+
+    <div class="floating-btn btn-left"><i data-lucide="menu" size="20"></i></div>
+    <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="moon" size="20"></i></div>
+
+    <div class="header-section">
+        <h1 class="main-title">个人博客</h1>
+        <div class="sub-title">一人 丨 一猫 丨 一首歌</div>
+    </div>
+
+    <div class="notice-bar">
+        <div class="notice-content">
+            📢 欢迎来到 OMEN 的空间！ · 新专辑《太阳之子》即将发布 · 系统已持续运行 1024 小时 · Stay Hungry, Stay Foolish...
+        </div>
     </div>
 
     <div id="main-content" class="main-container">
-
-        <div class="glass-card profile-card">
-            <div
-                style="position: absolute; inset: 0; background: linear-gradient(to bottom right, rgba(37,99,235,0.1), rgba(249,115,22,0.1)); pointer-events: none;">
-            </div>
+        <div class="glass-card profile-card-large">
             <div class="avatar-halo">
                 <div class="avatar-box">
                     <img src="images/avatar.jpg" alt="Avatar">
                 </div>
             </div>
-            <div style="position: relative; z-index: 1;">
-                <div style="font-weight: bold; font-size: 1.1rem; letter-spacing: -0.02em;">OMEN | 个人博客</div>
-                <div style="font-size: 10px; color: #ffcc00; margin-top: 4px; font-weight: 500;">预祝《太阳之子》大卖！！！</div>
+            <div class="profile-name">Omen</div>
+
+            <div class="contact-group">
+                <a href="#" class="contact-btn"><i data-lucide="send" size="20"></i></a>
+                <a href="#" class="contact-btn"><i data-lucide="instagram" size="20"></i></a>
+                <a href="#" class="contact-btn"><i data-lucide="mail" size="20"></i></a>
             </div>
         </div>
 
-        <div class="glass-card video-card">
-            <video autoplay muted loop playsinline webkit-playsinline preload="metadata" disablePictureInPicture
-                controlsList="nodownload nofullscreen noremoteplayback">
-                <source src="videos/jayvideo1.MP4" type="video/mp4">
-            </video>
-        </div>
-
-        <div class="glass-card" style="height: 120px;">
-            <div class="countdown-container">
-                <div class="countdown-label">距离《太阳之子》发布还有</div>
-                <div class="countdown-timer" id="timer">
-                    <span id="time-main">00:00:00</span>
-                    <span class="countdown-ms" id="time-ms">000</span>
+        <div class="grid-row">
+            <a href="photo.html" class="glass-card"
+                style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-decoration:none; color:inherit; gap:10px;">
+                <i data-lucide="image" color="#ffcc00"></i>
+                <span style="font-size:12px; letter-spacing:2px;">作品相册</span>
+            </a>
+            <div class="glass-card"
+                style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
+                <span style="font-size:10px; opacity:0.5">SYSTEM STATUS</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div
+                        style="width:6px; height:6px; background:#00ff88; border-radius:50%; box-shadow:0 0 10px #00ff88;">
+                    </div>
+                    <span style="font-size:12px;">ACTIVE</span>
                 </div>
             </div>
-        </div>
-
-        <a href="photo.html" class="glass-card icon-link">
-            <div class="icon-bg">
-                <i data-lucide="gallery-horizontal-end"
-                    style="width: 26px; height: 26px; opacity: 0.85; color: white;"></i>
-            </div>
-            <span
-                style="font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.4em; color: rgba(255,255,255,0.85); text-indent: 0.4em; display: inline-block;">相册</span>
-            <span
-                style="font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; font-size: 9px; font-weight: 300; letter-spacing: 0.15em; color: rgba(255,255,255,0.3); text-transform: uppercase;">Powered
-                by Tencent Cloud</span>
-        </a>
-
-        <div class="glass-card" style="height: 120px;"></div>
-
-        <div class="glass-card status-bar">
-            <div class="dot"></div>
-            <span
-                style="font-size: 10px; font-weight: 500; letter-spacing: 0.3em; color: rgba(255,255,255,0.4); text-transform: uppercase;">System
-                Active</span>
         </div>
     </div>
 
     <script>
-        window.onload = () => {
-            // 确保 Lucide 加载后初始化
-            if (window.lucide) {
-                lucide.createIcons();
-            }
+    // 1. 初始化判断（放在最前面，防止闪烁）
+    const body = document.body;
+    const themeToggle = document.getElementById('theme-toggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-            const loader = document.getElementById('loader');
-            const main = document.getElementById('main-content');
+    // 自动检测逻辑：如果系统不是深色模式，则应用浅色
+    if (!prefersDark) {
+        body.classList.add('light-mode');
+    }
 
-            // 稍微缩短加载等待，体感更快
-            setTimeout(() => {
-                loader.classList.add('fade-out');
-                main.style.opacity = "1";
-                main.style.transform = "translateY(-100px)";
-            }, 500);
-        };
+    window.onload = () => {
+        // 初始化图标（根据当前 body 状态设置正确图标）
+        const isLight = body.classList.contains('light-mode');
+        themeToggle.innerHTML = isLight ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+        lucide.createIcons();
 
-        // 设置目标日期
-        const targetDate = new Date("2026-03-24T13:00:00").getTime();
+        // 处理 Loader 和内容入场
+        const loader = document.getElementById('loader');
+        const main = document.getElementById('main-content');
+        
+        setTimeout(() => {
+            loader.classList.add('fade-out');
+            main.style.opacity = "1";
+            main.style.transform = "translateY(0)";
+        }, 600);
+    };
 
-        function updateTimer() {
-            const now = new Date().getTime();
-            const diff = targetDate - now;
-
-            if (diff <= 0) {
-                document.getElementById('timer').innerHTML = "ALBUM RELEASED";
-                return;
-            }
-
-            // --- 核心修改：不再计算 days，直接计算总小时数 ---
-            // 1小时 = 3600000 毫秒
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-            const ms = Math.floor(diff % 1000);
-
-            // 格式化输出：小时数如果超过 100 也会自动撑开，不用担心
-            const mainStr = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-            document.getElementById('time-main').innerText = mainStr;
-            document.getElementById('time-ms').innerText = ms.toString().padStart(3, '0');
-
-            requestAnimationFrame(updateTimer);
-        }
-
-        requestAnimationFrame(updateTimer);
-    </script>
+    // 2. 点击切换逻辑
+    themeToggle.onclick = function() {
+        body.classList.toggle('light-mode');
+        const isLightNow = body.classList.contains('light-mode');
+        
+        // 更新图标并重绘
+        this.innerHTML = isLightNow ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+        lucide.createIcons();
+    };
+</script>
 </body>
 
 </html>

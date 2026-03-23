@@ -5,37 +5,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OMEN's GALLERY</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
+    
     <style>
-        /* --- 1. 基础重置 --- */
+        /* --- 1. 基础重置与主页同步背景 --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        @keyframes bgFlow {
+            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+            50% { background-position: 100% 100%; filter: hue-rotate(8deg); }
+            100% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+        }
+
         body {
             margin: 0;
-            background-color: #0e0e10;
-            color: #e5e7eb;
-            font-family: system-ui, -apple-system, sans-serif;
             min-height: 100vh;
-            padding-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: system-ui, -apple-system, sans-serif;
             overflow-x: hidden;
+            padding: 100px 20px 50px 20px;
+            transition: background 0.8s ease, color 0.5s ease;
+            
+            /* 默认深色模式背景参数（同步主页） */
+            background-color: #050505;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.25) 0px, transparent 50%), 
+                radial-gradient(at 90% 90%, rgba(168, 133, 0, 0.2) 0px, transparent 50%),
+                linear-gradient(135deg, #050505 0%, #1a1a1f 50%, #050505 100%);
+            background-size: 200% 200%;
+            background-attachment: fixed;
+            animation: bgFlow 12s ease-in-out infinite;
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        /* --- 2. 流动背景 --- */
-        @keyframes bgFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* 浅色模式背景参数（同步主页） */
+        body.light-mode {
+            background-color: #ffffff;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 40%), 
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 40%),
+                linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+            color: #1a1a1a;
         }
 
-        .animate-bg-flow {
-            background-image: radial-gradient(at 0% 0%, #4040d9 0px, transparent 50%),
-                radial-gradient(at 100% 100%, #1bb8b8 0px, transparent 50%),
-                radial-gradient(at 80% 20%, #dc9538 0px, transparent 35%);
-            background-size: 400% 400%;
-            animation: bgFlow 15s ease infinite;
+        /* --- 2. 悬浮导航按钮 --- */
+        .floating-btn {
+            position: fixed;
+            top: 25px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+            transition: 0.3s;
+            color: inherit;
         }
+        body.light-mode .floating-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .btn-left { left: 20px; }
+        .btn-right { right: 20px; }
 
         /* --- 3. 核心布局 --- */
-        .container { width: 90%; max-width: 1200px; mx-auto: auto; margin-left: auto; margin-right: auto; }
+        .container { width: 100%; max-width: 800px; margin: 0 auto; }
         
         h1.title {
             text-align: center;
@@ -45,130 +88,99 @@
             letter-spacing: 4px;
             margin-bottom: 2.5rem;
             text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
         }
 
-        /* 相册网格 - 强制一行两个 */
+        /* 相册卡片玻璃拟态 */
         .album-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            gap: 12px;
             padding-bottom: 2.5rem;
         }
 
-        /* 相册卡片样式 */
         .album-card {
-            position: relative;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.25rem;
-            padding: 1.25rem;
+            border-radius: 28px;
+            padding: 1.5rem;
             text-align: center;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
-
+        body.light-mode .album-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
         .album-card:active { transform: scale(0.95); }
-        .album-card .icon { font-size: 2.5rem; margin-bottom: 0.75rem; filter: grayscale(1); transition: 0.3s; }
-        .album-card:hover .icon { filter: grayscale(0); }
-        .album-card .name { font-size: 0.875rem; font-weight: bold; color: white; text-transform: uppercase; }
-        .album-card .count { font-size: 10px; color: rgba(255, 255, 255, 0.3); margin-top: 4px; }
+        .album-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .album-card .name { font-size: 0.9rem; font-weight: bold; color: inherit; }
+        .album-card .count { font-size: 10px; opacity: 0.4; margin-top: 4px; }
 
-        /* --- 4. 瀑布流展示 --- */
-        .photo-list {
-            column-count: 2;
-            column-gap: 0.75rem;
-            padding-bottom: 5rem;
-        }
-        .photo-item { break-inside: avoid; margin-bottom: 0.75rem; }
+        /* 瀑布流 */
+        .photo-list { column-count: 2; column-gap: 10px; padding-bottom: 5rem; }
+        .photo-item { break-inside: avoid; margin-bottom: 10px; }
         .photo-item img {
             width: 100%;
-            border-radius: 0.75rem;
+            border-radius: 18px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             display: block;
         }
 
-        /* --- 5. 密码弹窗 --- */
+        /* 密码弹窗同步主页风格 */
         #password-modal {
             display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
-            padding: 1rem;
+            position: fixed; inset: 0; z-index: 2000;
+            align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
         }
         .modal-content {
-            background: #1a1a1a;
-            padding: 2rem;
-            border: 1px solid #ffcc00;
-            border-radius: 1.25rem;
-            width: 100%;
-            max-width: 320px;
+            background: #16161a;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 204, 0, 0.5);
+            border-radius: 28px;
+            width: 90%; max-width: 320px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(255, 204, 0, 0.2);
         }
         #password-input {
-            width: 100%;
-            background: black;
-            border: 1px solid #374151;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            color: white;
-            text-align: center;
-            font-size: 1.5rem;
-            letter-spacing: 8px;
-            margin-bottom: 1.5rem;
+            width: 100%; background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 12px;
+            color: white; font-size: 1.5rem; text-align: center;
+            margin: 20px 0;
         }
-        #password-input:focus { outline: none; border-color: #ffcc00; }
-        .btn-group { display: flex; gap: 1rem; }
-        .btn { flex: 1; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
-        .btn-cancel { background: #374151; color: #9ca3af; }
-        .btn-confirm { background: #ffcc00; color: black; }
 
-        /* --- 6. 底部返回按钮与流光 --- */
-        .back-nav { display: flex; align-items: center; gap: 0.5rem; color: #ffcc00; font-weight: bold; border: 1px solid #ffcc00; padding: 0.5rem 1.25rem; border-radius: 1.25rem; background: none; cursor: pointer; margin-bottom: 2rem; }
-
-        .footer-back-box { grid-column: span 2; display: flex; justify-content: center; padding-top: 2rem; }
-        
-        @keyframes glowRotate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        /* 底部流光返回 */
         .omen-glow-border {
-            position: relative;
-            width: 100%;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 1.25rem;
-            text-decoration: none;
-            overflow: hidden;
+            position: relative; width: 100%; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 25px; text-decoration: none; overflow: hidden;
             background: rgba(255, 255, 255, 0.05);
+            grid-column: span 2; margin-top: 20px;
         }
         .omen-glow-border::before {
             content: ""; position: absolute; inset: 0; padding: 2px;
             background: linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
-            background-size: 400% 100%;
-            animation: glowRotate 4s linear infinite;
+            background-size: 400% 100%; animation: glowRotate 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            pointer-events: none;
-            border-radius: 1.25rem;
+            border-radius: 25px;
         }
+        @keyframes glowRotate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
-        /* 隐藏逻辑类 */
+        .back-nav { color: #ffcc00; font-weight: bold; border: 1px solid #ffcc00; padding: 8px 20px; border-radius: 20px; background: none; cursor: pointer; margin-bottom: 20px; }
         .hidden { display: none !important; }
-        .block { display: block !important; }
         .flex { display: flex !important; }
     </style>
 </head>
 
-<body class="animate-bg-flow">
+<body>
+
+    <div class="floating-btn btn-left" onclick="location.href='index.html'"><i data-lucide="home" size="20"></i></div>
+    <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="moon" size="20"></i></div>
 
     <div id="category-view" class="container">
         <h1 class="title">OMEN's GALLERY</h1>
@@ -180,20 +192,17 @@
         <div class="modal-content">
             <h3 style="color:#ffcc00; margin-top:0;">请输入访问密码</h3>
             <input type="password" id="password-input" placeholder="******" maxlength="6">
-            <div class="btn-group">
-                <button onclick="closeModal()" class="btn btn-cancel">取消</button>
-                <button onclick="submitPassword()" class="btn btn-confirm">确认</button>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeModal()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#333; color:white;">取消</button>
+                <button onclick="submitPassword()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#ffcc00; color:black; font-weight:bold;">确认</button>
             </div>
         </div>
     </div>
 
     <div id="photo-viewer" class="container hidden">
-        <button onclick="showCategories()" class="back-nav">
-            <span>←</span> 返回相册集
-        </button>
+        <button onclick="showCategories()" class="back-nav">← 返回相册集</button>
         <h2 id="current-album-title" style="color:#ffcc00; text-align:center; margin-bottom:2rem;"></h2>
-        <div id="photo-list" class="photo-list">
-            </div>
+        <div id="photo-list" class="photo-list"></div>
     </div>
 
     <script>
@@ -210,26 +219,46 @@
         const cos = new COS({ SecretId: CONFIG.SecretId, SecretKey: CONFIG.SecretKey });
         var OMEN_STATE = { currentFolder: "", allPhotos: {} };
 
+        // --- 核心修改：主题同步逻辑 ---
+        const body = document.body;
+        const themeToggle = document.getElementById('theme-toggle');
+
+        // 自动识别系统或记忆
+        if (localStorage.getItem('theme') === 'light' || (!localStorage.getItem('theme') && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            body.classList.add('light-mode');
+        }
+
+        window.onload = () => {
+            lucide.createIcons(); // 初始化图标
+            updateThemeIcon();
+            loadAlbums();
+        };
+
+        themeToggle.onclick = function() {
+            body.classList.toggle('light-mode');
+            const isLight = body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            updateThemeIcon();
+        };
+
+        function updateThemeIcon() {
+            const isLight = body.classList.contains('light-mode');
+            themeToggle.innerHTML = isLight ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+            lucide.createIcons();
+        }
+
+        // --- 原有业务逻辑保持并适配 ---
         async function loadAlbums() {
             const grid = document.getElementById('album-grid');
-            grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.5; padding:5rem 0;">正在扫描云端相册...</p>`;
+            grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.5; padding:5rem 0;">扫描中...</p>`;
 
             cos.getBucket({
-                Bucket: CONFIG.Bucket,
-                Region: CONFIG.Region,
-                Prefix: '',
+                Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '',
             }, function (err, data) {
-                if (err) {
-                    grid.innerHTML = `<p style="grid-column: span 2; text-align:center; color:#ef4444;">加载失败：请检查密钥和跨域设置</p>`;
-                    return;
-                }
-
+                if (err) return;
                 const files = data.Contents || [];
-                files.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
-
                 const albumMap = {};
                 CONFIG.albumList.forEach(name => albumMap[name] = []);
-
                 files.forEach(item => {
                     if (item.Size > 0) {
                         const parts = item.Key.split('/');
@@ -239,7 +268,6 @@
                         albumMap[folderName].push(url);
                     }
                 });
-
                 OMEN_STATE.allPhotos = albumMap;
                 renderAlbumCards(Object.keys(albumMap));
             });
@@ -247,48 +275,20 @@
 
         function renderAlbumCards(folders) {
             const grid = document.getElementById('album-grid');
-            const sortedFolders = folders.sort((a, b) => {
-                let indexA = CONFIG.albumList.indexOf(a);
-                let indexB = CONFIG.albumList.indexOf(b);
-                return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
-            });
-
-            let html = sortedFolders.map(name => `
+            let html = folders.map(name => `
                 <div onclick="handleEntry('${name}')" class="album-card">
                     <div class="icon">📁</div>
                     <div class="name">${name}</div>
-                    <div class="count">${OMEN_STATE.allPhotos[name].length} PHOTOS</div>
+                    <div class="count">${OMEN_STATE.allPhotos[name].length} 图</div>
                 </div>
             `).join('');
 
             html += `
-                <div class="footer-back-box">
-                    <a href="index.html" class="omen-glow-border">
-                        <span style="color:#ffcc00; font-size:1.5rem; font-weight:bold;">← BACK</span>
-                    </a>
-                </div>
+                <a href="index.html" class="omen-glow-border">
+                    <span style="color:#ffcc00; font-weight:bold;">← BACK TO HOME</span>
+                </a>
             `;
             grid.innerHTML = html;
-        }
-
-        function showPhotos(folderName) {
-            document.getElementById('category-view').classList.add('hidden');
-            document.getElementById('photo-viewer').classList.remove('hidden');
-            document.getElementById('current-album-title').innerText = folderName;
-            
-            const list = document.getElementById('photo-list');
-            const photos = OMEN_STATE.allPhotos[folderName] || [];
-
-            if (photos.length === 0) {
-                list.innerHTML = `<div style="text-align:center; opacity:0.2; padding:5rem 0;">空空如也</div>`;
-            } else {
-                list.innerHTML = photos.map(url => `
-                    <div class="photo-item">
-                        <img src="${url}" loading="lazy">
-                    </div>
-                `).join('');
-            }
-            window.scrollTo(0, 0);
         }
 
         function handleEntry(name) {
@@ -302,16 +302,24 @@
             }
         }
 
-        function showCategories() {
-            document.getElementById('photo-viewer').classList.add('hidden');
-            document.getElementById('category-view').classList.remove('hidden');
+        function showPhotos(folderName) {
+            document.getElementById('category-view').classList.add('hidden');
+            document.getElementById('photo-viewer').classList.remove('hidden');
+            document.getElementById('current-album-title').innerText = folderName;
+            const list = document.getElementById('photo-list');
+            const photos = OMEN_STATE.allPhotos[folderName] || [];
+            list.innerHTML = photos.map(url => `
+                <div class="photo-item"><img src="${url}" loading="lazy"></div>
+            `).join('');
             window.scrollTo(0, 0);
         }
 
-        function closeModal() {
-            document.getElementById('password-modal').classList.remove('flex');
-            document.getElementById('password-input').value = "";
+        function showCategories() {
+            document.getElementById('photo-viewer').classList.add('hidden');
+            document.getElementById('category-view').classList.remove('hidden');
         }
+
+        function closeModal() { document.getElementById('password-modal').classList.remove('flex'); }
 
         function submitPassword() {
             const val = document.getElementById('password-input').value.trim();
@@ -320,14 +328,8 @@
                 showPhotos(OMEN_STATE.currentFolder);
             } else {
                 alert("密码错误！");
-                document.getElementById('password-input').value = "";
             }
         }
-
-        window.onload = loadAlbums;
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && document.getElementById('password-modal').classList.contains('flex')) submitPassword();
-        });
     </script>
 </body>
 
