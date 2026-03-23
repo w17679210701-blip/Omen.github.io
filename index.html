@@ -23,7 +23,6 @@
             50% {
                 background-position: 100% 100%;
                 filter: hue-rotate(8deg);
-                /* 细微的色偏，增加动态层次 */
             }
 
             100% {
@@ -42,32 +41,23 @@
             overflow-x: hidden;
             padding: 100px 20px 50px 20px;
             transition: background 0.8s ease, color 0.5s ease;
-
-            /* --- 深色模式：暗夜极光 --- */
             background-color: #050505;
-            /* 提高光晕的 Alpha 值至 0.25 和 0.2，对比度更强 */
             background-image:
                 radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.25) 0px, transparent 50%),
                 radial-gradient(at 90% 90%, rgba(168, 133, 0, 0.2) 0px, transparent 50%),
                 linear-gradient(135deg, #050505 0%, #1a1a1f 50%, #050505 100%);
             background-size: 200% 200%;
-            /* 尺寸缩小，流动感更明显 */
             background-attachment: fixed;
             animation: bgFlow 12s ease-in-out infinite;
             color: rgba(255, 255, 255, 0.9);
         }
 
-        /* --- 浅色模式：梦幻冰川 --- */
         body.light-mode {
             background-color: #ffffff;
-            /* 浅色模式通过对比冷色与暖色来增强视觉效果 */
             background-image:
                 radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 40%),
                 radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 40%),
                 linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
-            background-size: 200% 200%;
-            background-attachment: fixed;
-            animation: bgFlow 12s ease-in-out infinite;
             color: #1a1a1a;
         }
 
@@ -196,7 +186,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         }
 
-        /* --- 7. 个人名片特化 --- */
         .profile-card-large {
             padding: 40px 20px 25px 20px;
             display: flex;
@@ -272,10 +261,6 @@
             text-decoration: none;
         }
 
-        body.light-mode .contact-btn {
-            background: rgba(0, 0, 0, 0.04);
-        }
-
         .contact-btn:hover {
             background: rgba(255, 204, 0, 0.2);
             transform: translateY(-3px);
@@ -287,21 +272,116 @@
             gap: 12px;
         }
 
-        /* 加载层 */
+        /* --- 重点修改：载入页面背景 --- */
         #loader {
             position: fixed;
             inset: 0;
             z-index: 2000;
-            background: #0a0a0c;
+            /* 使用白粉渐变，加入微弱的流动感动画 */
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 75%, #fff0f5 100%);
+            background-size: 400% 400%;
+            animation: loaderBgFlow 4s ease infinite;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.6s;
+            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes loaderBgFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* 载入文字调整，确保在浅色背景下清晰且保持风格 */
+        .loader-text {
+            color: #ff69b4;
+            letter-spacing: 8px;
+            font-weight: 900;
+            animation: pulse 1.5s infinite;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
         }
 
         .fade-out {
             opacity: 0;
             pointer-events: none;
+            transform: scale(1.1);
+            /* 消失时带一点放大感 */
+        }
+
+        /* 3D 翻转基础配置 */
+        .flip-card {
+            perspective: 1000px;
+            height: 120px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* 闪烁呼吸灯效果 */
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #00ff88;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
     </style>
 </head>
@@ -309,7 +389,7 @@
 <body>
 
     <div id="loader">
-        <div style="color:#ffcc00; letter-spacing:5px; animation: pulse 1s infinite;">LOADING...</div>
+        <div class="loader-text">LOADING</div>
     </div>
 
     <div class="floating-btn btn-left"><i data-lucide="menu" size="20"></i></div>
@@ -322,7 +402,7 @@
 
     <div class="notice-bar">
         <div class="notice-content">
-            📢 欢迎来到 OMEN 的空间！ · 新专辑《太阳之子》即将发布 · 系统已持续运行 1024 小时 · Stay Hungry, Stay Foolish...
+            📢 欢迎来到 OMEN 的空间！ · 祝JAY新专辑《太阳之子》大卖！ · 目前处于测试阶段 · 本站由GitHub、腾讯云提供云服务。
         </div>
     </div>
 
@@ -334,11 +414,18 @@
                 </div>
             </div>
             <div class="profile-name">Omen</div>
-
             <div class="contact-group">
-                <a href="#" class="contact-btn"><i data-lucide="send" size="20"></i></a>
-                <a href="#" class="contact-btn"><i data-lucide="instagram" size="20"></i></a>
-                <a href="#" class="contact-btn"><i data-lucide="mail" size="20"></i></a>
+                <a href="https://t.me/OmenG82_Pro" target="_blank" class="contact-btn">
+                    <i data-lucide="send" size="20"></i>
+                </a>
+
+                <a href="https://instagram.com/OmenYi701" target="_blank" class="contact-btn">
+                    <i data-lucide="instagram" size="20"></i>
+                </a>
+
+                <a href="mailto:w17679210701@gmail.com" class="contact-btn">
+                    <i data-lucide="mail" size="20"></i>
+                </a>
             </div>
         </div>
 
@@ -348,57 +435,106 @@
                 <i data-lucide="image" color="#ffcc00"></i>
                 <span style="font-size:12px; letter-spacing:2px;">作品相册</span>
             </a>
-            <div class="glass-card"
-                style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
-                <span style="font-size:10px; opacity:0.5">SYSTEM STATUS</span>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div
-                        style="width:6px; height:6px; background:#00ff88; border-radius:50%; box-shadow:0 0 10px #00ff88;">
+            <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card-inner">
+
+                    <div class="flip-card-front glass-card"
+                        style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; margin:0;">
+                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">当前时间</span>
+                        <div id="live-clock"
+                            style="font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);">
+                            00:00:00.000</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="status-dot"></div>
+                            <span style="font-size:12px;">系统运行中</span>
+                        </div>
                     </div>
-                    <span style="font-size:12px;">ACTIVE</span>
+
+                    <div class="flip-card-back glass-card"
+                        style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; margin:0;">
+                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">距离《太阳之子》发布还有</span>
+                        <div id="countdown-timer"
+                            style="font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);">
+                            00:00:00.000</div>
+                        <span style="font-size:9px; opacity:0.4; margin-top:5px;">ps：发布会时间</span>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    // 1. 初始化判断（放在最前面，防止闪烁）
-    const body = document.body;
-    const themeToggle = document.getElementById('theme-toggle');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const body = document.body;
+        const themeToggle = document.getElementById('theme-toggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // 自动检测逻辑：如果系统不是深色模式，则应用浅色
-    if (!prefersDark) {
-        body.classList.add('light-mode');
-    }
+        if (!prefersDark) {
+            body.classList.add('light-mode');
+        }
 
-    window.onload = () => {
-        // 初始化图标（根据当前 body 状态设置正确图标）
-        const isLight = body.classList.contains('light-mode');
-        themeToggle.innerHTML = isLight ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
-        lucide.createIcons();
+        // --- 修改这里：在 window.onload 内部启动计时器 ---
+        window.onload = () => {
+            const isLight = body.classList.contains('light-mode');
+            themeToggle.innerHTML = isLight ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+            lucide.createIcons();
 
-        // 处理 Loader 和内容入场
-        const loader = document.getElementById('loader');
-        const main = document.getElementById('main-content');
-        
-        setTimeout(() => {
-            loader.classList.add('fade-out');
-            main.style.opacity = "1";
-            main.style.transform = "translateY(0)";
-        }, 600);
-    };
+            const loader = document.getElementById('loader');
+            const main = document.getElementById('main-content');
 
-    // 2. 点击切换逻辑
-    themeToggle.onclick = function() {
-        body.classList.toggle('light-mode');
-        const isLightNow = body.classList.contains('light-mode');
-        
-        // 更新图标并重绘
-        this.innerHTML = isLightNow ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
-        lucide.createIcons();
-    };
-</script>
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+                main.style.opacity = "1";
+                main.style.transform = "translateY(0)";
+            }, 800);
+
+            // 关键：在这里点火！
+            initTimers();
+        };
+
+        function initTimers() {
+            const clock = document.getElementById('live-clock');
+            const countdown = document.getElementById('countdown-timer');
+            // 目标时间：2027年元旦
+            const target = new Date("2026-03-24T13:00:00").getTime();
+
+            function update() {
+                const now = new Date();
+
+                // 实时时间刷新
+                if (clock) {
+                    const timeStr = now.getHours().toString().padStart(2, '0') + ":" +
+                        now.getMinutes().toString().padStart(2, '0') + ":" +
+                        now.getSeconds().toString().padStart(2, '0') + "." +
+                        now.getMilliseconds().toString().padStart(3, '0');
+                    clock.textContent = timeStr;
+                }
+
+                // 倒计时刷新
+                if (countdown) {
+                    const diff = target - now.getTime();
+                    if (diff > 0) {
+                        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                        const ms = (diff % 1000).toString().padStart(3, '0');
+                        countdown.textContent = `${h}:${m}:${s}.${ms}`;
+                    } else {
+                        countdown.textContent = "TIME UP!";
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+            update();
+        }
+
+        themeToggle.onclick = function () {
+            body.classList.toggle('light-mode');
+            const isLightNow = body.classList.contains('light-mode');
+            this.innerHTML = isLightNow ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+            lucide.createIcons();
+        };
+    </script>
 </body>
 
 </html>

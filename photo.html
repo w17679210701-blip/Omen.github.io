@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
     
     <style>
-        /* --- 1. 基础重置与主页同步背景 --- */
+        /* --- 1. 基础重置 --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         @keyframes bgFlow {
@@ -19,29 +19,18 @@
         }
 
         body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
-            padding: 100px 20px 50px 20px;
-            transition: background 0.8s ease, color 0.5s ease;
-            
-            /* 默认深色模式背景参数（同步主页） */
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden;
+            padding: 100px 20px 50px 20px; transition: background 0.8s ease, color 0.5s ease;
             background-color: #050505;
             background-image: 
                 radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.25) 0px, transparent 50%), 
                 radial-gradient(at 90% 90%, rgba(168, 133, 0, 0.2) 0px, transparent 50%),
                 linear-gradient(135deg, #050505 0%, #1a1a1f 50%, #050505 100%);
-            background-size: 200% 200%;
-            background-attachment: fixed;
-            animation: bgFlow 12s ease-in-out infinite;
-            color: rgba(255, 255, 255, 0.9);
+            background-size: 200% 200%; background-attachment: fixed;
+            animation: bgFlow 12s ease-in-out infinite; color: rgba(255, 255, 255, 0.9);
         }
 
-        /* 浅色模式背景参数（同步主页） */
         body.light-mode {
             background-color: #ffffff;
             background-image: 
@@ -51,123 +40,82 @@
             color: #1a1a1a;
         }
 
-        /* --- 2. 悬浮导航按钮 --- */
-        .floating-btn {
-            position: fixed;
-            top: 25px;
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            cursor: pointer;
-            transition: 0.3s;
-            color: inherit;
+        /* --- 2. 标题区 (同步主页) --- */
+        .main-header { text-align: center; margin-bottom: 30px; }
+        .main-header h1 { font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: 2px; }
+        .main-header p { font-size: 0.9rem; color: rgba(150, 150, 150, 0.6); margin-top: 8px; letter-spacing: 4px; }
+        body.light-mode .main-header h1 { color: #1a1a1a; }
+
+        /* --- 3. 滚动公告栏 (完全同步主页参数) --- */
+        .notice-bar {
+            width: 100%; max-width: 440px; height: 40px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px);
+            border-radius: 12px; margin-bottom: 20px; display: flex;
+            align-items: center; padding: 0 15px; overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: -14px;
         }
-        body.light-mode .floating-btn {
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.08);
+
+        body.light-mode .notice-bar {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .notice-content {
+            white-space: nowrap; display: inline-block;
+            animation: marquee 20s linear infinite; font-size: 13px; color: #ffcc00;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- 4. 悬浮按钮 --- */
+        .floating-btn {
+            position: fixed; top: 25px; width: 45px; height: 45px;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; cursor: pointer; transition: 0.3s; color: inherit;
         }
         .btn-left { left: 20px; }
         .btn-right { right: 20px; }
 
-        /* --- 3. 核心布局 --- */
-        .container { width: 100%; max-width: 800px; margin: 0 auto; }
-        
-        h1.title {
-            text-align: center;
-            color: #ffcc00;
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: 4px;
-            margin-bottom: 2.5rem;
-            text-transform: uppercase;
-        }
-
-        /* 相册卡片玻璃拟态 */
-        .album-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding-bottom: 2.5rem;
-        }
-
+        /* --- 5. 布局容器 (同步主页 440px) --- */
+        .container { width: 100%; max-width: 440px; margin: 0 auto; }
+        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 2.5rem; }
         .album-card {
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 28px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 28px;
+            padding: 1.8rem 1rem; text-align: center; transition: all 0.4s ease; cursor: pointer;
         }
-        body.light-mode .album-card {
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-        }
-        .album-card:active { transform: scale(0.95); }
-        .album-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .album-card .name { font-size: 0.9rem; font-weight: bold; color: inherit; }
-        .album-card .count { font-size: 10px; opacity: 0.4; margin-top: 4px; }
+        body.light-mode .album-card { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.8); }
+        .album-card .icon { margin-bottom: 12px; display: flex; justify-content: center; }
+        .album-card:hover { transform: translateY(-8px); border-color: rgba(255, 204, 0, 0.4); }
+        .album-card .name { font-size: 0.95rem; font-weight: bold; }
+        .album-card .count { font-size: 10px; opacity: 0.4; margin-top: 6px; }
 
         /* 瀑布流 */
         .photo-list { column-count: 2; column-gap: 10px; padding-bottom: 5rem; }
-        .photo-item { break-inside: avoid; margin-bottom: 10px; }
-        .photo-item img {
-            width: 100%;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: block;
-        }
+        .photo-item img { width: 100%; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.1); display: block; margin-bottom: 10px; }
 
-        /* 密码弹窗同步主页风格 */
-        #password-modal {
-            display: none;
-            position: fixed; inset: 0; z-index: 2000;
-            align-items: center; justify-content: center;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-        }
-        .modal-content {
-            background: #16161a;
-            padding: 2.5rem;
-            border: 1px solid rgba(255, 204, 0, 0.5);
-            border-radius: 28px;
-            width: 90%; max-width: 320px;
-            text-align: center;
-        }
-        #password-input {
-            width: 100%; background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 12px;
-            color: white; font-size: 1.5rem; text-align: center;
-            margin: 20px 0;
-        }
+        /* 密码弹窗 */
+        #password-modal { display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); }
+        .modal-content { background: #16161a; padding: 2.5rem; border: 1px solid rgba(255, 204, 0, 0.5); border-radius: 28px; width: 90%; max-width: 320px; text-align: center; }
+        #password-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; font-size: 1.5rem; text-align: center; margin: 20px 0; }
 
-        /* 底部流光返回 */
+        /* 底部返回按钮 */
         .omen-glow-border {
-            position: relative; width: 100%; height: 50px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 25px; text-decoration: none; overflow: hidden;
-            background: rgba(255, 255, 255, 0.05);
-            grid-column: span 2; margin-top: 20px;
+            position: relative; width: 100%; height: 50px; display: flex; align-items: center; justify-content: center;
+            border-radius: 25px; text-decoration: none; overflow: hidden; background: rgba(255, 255, 255, 0.05); grid-column: span 2; margin-top: 20px;
         }
         .omen-glow-border::before {
             content: ""; position: absolute; inset: 0; padding: 2px;
             background: linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
             background-size: 400% 100%; animation: glowRotate 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor; mask-composite: exclude;
-            border-radius: 25px;
+            -webkit-mask-composite: xor; mask-composite: exclude; border-radius: 25px;
         }
         @keyframes glowRotate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
@@ -182,10 +130,19 @@
     <div class="floating-btn btn-left" onclick="location.href='index.html'"><i data-lucide="home" size="20"></i></div>
     <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="moon" size="20"></i></div>
 
+    <header class="main-header">
+        <h1>个人相册</h1>
+        <p>一人 丨 一猫 丨 一首歌</p>
+    </header>
+
+    <div class="notice-bar">
+        <div class="notice-content">
+            📢 欢迎来到我的摄影小站！本站正在持续建设中，不定期更新生活碎片。本站由GitHub、腾讯云提供云服务。
+        </div>
+    </div>
+
     <div id="category-view" class="container">
-        <h1 class="title">OMEN's GALLERY</h1>
-        <div id="album-grid" class="album-grid">
-            </div>
+        <div id="album-grid" class="album-grid"></div>
     </div>
 
     <div id="password-modal">
@@ -206,6 +163,7 @@
     </div>
 
     <script>
+        // 脚本部分保持原样以确保功能正常
         const CONFIG = {
             SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi',
             SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS',
@@ -219,17 +177,14 @@
         const cos = new COS({ SecretId: CONFIG.SecretId, SecretKey: CONFIG.SecretKey });
         var OMEN_STATE = { currentFolder: "", allPhotos: {} };
 
-        // --- 核心修改：主题同步逻辑 ---
         const body = document.body;
         const themeToggle = document.getElementById('theme-toggle');
 
-        // 自动识别系统或记忆
         if (localStorage.getItem('theme') === 'light' || (!localStorage.getItem('theme') && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             body.classList.add('light-mode');
         }
 
         window.onload = () => {
-            lucide.createIcons(); // 初始化图标
             updateThemeIcon();
             loadAlbums();
         };
@@ -247,14 +202,10 @@
             lucide.createIcons();
         }
 
-        // --- 原有业务逻辑保持并适配 ---
         async function loadAlbums() {
             const grid = document.getElementById('album-grid');
-            grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.5; padding:5rem 0;">扫描中...</p>`;
-
-            cos.getBucket({
-                Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '',
-            }, function (err, data) {
+            grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.3; padding:5rem 0;">LOADING GALLERY...</p>`;
+            cos.getBucket({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '' }, function (err, data) {
                 if (err) return;
                 const files = data.Contents || [];
                 const albumMap = {};
@@ -275,62 +226,53 @@
 
         function renderAlbumCards(folders) {
             const grid = document.getElementById('album-grid');
-            let html = folders.map(name => `
-                <div onclick="handleEntry('${name}')" class="album-card">
-                    <div class="icon">📁</div>
-                    <div class="name">${name}</div>
-                    <div class="count">${OMEN_STATE.allPhotos[name].length} 图</div>
-                </div>
-            `).join('');
-
-            html += `
-                <a href="index.html" class="omen-glow-border">
-                    <span style="color:#ffcc00; font-weight:bold;">← BACK TO HOME</span>
-                </a>
-            `;
+            const iconMap = { '日常': 'aperture', '猫': 'cat', '加密相册': 'shield-check' };
+            let html = folders.map(name => {
+                const iconName = iconMap[name] || 'folder-open';
+                return `
+                    <div onclick="handleEntry('${name}')" class="album-card">
+                        <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#ffcc00;"></i></div>
+                        <div class="name">${name}</div>
+                        <div class="count">${OMEN_STATE.allPhotos[name].length} PHOTOS</div>
+                    </div>`;
+            }).join('');
+            html += `<a href="index.html" class="omen-glow-border"><span style="color:#ffcc00; font-weight:bold; letter-spacing:1px;">← BACK TO HOME</span></a>`;
             grid.innerHTML = html;
+            lucide.createIcons();
         }
 
         function handleEntry(name) {
             OMEN_STATE.currentFolder = name;
-            const isLocked = CONFIG.lockFolders.some(f => f.toLowerCase() === name.toLowerCase());
-            if (isLocked) {
+            if (CONFIG.lockFolders.some(f => f.toLowerCase() === name.toLowerCase())) {
                 document.getElementById('password-modal').classList.add('flex');
                 document.getElementById('password-input').focus();
-            } else {
-                showPhotos(name);
-            }
+            } else { showPhotos(name); }
         }
 
         function showPhotos(folderName) {
+            document.querySelector('.main-header').classList.add('hidden');
+            document.querySelector('.notice-bar').classList.add('hidden');
             document.getElementById('category-view').classList.add('hidden');
             document.getElementById('photo-viewer').classList.remove('hidden');
             document.getElementById('current-album-title').innerText = folderName;
             const list = document.getElementById('photo-list');
-            const photos = OMEN_STATE.allPhotos[folderName] || [];
-            list.innerHTML = photos.map(url => `
-                <div class="photo-item"><img src="${url}" loading="lazy"></div>
-            `).join('');
+            list.innerHTML = (OMEN_STATE.allPhotos[folderName] || []).map(url => `<div class="photo-item"><img src="${url}" loading="lazy"></div>`).join('');
             window.scrollTo(0, 0);
         }
 
         function showCategories() {
+            document.querySelector('.main-header').classList.remove('hidden');
+            document.querySelector('.notice-bar').classList.remove('hidden');
             document.getElementById('photo-viewer').classList.add('hidden');
             document.getElementById('category-view').classList.remove('hidden');
         }
 
         function closeModal() { document.getElementById('password-modal').classList.remove('flex'); }
-
         function submitPassword() {
-            const val = document.getElementById('password-input').value.trim();
-            if (window.btoa(val) === CONFIG.s) {
-                closeModal();
-                showPhotos(OMEN_STATE.currentFolder);
-            } else {
-                alert("密码错误！");
-            }
+            if (window.btoa(document.getElementById('password-input').value.trim()) === CONFIG.s) {
+                closeModal(); showPhotos(OMEN_STATE.currentFolder);
+            } else { alert("ACCESS DENIED!"); }
         }
     </script>
 </body>
-
 </html>
