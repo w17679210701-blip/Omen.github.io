@@ -8,118 +8,424 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* --- 1. 基础重置 --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        @keyframes bgFlow {
-            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
-            50% { background-position: 100% 100%; filter: hue-rotate(8deg); }
-            100% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        html.is-loading, body.is-loading {
-            overflow: hidden !important; height: 100% !important; width: 100% !important; position: fixed;
+        @keyframes bgFlow {
+            0% {
+                background-position: 0% 0%;
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                background-position: 100% 100%;
+                filter: hue-rotate(8deg);
+            }
+
+            100% {
+                background-position: 0% 0%;
+                filter: hue-rotate(0deg);
+            }
+        }
+
+        html.is-loading,
+        body.is-loading {
+            overflow: hidden !important;
+            height: 100% !important;
+            width: 100% !important;
+            position: fixed;
         }
 
         body {
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-            font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; padding: 100px 20px 50px 20px;
-            transition: background 0.8s ease, color 0.5s ease; background-color: #050505;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            padding: 100px 20px 50px 20px;
+            transition: background 0.8s ease, color 0.5s ease;
+
+            background-color: #1a1a1b;
             background-image:
-                radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.25) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(168, 133, 0, 0.2) 0px, transparent 50%),
-                linear-gradient(135deg, #050505 0%, #1a1a1f 50%, #050505 100%);
-            background-size: 200% 200%; background-attachment: fixed; animation: bgFlow 12s ease-in-out infinite;
-            color: rgba(255, 255, 255, 0.9);
+                linear-gradient(135deg,
+                    #0f0f10 0%,
+                    #232326 25%,
+                    #161618 50%,
+                    #2a2a2e 75%,
+                    #0f0f10 100%);
+
+            background-size: 400% 400%;
+            background-attachment: fixed;
+            animation: bgFlow 20s linear infinite;
+            /* 放慢动画，减少视觉干扰 */
+            color: #e2e2e4;
         }
 
         body.light-mode {
-            background-color: #ffffff;
+            background-color: #f5f5f7;
             background-image:
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 40%),
-                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 40%),
-                linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
-            color: #1a1a1a;
+                linear-gradient(135deg,
+                    #ededf0 0%,
+                    #fbfbfd 25%,
+                    #e2e2e7 50%,
+                    #f5f5f7 75%,
+                    #ededf0 100%);
+            background-size: 400% 400%;
+            color: #1d1d1f;
         }
 
         /* --- 2. 核心翻转容器 (去掉了所有 .is-flipped 逻辑) --- */
-        .flip-wrapper { perspective: 1000px; cursor: pointer; }
-        .flip-inner { 
-            position: relative; width: 100%; height: 100%; 
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
-            transform-style: preserve-3d; 
+        .flip-wrapper {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
             /* 初始状态强制设为 0 */
             transform: rotateY(0deg);
         }
-        .flip-front, .flip-back { 
-            position: absolute; inset: 0; 
-            backface-visibility: hidden; 
-            -webkit-backface-visibility: hidden; 
+
+        .flip-front,
+        .flip-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
-        .flip-back { transform: rotateY(180deg); }
+
+        .flip-back {
+            transform: rotateY(180deg);
+        }
 
         /* --- 3. UI 组件 (保持你原有的) --- */
         .floating-btn {
-            position: fixed; top: 25px; width: 45px; height: 45px;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
-            display: flex; align-items: center; justify-content: center; z-index: 1000; cursor: pointer; color: inherit;
+            position: fixed;
+            top: 25px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+            color: inherit;
         }
-        body.light-mode .floating-btn { background: rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.08); }
-        .btn-left { left: 20px; } .btn-right { right: 20px; }
 
-        .header-section { text-align: center; margin-bottom: 30px; }
-        .main-title { font-size: 2.2rem; font-weight: 800; letter-spacing: 2px; margin: 0; }
-        .sub-title { font-size: 0.9rem; color: rgba(150, 150, 150, 0.6); margin-top: 8px; letter-spacing: 4px; }
+        body.light-mode .floating-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-left {
+            left: 20px;
+        }
+
+        .btn-right {
+            right: 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .sub-title {
+            font-size: 0.9rem;
+            color: rgba(150, 150, 150, 0.6);
+            margin-top: 8px;
+            letter-spacing: 4px;
+        }
 
         .notice-bar {
-            width: 100%; max-width: 440px; height: 42px;
-            background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; margin-bottom: 20px;
-            display: flex; align-items: center; padding: 0 15px; overflow: hidden;
+            width: 100%;
+            max-width: 440px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            overflow: hidden;
         }
-        body.light-mode .notice-bar { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.8); }
-        .notice-content { white-space: nowrap; display: inline-block; animation: marquee 20s linear infinite; font-size: 13px; color: #ffcc00; font-weight: 500; }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        .main-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 15px; opacity: 0; transform: translateY(20px); transition: 0.8s ease; }
-        .glass-card { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 28px; overflow: hidden; transition: 0.3s; }
-        body.light-mode .glass-card { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.8); }
+        body.light-mode .notice-bar {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
 
-        .profile-card-large { padding: 40px 20px 25px 20px; display: flex; flex-direction: column; align-items: center; }
-        .avatar-halo { padding: 3px; border-radius: 50%; border: 2px solid rgba(255, 204, 0, 0.3); animation: glowPulse 3s infinite; margin-bottom: 20px; }
-        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); } 50% { box-shadow: 0 0 25px rgba(255, 204, 0, 0.5); } }
-        .avatar-box { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; }
-        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-name { font-size: 1.8rem; font-weight: bold; margin-bottom: 30px; letter-spacing: 2px; }
-        .contact-group { display: flex; gap: 15px; width: 100%; justify-content: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; }
-        .contact-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; color: inherit; transition: 0.3s; text-decoration: none; }
+        .notice-content {
+            white-space: nowrap;
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-size: 13px;
+            color: #ffcc00;
+            font-weight: 500;
+        }
 
-        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .clock-card { height: 120px; }
-        .status-dot { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 5px #00ff88; animation: blink 1.5s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
 
-        .video-card-full { width: 100%; aspect-ratio: 1 / 1; margin-top: 15px; }
-        .video-content { padding: 0 !important; overflow: hidden; border-radius: 28px; height: 100%; }
-        .pure-video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-        .v-tag { position: absolute; bottom: 15px; left: 15px; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px); padding: 4px 12px; border-radius: 20px; font-size: 10px; color: #ffcc00; border: 1px solid rgba(255, 204, 0, 0.3); z-index: 5; }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.8s ease;
+        }
+
+        /* 1. 基础结构（不含颜色） */
+        .glass-card {
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 2. 暗色模式下的卡片 (Body 默认状态) */
+        body .glass-card {
+            background: rgba(45, 45, 50, 0.45);
+            /* 调亮暗色卡片，增加钛灰感 */
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            /* 强化高光边框 */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 3. 浅色模式下的卡片 (由 .light-mode 类控制) */
+        body.light-mode .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            /* 纯白透亮 */
+            border: 1px solid rgba(255, 255, 255, 1);
+            /* 亮白实边 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            /* 极淡阴影 */
+            color: #1a1a1a;
+        }
+
+        .profile-card-large {
+            padding: 40px 20px 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-halo {
+            padding: 3px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+            animation: glowPulse 3s infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
+            }
+        }
+
+        .avatar-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .contact-group {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .contact-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: inherit;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .clock-card {
+            height: 120px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #00ff88;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .video-card-full {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            margin-top: 15px;
+        }
+
+        .video-content {
+            padding: 0 !important;
+            overflow: hidden;
+            border-radius: 28px;
+            height: 100%;
+        }
+
+        .pure-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .v-tag {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #ffcc00;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            z-index: 5;
+        }
 
         #loader {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #ffffff; z-index: 99999; margin: 0; padding: 0; display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 99999;
+            margin: 0;
+            padding: 0;
+            display: block;
         }
+
         .loader-text {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #ff69b4; letter-spacing: 8px; font-weight: 900; font-size: 1.2rem;
-            text-align: center; white-space: nowrap; animation: pulse 1.5s infinite; padding-left: 8px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff69b4;
+            letter-spacing: 8px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-align: center;
+            white-space: nowrap;
+            animation: pulse 1.5s infinite;
+            padding-left: 8px;
         }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } }
-        .fade-out { opacity: 0; pointer-events: none; transition: 0.6s ease; }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.6s ease;
+        }
     </style>
 </head>
 
 <body class="is-loading">
-    <div id="loader"><div class="loader-text">LOADING</div></div>
+    <div id="loader">
+        <div class="loader-text">LOADING</div>
+    </div>
 
     <div class="floating-btn btn-left"><i data-lucide="menu" size="20"></i></div>
     <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="moon" size="20"></i></div>
@@ -135,44 +441,62 @@
 
     <div id="main-content" class="main-container">
         <div class="glass-card profile-card-large">
-            <div class="avatar-halo"><div class="avatar-box"><img src="images/avatar.jpg" alt="Avatar"></div></div>
+            <div class="avatar-halo">
+                <div class="avatar-box"><img src="images/avatar.jpg" alt="Avatar"></div>
+            </div>
             <div class="profile-name">Omen</div>
             <div class="contact-group">
-                <a href="https://t.me/OmenG82_Pro" target="_blank" class="contact-btn"><i data-lucide="send" size="20"></i></a>
-                <a href="https://instagram.com/OmenYi701" target="_blank" class="contact-btn"><i data-lucide="instagram" size="20"></i></a>
+                <a href="https://t.me/OmenG82_Pro" target="_blank" class="contact-btn"><i data-lucide="send"
+                        size="20"></i></a>
+                <a href="https://instagram.com/OmenYi701" target="_blank" class="contact-btn"><i data-lucide="instagram"
+                        size="20"></i></a>
                 <a href="mailto:w17679210701@gmail.com" class="contact-btn"><i data-lucide="mail" size="20"></i></a>
             </div>
         </div>
 
         <div class="grid-row">
-            <a href="photo.html" class="glass-card" style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-decoration:none; color:inherit; gap:10px;">
+            <a href="photo.html" class="glass-card"
+                style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-decoration:none; color:inherit; gap:10px;">
                 <i data-lucide="image" color="#ffcc00"></i>
                 <span style="font-size:12px; letter-spacing:2px;">作品相册</span>
             </a>
             <div class="flip-wrapper clock-card" onclick="handleFlip(this)">
                 <div class="flip-inner">
-                    <div class="flip-front glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
+                    <div class="flip-front glass-card"
+                        style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
                         <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">当前时间</span>
-                        <div id="live-clock" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00;">00:00:00.000</div>
-                        <div style="display:flex; align-items:center; gap:8px;"><div class="status-dot"></div><span style="font-size:12px;">系统运行中</span></div>
+                        <div id="live-clock"
+                            style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00;">
+                            00:00:00.000</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="status-dot"></div><span style="font-size:12px;">系统运行中</span>
+                        </div>
                     </div>
-                    <div class="flip-back glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
-                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">距离发布还有</span>
-                        <div id="countdown-timer" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00;">00:00:00.000</div>
+                    <div class="flip-back glass-card"
+                        style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
+                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">距离《太阳之子》发布还有</span>
+                        <div id="countdown-timer"
+                            style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00;">
+                            00:00:00.000</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flip-wrapper video-card-full" onclick="handleFlip(this)">
-            <div class="flip-inner">
+        <div class="flip-wrapper video-card-full" id="video-container" onclick="nextVideo(this)">
+            <div class="flip-inner" id="video-inner">
                 <div class="flip-front glass-card video-content">
-                    <video class="pure-video" autoplay loop muted playsinline poster="images/sos.jpg">
-                        <source src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part1.MP4" type="video/mp4">
+                    <video id="video-front" class="pure-video" loop muted playsinline preload="metadata">
+                        <source src="https://.../part1.MP4" type="video/mp4">
                     </video>
-                    <div class="v-tag">PART 01</div>
+                    <div class="v-tag" id="tag-front">PART 01</div>
                 </div>
-               
+                <div class="flip-back glass-card video-content">
+                    <video id="video-back" class="pure-video" loop muted playsinline preload="none">
+                        <source src="" type="video/mp4">
+                    </video>
+                    <div class="v-tag" id="tag-back">PART 02</div>
+                </div>
             </div>
         </div>
     </div>
@@ -187,7 +511,7 @@
             const inner = el.querySelector('.flip-inner');
             // 获取当前存的角度，没有就从0开始
             let rotation = parseInt(el.getAttribute('data-rotation')) || 0;
-            rotation += 180; 
+            rotation += 180;
             inner.style.transform = `rotateY(${rotation}deg)`;
             el.setAttribute('data-rotation', rotation);
         }
@@ -200,7 +524,7 @@
 
             const showPage = () => {
                 const loader = document.getElementById('loader');
-                if(loader) loader.classList.add('fade-out');
+                if (loader) loader.classList.add('fade-out');
                 html.classList.remove('is-loading');
                 body.classList.remove('is-loading');
                 const main = document.getElementById('main-content');
@@ -213,31 +537,33 @@
             let loadedCount = 0;
             if (videos.length > 0) {
                 videos.forEach(v => {
-                    if (v.readyState >= 3) { loadedCount++; } 
-                    else { v.addEventListener('loadeddata', () => {
-                        loadedCount++;
-                        if (loadedCount >= videos.length) showPage();
-                    }); }
+                    if (v.readyState >= 3) { loadedCount++; }
+                    else {
+                        v.addEventListener('loadeddata', () => {
+                            loadedCount++;
+                            if (loadedCount >= videos.length) showPage();
+                        });
+                    }
                 });
                 if (loadedCount >= videos.length) showPage();
             } else { showPage(); }
-            setTimeout(showPage, 3000); 
+            setTimeout(showPage, 3000);
         };
 
         function initTimers() {
             const clock = document.getElementById('live-clock');
             const countdown = document.getElementById('countdown-timer');
-            const target = new Date("2027-01-01T00:00:00").getTime();
+            const target = new Date("2026-03-24T13:00:00").getTime();
             function update() {
                 const now = new Date();
-                if (clock) clock.textContent = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') + ":" + now.getSeconds().toString().padStart(2,'0') + "." + now.getMilliseconds().toString().padStart(3,'0');
+                if (clock) clock.textContent = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + ":" + now.getSeconds().toString().padStart(2, '0') + "." + now.getMilliseconds().toString().padStart(3, '0');
                 if (countdown) {
                     const diff = target - now.getTime();
                     if (diff > 0) {
-                        const h = Math.floor(diff / 3600000).toString().padStart(2,'0');
-                        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2,'0');
-                        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2,'0');
-                        const ms = (diff % 1000).toString().padStart(3,'0');
+                        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                        const ms = (diff % 1000).toString().padStart(3, '0');
                         countdown.textContent = `${h}:${m}:${s}.${ms}`;
                     } else { countdown.textContent = "TIME UP!"; }
                 }
@@ -246,11 +572,63 @@
             update();
         }
 
-        themeToggle.onclick = function() {
+        themeToggle.onclick = function () {
             body.classList.toggle('light-mode');
             this.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
             lucide.createIcons();
         };
+
+        // 你的腾讯云视频列表
+        const videoList = [
+            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part1.MP4",
+            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part2.MP4",
+            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part3.MP4",
+            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part4.MP4",
+            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part5.MP4",
+            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part6.MP4",
+        ];
+
+        let currentIndex = 0;
+        let rotation = 0;
+
+        function nextVideo(el) {
+            const inner = document.getElementById('video-inner');
+            const vFront = document.getElementById('video-front');
+            const vBack = document.getElementById('video-back');
+            const tFront = document.getElementById('tag-front');
+            const tBack = document.getElementById('tag-back');
+
+            // 1. 增加角度
+            rotation += 180;
+            inner.style.transform = `rotateY(${rotation}deg)`;
+
+            // 2. 判断当前哪一面朝向用户 (偶数次翻转是Front，奇数次是Back)
+            const isBackActive = (rotation / 180) % 2 !== 0;
+            currentIndex = (currentIndex + 1) % videoList.length;
+            const nextIndex = (currentIndex + 1) % videoList.length;
+
+            if (isBackActive) {
+                // 当前展示背面：播放背面视频，预加载下个视频到正面
+                vBack.play();
+                vFront.pause();
+                // 延迟给正面换源，防止翻转过程中卡顿
+                setTimeout(() => {
+                    vFront.src = videoList[nextIndex];
+                    tFront.textContent = `PART ${(nextIndex + 1).toString().padStart(2, '0')}`;
+                    vFront.load(); // 预加载，但不播放
+                }, 500);
+            } else {
+                // 当前展示正面：播放正面视频，预加载下个视频到背面
+                vFront.play();
+                vBack.pause();
+                setTimeout(() => {
+                    vBack.src = videoList[nextIndex];
+                    tBack.textContent = `PART ${(nextIndex + 1).toString().padStart(2, '0')}`;
+                    vBack.load();
+                }, 500);
+            }
+        }
     </script>
 </body>
+
 </html>
