@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HI OMEN</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- 1. 基础重置 --- */
         * {
@@ -238,22 +239,18 @@
             color: #1a1a1a;
         }
 
-        .profile-card-large {
-            padding: 40px 20px 25px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
 
-        
-
-        
         .avatar-halo {
+            position: relative;
             padding: 3px;
             border-radius: 50%;
             border: 2px solid rgba(255, 204, 0, 0.3);
             animation: glowPulse 3s infinite;
-            margin-bottom: 20px;
+            margin-top: 0 !important;
+            position: relative;
+            z-index: 5 !important;
+            flex-shrink: 0 !important;
+            margin-bottom: 20px !important;
         }
 
         @keyframes glowPulse {
@@ -315,6 +312,8 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+
+
 
         .clock-card {
             height: 120px;
@@ -544,6 +543,232 @@
         .copy-success .mail-address {
             color: #34c759;
         }
+
+        /* 1. 确保卡片本身是相对定位，并裁剪溢出 */
+        .glass-card.profile-card-large {
+            position: relative !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            /* 改为从顶部开始排列 */
+            padding: 40px 20px 25px 20px !important;
+        }
+
+        /* 2. 使用伪元素承载 JPG 水印，并实现抠图融合 */
+        .glass-card.profile-card-large::after {
+            content: "" !important;
+            position: absolute !important;
+            /* 强制绝对定位 */
+            right: -70px;
+            top: -20px;
+            width: 300px;
+            height: 300px;
+            background: url('images/ETGOHOMELOGO.png') no-repeat center !important;
+            mix-blend-mode: multiply;
+            background-repeat: no-repeat;
+            background-size: contain !important;
+            background-position: center;
+
+
+
+            opacity: 0.3;
+            filter: contrast(110%) brightness(105%);
+            mix-blend-mode: normal;
+            pointer-events: none;
+            z-index: 1 !important;
+            /* 确保在最底层 */
+        }
+
+        [data-theme='dark'] .glass-card.profile-card-large::after {
+            /* 深色模式下，JPG 的白边在 multiply 模式下会消失 */
+            /* 如果 Logo 颜色太深看不清，可以改用这个模式 */
+            mix-blend-mode: screen;
+            filter: invert(1);
+            opacity: 0.15;
+        }
+
+        /* 3. 细节防护：确保卡片原本的内容（头像、名字）在水印层上面 */
+        .glass-card.profile-card-large>*:not(::after):not(::before) {
+            position: relative !important;
+            z-index: 2 !important;
+            /* 提到最高层 */
+            flex-shrink: 0 !important;
+            /* 绝对禁止被挤压 */
+        }
+
+        .profile-name,
+        .contact-group {
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-card-large {
+            padding: 40px 20px 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- 朋友圈动态卡片样式 --- */
+
+        .moments-preview-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            padding: 20px;
+            margin-top: 20px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .moments-preview-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 顶部：头像和昵称 */
+        .moments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px !important;
+        }
+
+        .moments-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mini-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .nickname {
+            font-weight: bold;
+            font-size: 14px;
+            color: #ff4d4d;
+            /* 配合你的红色主题 */
+        }
+
+        .moments-time {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        /* 内容区 */
+        .moments-text {
+            font-size: 14px;
+            margin-top: 0 !important;
+            line-height: 1.4;
+            margin-bottom: 8px !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            /* 最多显示两行文字 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .moments-media .content-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 底部 */
+        .moments-footer {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .view-detail {
+            font-size: 12px;
+            color: #ffcc00;
+            /* 金色字体点缀 */
+            font-weight: 500;
+        }
+
+        /* 卡片加载后的淡入效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .moments-preview-card {
+            animation: fadeIn 0.8s ease forwards;
+            margin-top: 0 !important;
+            /* 彻底干掉顶部的外边距 */
+            padding-top: 10px !important;
+            padding-bottom: 15px !important;
+            margin-top: 15px !important;
+            /* 其他你之前的样式... */
+        }
+
+        /* 限制图片预览高度，防止太长撑爆卡片 */
+        .content-img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- 给朋友圈卡片加水印 --- */
+
+        /* 1. 确保容器本身是定位参考点 */
+        #latest-moment {
+            position: relative !important;
+            overflow: hidden !important;
+            /* 核心：把溢出的水印切掉 */
+        }
+
+        /* 2. 创建一个覆盖全卡片的水印层 */
+        #latest-moment::after {
+    content: "" !important;
+    position: absolute !important;
+    top: -150px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* 1. 确认路径和文件名 */
+    background: url('images/ETLOGOF.png') no-repeat !important;
+    
+    /* 2. 先把位置改回正中心，看看图在不在 */
+    background-position: center !important; 
+    background-size: 80px !important; 
+
+    /* 3. 把透明度调高一点，别 0.12 了，先看清楚 */
+    opacity: 0.8 !important; 
+    
+    /* 4. 暂时删掉混合模式，防止颜色融合看不见 */
+    mix-blend-mode: normal !important; 
+
+    z-index: 999 !important;
+    pointer-events: none;
+}
+
+        /* 3. 核心细节：确保卡片内的文字和图片永远浮在水印上面 */
+        #latest-moment>* {
+            position: relative !important;
+            z-index: 2 !important;
+            /* 提到最高层，文字清晰，点击不受影响 */
+        }
     </style>
 </head>
 
@@ -622,11 +847,31 @@
             </div>
         </div>
 
+        <a href="moments.html" class="glass-card moments-preview-card" id="latest-moment">
+            <div class="moments-header">
+                <div class="moments-user">
+                    <img src="images/avatar.jpg" alt="头像" class="mini-avatar">
+                    <span class="nickname">Omen（Yitong）</span>
+                </div>
+                <span class="moments-time" id="moment-time">加载中...</span>
+            </div>
+
+            <div class="moments-content">
+                <p class="moments-text" id="moment-text">正在同步最新动态...</p>
+                <div class="moments-media" id="moment-media">
+                </div>
+            </div>
+
+            <div class="moments-footer">
+                <span class="view-detail">点击查看更多 →</span>
+            </div>
+        </a>
+
         <div class="grid-row">
             <a href="photo.html" class="glass-card"
                 style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-decoration:none; color:inherit; gap:10px;">
                 <i data-lucide="image" color="#ffcc00"></i>
-                <span style="font-size:12px; letter-spacing:2px;">作品相册</span>
+                <span style="font-size:12px; letter-spacing:2px;">相册</span>
             </a>
             <div class="flip-wrapper clock-card" onclick="handleFlip(this)">
                 <div class="flip-inner">
@@ -813,6 +1058,63 @@
                 modal.classList.remove('active');
             }
         });
+
+        // 1. 初始化 Supabase
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function loadLatestMoment() {
+            try {
+                // 2. 从 moments 表里调取数据
+                // .select('*') 获取所有列
+                // .order('created_at', { ascending: false }) 按时间倒序排列（最新的在最前）
+                // .limit(1) 只取最新的一条
+                // .single() 确保返回的是个对象而不是数组
+                const { data, error } = await _supabase
+                    .from('moments')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (error) throw error;
+
+                if (data) {
+                    // 3. 填充文字内容
+                    // 这里的 content 和 created_at 要对应你数据库里的字段名
+                    document.getElementById('moment-text').innerText = data.content || '暂无文字内容';
+
+                    // 格式化一下时间 (2026-03-24 -> 3月24日)
+                    const date = new Date(data.created_at);
+                    document.getElementById('moment-time').innerText = `${date.getMonth() + 1}月${date.getDate()}日`;
+
+                    // 4. 处理图片
+                    const mediaContainer = document.getElementById('moment-media');
+                    // 如果你数据库里存的是图片 URL
+                    if (data.image_url) {
+                        mediaContainer.innerHTML = `<img src="${data.image_url}" class="content-img">`;
+                        mediaContainer.style.display = 'block';
+                    } else {
+                        mediaContainer.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                console.error('Supabase 调取失败:', err.message);
+                document.getElementById('moment-text').innerText = '动态加载失败，请检查配置。';
+            }
+        }
+
+        // 页面加载运行
+        document.addEventListener('DOMContentLoaded', loadLatestMoment);
+
+        _supabase
+            .channel('any')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'moments' }, payload => {
+                console.log('检测到新朋友圈!', payload.new);
+                loadLatestMoment(); // 自动重新加载
+            })
+            .subscribe();
     </script>
 </body>
 
