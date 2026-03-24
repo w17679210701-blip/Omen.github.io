@@ -721,8 +721,10 @@
                 html.classList.remove('is-loading');
                 body.classList.remove('is-loading');
                 const main = document.getElementById('main-content');
-                main.style.opacity = "1";
-                main.style.transform = "translateY(0)";
+                if (main) {
+                    main.style.opacity = "1";
+                    main.style.transform = "translateY(0)";
+                }
                 initTimers();
             };
 
@@ -740,7 +742,7 @@
                 });
                 if (loadedCount >= videos.length) showPage();
             } else { showPage(); }
-            setTimeout(showPage, 3000);
+            setTimeout(showPage, 500);
         };
 
         function initTimers() {
