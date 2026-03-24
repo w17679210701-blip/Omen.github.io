@@ -245,6 +245,9 @@
             align-items: center;
         }
 
+        
+
+        
         .avatar-halo {
             padding: 3px;
             border-radius: 50%;
@@ -342,34 +345,6 @@
             width: 100%;
             aspect-ratio: 1 / 1;
             margin-top: 15px;
-        }
-
-        .video-content {
-            padding: 0 !important;
-            overflow: hidden;
-            border-radius: 28px;
-            height: 100%;
-        }
-
-        .pure-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            pointer-events: none;
-        }
-
-        .v-tag {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            color: #ffcc00;
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            z-index: 5;
         }
 
         #loader {
@@ -665,30 +640,15 @@
                             <div class="status-dot"></div><span style="font-size:12px;">系统运行中</span>
                         </div>
                     </div>
+
                     <div class="flip-back glass-card"
                         style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
-                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">距离《太阳之子》发布还有</span>
-                        <div id="countdown-timer"
-                            style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00;">
-                            00:00:00.000</div>
+                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">网站已运行</span>
+                        <div id="runtime-timer"
+                            style="font-family: monospace; font-size: 0.95rem; font-weight: bold; color: #ffcc00; text-align: center;">
+                            0天 00时 00分 00秒
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="flip-wrapper video-card-full" id="video-container" onclick="nextVideo(this)">
-            <div class="flip-inner" id="video-inner">
-                <div class="flip-front glass-card video-content">
-                    <video id="video-front" class="pure-video" loop muted playsinline preload="metadata">
-                        <source src="https://.../part1.MP4" type="video/mp4">
-                    </video>
-                    <div class="v-tag" id="tag-front">PART 01</div>
-                </div>
-                <div class="flip-back glass-card video-content">
-                    <video id="video-back" class="pure-video" loop muted playsinline preload="none">
-                        <source src="" type="video/mp4">
-                    </video>
-                    <div class="v-tag" id="tag-back">PART 02</div>
                 </div>
             </div>
         </div>
@@ -743,6 +703,29 @@
                 if (loadedCount >= videos.length) showPage();
             } else { showPage(); }
             setTimeout(showPage, 500);
+
+            function updateRuntime() {
+                // 1. 设置你的建站日期（年，月-1，日，时，分，秒）
+                // 注意：月份是从 0 开始的，比如 2月要写 1
+                const startDate = new Date(2026, 2, 24, 13, 30, 0);
+                const now = new Date();
+                const diff = now - startDate; // 毫秒差
+
+                // 2. 计算天、时、分、秒
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                // 3. 格式化并显示
+                document.getElementById('runtime-timer').innerHTML =
+                    `${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
+            }
+
+            // 每秒更新一次
+            setInterval(updateRuntime, 1000);
+            // 初始化执行一次避免空白
+            updateRuntime();
         };
 
         function initTimers() {
@@ -772,57 +755,6 @@
             this.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
             lucide.createIcons();
         };
-
-        // 你的腾讯云视频列表
-        const videoList = [
-            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part1.MP4",
-            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part2.MP4",
-            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part3.MP4",
-            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part4.MP4",
-            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part5.MP4",
-            "https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/Video/part6.MP4",
-        ];
-
-        let currentIndex = 0;
-        let rotation = 0;
-
-        function nextVideo(el) {
-            const inner = document.getElementById('video-inner');
-            const vFront = document.getElementById('video-front');
-            const vBack = document.getElementById('video-back');
-            const tFront = document.getElementById('tag-front');
-            const tBack = document.getElementById('tag-back');
-
-            // 1. 增加角度
-            rotation += 180;
-            inner.style.transform = `rotateY(${rotation}deg)`;
-
-            // 2. 判断当前哪一面朝向用户 (偶数次翻转是Front，奇数次是Back)
-            const isBackActive = (rotation / 180) % 2 !== 0;
-            currentIndex = (currentIndex + 1) % videoList.length;
-            const nextIndex = (currentIndex + 1) % videoList.length;
-
-            if (isBackActive) {
-                // 当前展示背面：播放背面视频，预加载下个视频到正面
-                vBack.play();
-                vFront.pause();
-                // 延迟给正面换源，防止翻转过程中卡顿
-                setTimeout(() => {
-                    vFront.src = videoList[nextIndex];
-                    tFront.textContent = `PART ${(nextIndex + 1).toString().padStart(2, '0')}`;
-                    vFront.load(); // 预加载，但不播放
-                }, 500);
-            } else {
-                // 当前展示正面：播放正面视频，预加载下个视频到背面
-                vFront.play();
-                vBack.pause();
-                setTimeout(() => {
-                    vBack.src = videoList[nextIndex];
-                    tBack.textContent = `PART ${(nextIndex + 1).toString().padStart(2, '0')}`;
-                    vBack.load();
-                }, 500);
-            }
-        }
 
         function toggleMenu(event) {
             // 阻止事件冒泡，防止触发 window 的点击关闭逻辑
