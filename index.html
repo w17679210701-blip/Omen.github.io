@@ -204,7 +204,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            opacity: 0;
+            opacity: 1 !important;
             transform: translateY(20px);
             transition: 0.8s ease;
         }
@@ -769,6 +769,95 @@
             z-index: 2 !important;
             /* 提到最高层，文字清晰，点击不受影响 */
         }
+
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            display: none;
+            /* 初始隐藏 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            /* 确保在最顶层 */
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 弹窗主体 */
+        .modal-content {
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            /* 红色边框微光 */
+        }
+
+        /* 输入框样式 */
+        #guest-name,
+        #guest-content {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .submit-btn {
+            background: #ff4d4d;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* 留言板卡片整体 */
+        #home-guestbook-display {
+            display: block !important;
+            width: 100%;
+            /* 移除之前的 90% 和 800px 限制，跟随父容器 */
+            box-sizing: border-box;
+        }
+
+        /* 单条留言样式 */
+        .message-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+
+        .message-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 77, 77, 0.2);
+        }
+
+        .message-nickname {
+            color: #ff4d4d;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .message-content {
+            margin-top: 6px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(238, 238, 238, 0.9);
+        }
     </style>
 </head>
 
@@ -786,7 +875,24 @@
             <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
             <a href="moments.html" class="menu-item"><i data-lucide="aperture" size="18"></i>朋友圈</a>
             <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+            <a href="javascript:void(0)" class="menu-item" id="open-guestbook">
+                <i data-lucide="message-square" size="18"></i>留个言
+            </a>
             <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+        </div>
+    </div>
+    <div id="guestbook-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="glass-card modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; color:#ff4d4d;">新的留言</h3>
+                <span class="close-btn" id="close-modal" style="cursor:pointer; font-size:24px;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="guest-name" placeholder="阁下尊姓大名？">
+                <textarea id="guest-content" rows="4" placeholder="说点什么..."></textarea>
+                <button id="submit-msg" class="submit-btn">发送留言</button>
+            </div>
         </div>
     </div>
     <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="moon" size="20"></i></div>
@@ -894,6 +1000,21 @@
                             0天 00时 00分 00秒
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div id="home-guestbook-display" class="glass-card" style="margin-top: 15px; padding: 25px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <i data-lucide="message-square" color="#ff4d4d" size="20"></i>
+                <h2 style="margin: 0; font-size: 1.1rem; color: #ff4d4d; letter-spacing: 1px;">访客留言</h2>
+            </div>
+            <div id="message-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="message-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="message-nickname">测试访客</span>
+                        <span class="message-time">刚刚</span>
+                    </div>
+                    <p class="message-content">欢迎来到我的留言板！</p>
                 </div>
             </div>
         </div>
@@ -1115,6 +1236,58 @@
                 loadLatestMoment(); // 自动重新加载
             })
             .subscribe();
+
+        // 1. 模态框开关逻辑
+        const modal = document.getElementById('guestbook-modal');
+        const openBtn = document.getElementById('open-guestbook');
+        const closeBtn = document.getElementById('close-modal');
+
+        openBtn.onclick = () => {
+            modal.style.display = 'flex';
+            // 简单的入场动画触发
+            setTimeout(() => modal.style.opacity = '1', 10);
+        };
+
+        function closeModal(e) {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        closeBtn.onclick = closeModal;
+
+        // 2. 提交留言到 Supabase (假设你已初始化 supabase 客户端)
+        const submitBtn = document.getElementById('submit-msg');
+        submitBtn.onclick = async () => {
+            const name = document.getElementById('guest-name').value;
+            const content = document.getElementById('guest-content').value;
+
+            if (!name || !content) {
+                alert("请完整填写名字和内容哦~");
+                return;
+            }
+
+            submitBtn.innerText = "发送中...";
+            submitBtn.disabled = true;
+
+            try {
+                const { error } = await supabase
+                    .from('guestbook') // 确保你在 Supabase 建了这张表
+                    .insert([{ nickname: name, content: content }]);
+
+                if (error) throw error;
+
+                alert("留言成功！");
+                document.getElementById('guest-name').value = '';
+                document.getElementById('guest-content').value = '';
+                closeModal();
+                // 这里可以调用刷新留言列表的函数
+            } catch (err) {
+                console.error(err);
+                alert("发送失败，请检查网络或配置");
+            } finally {
+                submitBtn.innerText = "发送留言";
+                submitBtn.disabled = false;
+            }
+        };
     </script>
 </body>
 
