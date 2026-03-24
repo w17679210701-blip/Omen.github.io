@@ -16,9 +16,17 @@
         }
 
         @keyframes bgFlow {
-            0% { background-position: 0% 0%; }
-            50% { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
+            0% {
+                background-position: 0% 0%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            100% {
+                background-position: 0% 0%;
+            }
         }
 
         body {
@@ -54,113 +62,323 @@
         }
 
         /* --- 2. 标题区 --- */
-        .main-header { text-align: center; margin-bottom: 30px; }
-        .main-header h1 { font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: 2px; }
-        .main-header p { font-size: 0.9rem; color: rgba(150, 150, 150, 0.6); margin-top: 8px; letter-spacing: 4px; }
+        .main-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .main-header p {
+            font-size: 0.9rem;
+            color: rgba(150, 150, 150, 0.6);
+            margin-top: 8px;
+            letter-spacing: 4px;
+        }
 
         /* --- 3. 公告栏 (修复边框) --- */
         .notice-bar {
-            width: 100%; max-width: 440px; height: 42px;
-            background: rgba(255, 255, 255, 0.08); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 14px; margin-bottom: 25px; display: flex; align-items: center;
-            padding: 0 15px; overflow: hidden; 
-            border: 1px solid rgba(255, 255, 255, 0.2); /* 深色下显眼的边框 */
-            position: relative; z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 14px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* 深色下显眼的边框 */
+            position: relative;
+            z-index: 10;
         }
 
         body.light-mode .notice-bar {
             background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(0, 0, 0, 0.1); /* 浅色下有质感的边框 */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            /* 浅色下有质感的边框 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
         .notice-content {
-            white-space: nowrap; display: inline-block;
-            animation: marquee 20s linear infinite; font-size: 13px; color: #f5bc00;
+            white-space: nowrap;
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-size: 13px;
+            color: #f5bc00;
             font-weight: 500;
         }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
 
         /* --- 4. 悬浮按钮 --- */
         .floating-btn {
-            position: fixed; top: 25px; width: 45px; height: 45px;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            position: fixed;
+            top: 25px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1000; cursor: pointer; color: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+            color: inherit;
         }
-        body.light-mode .floating-btn { background: rgba(255, 255, 255, 0.8); border-color: rgba(0,0,0,0.1); }
-        .btn-left { left: 20px; }
-        .btn-right { right: 20px; }
+
+        body.light-mode .floating-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-left {
+            left: 20px;
+        }
+
+        .btn-right {
+            right: 20px;
+        }
 
         /* --- 5. 容器与卡片 --- */
-        .container { width: 100%; max-width: 440px; margin: 0 auto; }
-        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 2.5rem; }
-        
-        .album-card {
-            background: rgba(255, 255, 255, 0.06); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12); 
-            border-radius: 28px; padding: 1.8rem 1rem; text-align: center; transition: 0.4s; cursor: pointer;
+        .container {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
         }
-        body.light-mode .album-card { background: rgba(255, 255, 255, 0.7); border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
-        .album-card:hover { transform: translateY(-8px); border-color: #ffcc00; }
-        .album-card .icon { margin-bottom: 12px; display: flex; justify-content: center; }
-        .album-card .name { font-size: 0.95rem; font-weight: bold; }
-        .album-card .count { font-size: 10px; opacity: 0.4; margin-top: 6px; }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-bottom: 2.5rem;
+        }
+
+        .album-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+
+        body.light-mode .album-card {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .album-card:hover {
+            transform: translateY(-8px);
+            border-color: #ffcc00;
+        }
+
+        .album-card .icon {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .album-card .name {
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .album-card .count {
+            font-size: 10px;
+            opacity: 0.4;
+            margin-top: 6px;
+        }
 
         /* --- 6. 瀑布流 --- */
-        .photo-list { column-count: 2; column-gap: 12px; padding-bottom: 5rem; }
-        .photo-item { break-inside: avoid; margin-bottom: 12px; }
-        .photo-item img { 
-            width: 100%; border-radius: 18px; display: block; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s; cursor: pointer;
+        .photo-list {
+            column-count: 2;
+            column-gap: 12px;
+            padding-bottom: 5rem;
         }
-        body.light-mode .photo-item img { border-color: rgba(0,0,0,0.05); }
+
+        .photo-item {
+            break-inside: avoid;
+            margin-bottom: 12px;
+        }
+
+        .photo-item img {
+            width: 100%;
+            border-radius: 18px;
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        body.light-mode .photo-item img {
+            border-color: rgba(0, 0, 0, 0.05);
+        }
 
         /* 密码弹窗 */
         #password-modal {
-            display: none; position: fixed; inset: 0; z-index: 2000;
-            align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
         }
-        .modal-content { background: #16161a; padding: 2.5rem; border: 1px solid #ffcc00; border-radius: 28px; width: 90%; max-width: 320px; text-align: center; }
-        #password-input { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px; color: white; font-size: 1.5rem; text-align: center; margin: 20px 0; }
 
-        .back-nav { color: #f5bc00; font-weight: bold; border: 1px solid #f5bc00; padding: 8px 20px; border-radius: 20px; background: none; cursor: pointer; margin-bottom: 25px; width: 100%; }
-        .hidden { display: none !important; }
-        .flex { display: flex !important; }
+        .modal-content {
+            background: #16161a;
+            padding: 2.5rem;
+            border: 1px solid #ffcc00;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        #password-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .back-nav {
+            color: #f5bc00;
+            font-weight: bold;
+            border: 1px solid #f5bc00;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: none;
+            cursor: pointer;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex !important;
+        }
 
         /* --- 7. 全屏预览层 --- */
         .photo-viewer {
-            display: none; position: fixed; inset: 0; z-index: 99999;
-            background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(15px);
-            flex-direction: column; align-items: center; justify-content: center; 
-            opacity: 0; transition: opacity 0.3s ease; touch-action: none;
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            touch-action: none;
+            cursor: zoom-out;
         }
-        .photo-viewer.active { display: flex; opacity: 1; }
-        #main-viewer-img { max-width: 98vw; max-height: 92vh; object-fit: contain; transition: 0.3s; }
-        .close-viewer { position: absolute; top: 30px; right: 30px; color: #ffcc00; font-size: 40px; cursor: pointer; z-index: 100001; }
+
+        .photo-viewer.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        #main-viewer-img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            transition: 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .close-viewer {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: #ffcc00;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 100001;
+            display: none;
+        }
 
         /* 底部流光按钮 */
         .omen-glow-border {
-            position: relative; width: 100%; height: 50px; display: flex; align-items: center; justify-content: center;
-            border-radius: 25px; text-decoration: none; overflow: hidden; background: rgba(255, 255, 255, 0.05); grid-column: span 2; margin-top: 10px;
+            position: relative;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 25px;
+            text-decoration: none;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            grid-column: span 2;
+            margin-top: 10px;
         }
+
         .omen-glow-border::before {
-            content: ""; position: absolute; inset: 0; padding: 2px;
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 2px;
             background: linear-gradient(270deg, #ffcc00, #fff700, #ffcc00, #a88500);
-            background-size: 400% 100%; animation: glowRotate 4s linear infinite;
+            background-size: 400% 100%;
+            animation: glowRotate 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor; mask-composite: exclude; border-radius: 25px;
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            border-radius: 25px;
         }
-        @keyframes glowRotate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        @keyframes glowRotate {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 100% 50%;
+            }
+        }
     </style>
 </head>
 
-<body class="light-mode"> <div class="floating-btn btn-left" onclick="location.href='index.html'"><i data-lucide="home" size="20"></i></div>
+<body class="light-mode">
+    <div class="floating-btn btn-left" onclick="location.href='index.html'"><i data-lucide="home" size="20"></i></div>
     <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="sun" size="20"></i></div>
 
     <header class="main-header">
@@ -181,22 +399,25 @@
             <h3 style="color:#ffcc00; margin-top:0;">请输入访问密码</h3>
             <input type="password" id="password-input" placeholder="******" maxlength="6">
             <div style="display:flex; gap:10px;">
-                <button onclick="closeModal()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#333; color:white;">取消</button>
-                <button onclick="submitPassword()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#ffcc00; color:black; font-weight:bold;">确认</button>
+                <button onclick="closeModal()"
+                    style="flex:1; padding:10px; border-radius:10px; border:none; background:#333; color:white;">取消</button>
+                <button onclick="submitPassword()"
+                    style="flex:1; padding:10px; border-radius:10px; border:none; background:#ffcc00; color:black; font-weight:bold;">确认</button>
             </div>
         </div>
     </div>
 
     <div id="photo-viewer-container" class="container hidden">
         <button onclick="showCategories()" class="back-nav">← 返回相册集</button>
-        <h2 id="current-album-title" style="color:#f5bc00; text-align:center; margin-bottom:1.5rem; font-size: 1.4rem;"></h2>
+        <h2 id="current-album-title" style="color:#f5bc00; text-align:center; margin-bottom:1.5rem; font-size: 1.4rem;">
+        </h2>
         <div id="photo-list" class="photo-list"></div>
     </div>
 
     <div id="global-photo-viewer" class="photo-viewer" onclick="closeViewer()">
-        <span class="close-viewer" onclick="closeViewer()">&times;</span>
-        <div class="viewer-img-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-            <img id="main-viewer-img" src="" onclick="event.stopPropagation()">
+        <div class="viewer-img-container"
+            style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+            <img id="main-viewer-img" src="">
         </div>
     </div>
 
@@ -344,11 +565,11 @@
             if (newIndex >= 0 && newIndex < photos.length) {
                 const img = document.getElementById('main-viewer-img');
                 img.style.opacity = '0';
-                img.style.transform = step > 0 ? 'translateX(20px)' : 'translateX(-20px)';
+                img.style.transform = step > 0 ? 'translateX(-20px)' : 'translateX(20px)';
                 setTimeout(() => {
                     OMEN_STATE.currentIndex = newIndex;
                     img.src = photos[newIndex];
-                    img.style.transform = step > 0 ? 'translateX(-20px)' : 'translateX(20px)';
+                    img.style.transform = step > 0 ? 'translateX(20px)' : 'translateX(-20px)';
                     img.getBoundingClientRect();
                     img.style.opacity = '1';
                     img.style.transform = 'translateX(0)';
@@ -358,12 +579,13 @@
 
         function initViewerSwipe() {
             const viewer = document.getElementById('global-photo-viewer');
-            viewer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, {passive: true});
+            viewer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
             viewer.addEventListener('touchend', (e) => {
                 const diff = e.changedTouches[0].clientX - startX;
                 if (Math.abs(diff) > 50) { diff > 0 ? switchPhoto(-1) : switchPhoto(1); }
-            }, {passive: true});
+            }, { passive: true });
         }
     </script>
 </body>
+
 </html>
