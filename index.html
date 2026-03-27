@@ -50,7 +50,7 @@
             padding: 100px 20px 50px 20px;
             transition: background 0.8s ease, color 0.5s ease;
 
-            background-color: #1a1a1b;
+            background-color: #fbfbfd;
             background-image:
                 linear-gradient(135deg,
                     #0f0f10 0%,
@@ -63,7 +63,7 @@
             background-attachment: fixed;
             animation: bgFlow 20s linear infinite;
             /* 放慢动画，减少视觉干扰 */
-            color: #e2e2e4;
+            color: #1d1d1f;
         }
 
         body.light-mode {
@@ -770,30 +770,60 @@
             /* 提到最高层，文字清晰，点击不受影响 */
         }
 
-        /* 弹窗遮罩 */
+        /* 留言弹窗遮罩层 - 确保全屏且居中 */
         .modal-overlay {
-            display: none;
-            /* 初始隐藏 */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            /* 确保在最顶层 */
-            justify-content: center;
-            align-items: center;
-        }
+    position: fixed !important; /* 必须是 fixed */
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important; /* 确保占满手机全屏高度 */
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(10px);
+    
+    /* 强力居中逻辑 */
+    display: none; /* JS 切换时设为 flex */
+    justify-content: center !important;
+    align-items: center !important;
+    
+    z-index: 999999 !important; /* 确保在所有元素之上 */
+}
 
-        /* 弹窗主体 */
-        .modal-content {
-            width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            border: 1px solid rgba(255, 77, 77, 0.3);
-            /* 红色边框微光 */
+        /* 遮罩层：必须是 fixed 且 flex */
+#guestbook-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    
+    /* 核心居中代码 */
+    display: none; /* 由 JS 切换为 flex */
+    justify-content: center; 
+    align-items: center;
+    
+    z-index: 10000; /* 确保在最顶层 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+        /* 留言内容卡片 - 移除多余的 margin */
+       .modal-content {
+    width: 85% !important;
+    max-width: 380px !important;
+    margin: 0 !important; /* 移除所有外边距，由父级 flex 居中 */
+    padding: 25px !important;
+    border-radius: 20px !important;
+    transform: none !important; /* 防止之前的偏移干扰 */
+}
+
+        /* 针对移动端的微调 */
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 85%;
+                padding: 20px;
+            }
         }
 
         /* 输入框样式 */
@@ -829,11 +859,13 @@
 
         /* 单条留言样式 */
         .message-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 12px 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: 0.3s;
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .message-item:last-child {
+            border-bottom: none;
         }
 
         .message-item:hover {
@@ -842,21 +874,46 @@
         }
 
         .message-nickname {
-            color: #ff4d4d;
-            font-weight: 600;
             font-size: 14px;
+            font-weight: 600;
+            color: #ff4d4d;
+            /* 这里的颜色建议和你的留言标题颜色一致 */
+            letter-spacing: 0.5px;
         }
 
         .message-time {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.3);
+            opacity: 0.4;
+            font-family: monospace;
         }
 
         .message-content {
-            margin-top: 6px;
-            font-size: 14px;
-            line-height: 1.5;
-            color: rgba(238, 238, 238, 0.9);
+            margin: 6px 0 0;
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: 0.8;
+            word-break: break-all;
+            /* 防止长字母/链接撑破布局 */
+            white-space: pre-wrap;
+            /* 保留用户的换行 */
+        }
+
+        .light-mode .message-item {
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .light-mode .message-content {
+            color: #444;
+        }
+
+        .light-mode .message-time {
+            color: #888;
+        }
+
+        /* 悬停微动效 */
+        .message-item:hover {
+            transform: translateX(5px);
+            opacity: 1;
         }
     </style>
 </head>
@@ -1025,216 +1082,110 @@
         const body = document.body;
         const themeToggle = document.getElementById('theme-toggle');
 
-        // 核心翻转逻辑：固定一个方向旋转，不再依赖 class 切换
+        // 1. 统一初始化 Supabase (将 window.db 放在这里)
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        // 增加容错：确保库已加载
+        window.db = (window.supabase && window.supabase.createClient)
+            ? window.supabase.createClient(supabaseUrl, supabaseKey)
+            : null;
+
+        // --- 核心交互逻辑 ---
+
+        // 卡片翻转
         function handleFlip(el) {
             const inner = el.querySelector('.flip-inner');
-            // 获取当前存的角度，没有就从0开始
             let rotation = parseInt(el.getAttribute('data-rotation')) || 0;
             rotation += 180;
             inner.style.transform = `rotateY(${rotation}deg)`;
             el.setAttribute('data-rotation', rotation);
         }
 
-        if (!window.matchMedia('(prefers-color-scheme: dark)').matches) body.classList.add('light-mode');
-
-        window.onload = () => {
-            themeToggle.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
-            lucide.createIcons();
-
-            const showPage = () => {
-                const loader = document.getElementById('loader');
-                if (loader) loader.classList.add('fade-out');
-                html.classList.remove('is-loading');
-                body.classList.remove('is-loading');
-                const main = document.getElementById('main-content');
-                if (main) {
-                    main.style.opacity = "1";
-                    main.style.transform = "translateY(0)";
-                }
-                initTimers();
-            };
-
-            const videos = document.querySelectorAll('.pure-video');
-            let loadedCount = 0;
-            if (videos.length > 0) {
-                videos.forEach(v => {
-                    if (v.readyState >= 3) { loadedCount++; }
-                    else {
-                        v.addEventListener('loadeddata', () => {
-                            loadedCount++;
-                            if (loadedCount >= videos.length) showPage();
-                        });
-                    }
-                });
-                if (loadedCount >= videos.length) showPage();
-            } else { showPage(); }
-            setTimeout(showPage, 500);
-
-            function updateRuntime() {
-                // 1. 设置你的建站日期（年，月-1，日，时，分，秒）
-                // 注意：月份是从 0 开始的，比如 2月要写 1
-                const startDate = new Date(2026, 2, 24, 13, 30, 0);
-                const now = new Date();
-                const diff = now - startDate; // 毫秒差
-
-                // 2. 计算天、时、分、秒
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const minutes = Math.floor((diff / (1000 * 60)) % 60);
-                const seconds = Math.floor((diff / 1000) % 60);
-
-                // 3. 格式化并显示
-                document.getElementById('runtime-timer').innerHTML =
-                    `${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
-            }
-
-            // 每秒更新一次
-            setInterval(updateRuntime, 1000);
-            // 初始化执行一次避免空白
-            updateRuntime();
-        };
-
-        function initTimers() {
-            const clock = document.getElementById('live-clock');
-            const countdown = document.getElementById('countdown-timer');
-            const target = new Date("2026-03-24T13:00:00").getTime();
-            function update() {
-                const now = new Date();
-                if (clock) clock.textContent = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + ":" + now.getSeconds().toString().padStart(2, '0') + "." + now.getMilliseconds().toString().padStart(3, '0');
-                if (countdown) {
-                    const diff = target - now.getTime();
-                    if (diff > 0) {
-                        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-                        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-                        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-                        const ms = (diff % 1000).toString().padStart(3, '0');
-                        countdown.textContent = `${h}:${m}:${s}.${ms}`;
-                    } else { countdown.textContent = "TIME UP!"; }
-                }
-                requestAnimationFrame(update);
-            }
-            update();
-        }
-
-        themeToggle.onclick = function () {
-            body.classList.toggle('light-mode');
-            this.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
-            lucide.createIcons();
-        };
-
+        // 菜单切换
         function toggleMenu(event) {
-            // 阻止事件冒泡，防止触发 window 的点击关闭逻辑
             event.stopPropagation();
-            const menu = document.getElementById('dropdown-menu');
-            menu.classList.toggle('active');
+            document.getElementById('dropdown-menu').classList.toggle('active');
         }
 
-        // 点击页面其他位置自动收起菜单
-        window.addEventListener('click', function (e) {
-            const menu = document.getElementById('dropdown-menu');
-            const trigger = document.getElementById('menu-trigger');
-
-            if (!trigger.contains(e.target) && !menu.contains(e.target)) {
-                menu.classList.remove('active');
-            }
-        });
-
-        // 确保在页面加载后执行图标渲染
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-        });
-
-        // 切换邮件弹窗显示/隐藏
+        // 邮件弹窗
         function toggleMailModal(event) {
             event.stopPropagation();
-            const modal = document.getElementById('mail-modal');
-            modal.classList.toggle('active');
+            document.getElementById('mail-modal').classList.toggle('active');
         }
 
-        // 复制文字功能
+        // 复制功能
         async function copyText(text, element) {
             try {
                 await navigator.clipboard.writeText(text);
-
-                // 视觉反馈
                 element.classList.add('copy-success');
-                const originalText = element.querySelector('.mail-address').innerText;
-                element.querySelector('.mail-address').innerText = "已复制到剪贴板！";
-
+                const addrEl = element.querySelector('.mail-address');
+                const originalText = addrEl.innerText;
+                addrEl.innerText = "已复制到剪贴板！";
                 setTimeout(() => {
                     element.classList.remove('copy-success');
-                    element.querySelector('.mail-address').innerText = originalText;
-                    // 复制后自动关窗（可选）
-                    // document.getElementById('mail-modal').classList.remove('active');
+                    addrEl.innerText = originalText;
                 }, 1500);
-            } catch (err) {
-                alert('复制失败，请手动输入');
-            }
+            } catch (err) { alert('复制失败'); }
         }
 
-        // 点击外部关闭弹窗
-        window.addEventListener('click', function (e) {
-            const modal = document.getElementById('mail-modal');
-            if (!modal.contains(e.target)) {
-                modal.classList.remove('active');
+        // 留言模态框控制
+        function openGuestbook() {
+            const modal = document.getElementById('guestbook-modal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.style.opacity = '1', 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('guestbook-modal');
+            if (!modal) return;
+            modal.style.opacity = '0';
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        // --- 数据加载与显示 ---
+
+        const showPage = () => {
+            const loader = document.getElementById('loader');
+            if (loader) loader.classList.add('fade-out');
+            html.classList.remove('is-loading');
+            body.classList.remove('is-loading');
+            const main = document.getElementById('main-content');
+            if (main) {
+                main.style.opacity = "1";
+                main.style.transform = "translateY(0)";
             }
-        });
+        };
 
-        // 1. 初始化 Supabase
-        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
-        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // 运行时间计时器
+        function updateRuntime() {
+            const startDate = new Date(2026, 2, 24, 13, 30, 0);
+            const now = new Date();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            const el = document.getElementById('runtime-timer');
+            if (el) el.innerHTML = `${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
+        }
 
+        // 朋友圈动态
         async function loadLatestMoment() {
+            if (!window.db) return;
             try {
-                // 2. 从 moments 表里调取数据
-                // .select('*') 获取所有列
-                // .order('created_at', { ascending: false }) 按时间倒序排列（最新的在最前）
-                // .limit(1) 只取最新的一条
-                // .single() 确保返回的是个对象而不是数组
-                const { data, error } = await _supabase
+                const { data, error } = await window.db
                     .from('moments')
                     .select('*')
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .single();
 
-                if (error) throw error;
-
                 if (data) {
-                    // 3. 填充文字内容
-                    // 这里的 content 和 created_at 要对应你数据库里的字段名
-                    document.getElementById('moment-text').innerText = data.content || '暂无文字内容';
-
-                    // 格式化一下时间 (2026-03-24 -> 3月24日)
-                    const date = new Date(data.created_at);
-                    // --- 替换开始 ---
+                    document.getElementById('moment-text').innerText = data.content || '暂无动态';
                     const postDate = new Date(data.created_at);
-                    const now = new Date();
-                    const diffInMs = now - postDate;
-                    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-
-                    let displayTime;
-
-                    if (diffInMinutes < 60 && diffInMinutes >= 0) {
-                        // 1. 一小时内：显示 xx分钟前
-                        displayTime = diffInMinutes <= 1 ? "刚刚" : `${diffInMinutes}分钟前`;
-                    } else if (postDate.toDateString() === now.toDateString()) {
-                        // 2. 今天之内：显示 14:30
-                        const hours = postDate.getHours().toString().padStart(2, '0');
-                        const minutes = postDate.getMinutes().toString().padStart(2, '0');
-                        displayTime = `${hours}:${minutes}`;
-                    } else {
-                        // 3. 昨天及更早：显示 3月27日
-                        displayTime = `${postDate.getMonth() + 1}月${postDate.getDate()}日`;
-                    }
-
-                    document.getElementById('moment-time').innerText = displayTime;
-                    // --- 替换结束 ---
-
-                    // 4. 处理图片
+                    document.getElementById('moment-time').innerText = `${postDate.getMonth() + 1}月${postDate.getDate()}日`;
                     const mediaContainer = document.getElementById('moment-media');
-                    // 如果你数据库里存的是图片 URL
                     if (data.image_url) {
                         mediaContainer.innerHTML = `<img src="${data.image_url}" class="content-img">`;
                         mediaContainer.style.display = 'block';
@@ -1242,73 +1193,123 @@
                         mediaContainer.style.display = 'none';
                     }
                 }
-            } catch (err) {
-                console.error('Supabase 调取失败:', err.message);
-                document.getElementById('moment-text').innerText = '动态加载失败，请检查配置。';
-            }
+            } catch (err) { console.error('动态加载失败', err); }
         }
 
-        // 页面加载运行
-        document.addEventListener('DOMContentLoaded', loadLatestMoment);
+        // 首页留言显示
+        async function loadGuestbook() {
+            if (!window.db) return;
+            try {
+                const { data } = await window.db.from('guestbook').select('*').order('created_at', { ascending: false }).limit(3);
+                if (data) {
+                    const list = document.getElementById('message-list');
+                    list.innerHTML = data.map(msg => `
+                    <div class="message-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="message-nickname">${msg.nickname}</span>
+                            <span class="message-time">${new Date(msg.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <p class="message-content">${msg.content}</p>
+                    </div>
+                `).join('');
+                }
+            } catch (e) { }
+        }
 
-        _supabase
-            .channel('any')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'moments' }, payload => {
-                console.log('检测到新朋友圈!', payload.new);
-                loadLatestMoment(); // 自动重新加载
-            })
-            .subscribe();
+        // --- 页面启动 ---
 
-        // 1. 模态框开关逻辑
-        const modal = document.getElementById('guestbook-modal');
-        const openBtn = document.getElementById('open-guestbook');
-        const closeBtn = document.getElementById('close-modal');
+        window.onload = () => {
+            // 1. 基础 UI 初始化
+            if (!window.matchMedia('(prefers-color-scheme: dark)').matches) body.classList.add('light-mode');
+            themeToggle.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+            lucide.createIcons();
 
-        openBtn.onclick = () => {
-            modal.style.display = 'flex';
-            // 简单的入场动画触发
-            setTimeout(() => modal.style.opacity = '1', 10);
+            // 2. 按钮绑定
+            const openBtn = document.getElementById('open-guestbook');
+            if (openBtn) openBtn.onclick = (e) => { e.preventDefault(); openGuestbook(); };
+            const closeBtn = document.getElementById('close-modal');
+            if (closeBtn) closeBtn.onclick = closeModal;
+
+            // 3. 实时时钟 + 倒计时逻辑 (补回这里！)
+            const clockEl = document.getElementById('live-clock');
+            const countdownEl = document.getElementById('countdown-timer');
+            const targetTime = new Date("2026-03-24T13:00:00").getTime();
+
+            function runLiveTimers() {
+                const now = new Date();
+
+                // 实时时钟：HH:mm:ss.SSS
+                if (clockEl) {
+                    const h = String(now.getHours()).padStart(2, '0');
+                    const m = String(now.getMinutes()).padStart(2, '0');
+                    const s = String(now.getSeconds()).padStart(2, '0');
+                    const ms = String(now.getMilliseconds()).padStart(3, '0');
+                    clockEl.textContent = `${h}:${m}:${s}.${ms}`;
+                }
+
+                // 倒计时逻辑
+                if (countdownEl) {
+                    const diff = targetTime - now.getTime();
+                    if (diff > 0) {
+                        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+                        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+                        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+                        const ms = String(diff % 1000).padStart(3, '0');
+                        countdownEl.textContent = `${h}:${m}:${s}.${ms}`;
+                    } else {
+                        countdownEl.textContent = "TIME UP!";
+                    }
+                }
+                requestAnimationFrame(runLiveTimers);
+            }
+            runLiveTimers(); // 启动
+
+            // 4. 运行时间计时器 (天/时/分/秒)
+            setInterval(updateRuntime, 1000);
+            updateRuntime();
+
+            // 5. 提交逻辑
+            const submitBtn = document.getElementById('submit-msg');
+            if (submitBtn) {
+                submitBtn.onclick = async () => {
+                    const name = document.getElementById('guest-name').value.trim();
+                    const content = document.getElementById('guest-content').value.trim();
+                    if (!name || !content) return alert("写点什么吧...");
+
+                    submitBtn.disabled = true;
+                    const { error } = await window.db.from('guestbook').insert([{ nickname: name, content: content }]);
+                    if (!error) {
+                        alert("留言成功！");
+                        document.getElementById('guest-name').value = '';
+                        document.getElementById('guest-content').value = '';
+                        closeModal();
+                        loadGuestbook();
+                    } else {
+                        alert("发送失败: " + error.message);
+                    }
+                    submitBtn.disabled = false;
+                };
+            }
+
+            // 6. 最终进入页面
+            setTimeout(showPage, 500);
+            loadLatestMoment();
+            loadGuestbook();
         };
 
-        function closeModal(e) {
-            modal.style.opacity = '0';
-            setTimeout(() => modal.style.display = 'none', 300);
-        }
-        closeBtn.onclick = closeModal;
+        // 主题切换
+        themeToggle.onclick = function () {
+            body.classList.toggle('light-mode');
+            this.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+            lucide.createIcons();
+        };
 
-        // 2. 提交留言到 Supabase (假设你已初始化 supabase 客户端)
-        const submitBtn = document.getElementById('submit-msg');
-        submitBtn.onclick = async () => {
-            const name = document.getElementById('guest-name').value;
-            const content = document.getElementById('guest-content').value;
-
-            if (!name || !content) {
-                alert("请完整填写名字和内容哦~");
-                return;
-            }
-
-            submitBtn.innerText = "发送中...";
-            submitBtn.disabled = true;
-
-            try {
-                const { error } = await supabase
-                    .from('guestbook') // 确保你在 Supabase 建了这张表
-                    .insert([{ nickname: name, content: content }]);
-
-                if (error) throw error;
-
-                alert("留言成功！");
-                document.getElementById('guest-name').value = '';
-                document.getElementById('guest-content').value = '';
-                closeModal();
-                // 这里可以调用刷新留言列表的函数
-            } catch (err) {
-                console.error(err);
-                alert("发送失败，请检查网络或配置");
-            } finally {
-                submitBtn.innerText = "发送留言";
-                submitBtn.disabled = false;
-            }
+        // 全局点击关闭
+        window.onclick = function (e) {
+            const menu = document.getElementById('dropdown-menu');
+            const modal = document.getElementById('mail-modal');
+            if (menu && !document.getElementById('menu-trigger').contains(e.target)) menu.classList.remove('active');
+            if (modal && !e.target.closest('.contact-btn') && !modal.contains(e.target)) modal.classList.remove('active');
         };
     </script>
 </body>
