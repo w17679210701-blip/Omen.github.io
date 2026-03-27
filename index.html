@@ -22,37 +22,71 @@
 
             50% {
                 background-position: 100% 100%;
-                filter: hue-rotate(8deg);
+                filter: hue-rotate(5deg);
             }
 
             100% {
                 background-position: 0% 0%;
                 filter: hue-rotate(0deg);
             }
+        }
 
-            /* 新增伪元素背景动画 */
-            body::before {
-                content: '';
-                position: fixed;
-                /* 固定背景，不随滚动移动 */
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-image: linear-gradient(135deg,
-                        #0f0f10 0%,
-                        #232326 25%,
-                        #161618 50%,
-                        #2a2a2e 75%,
-                        #0f0f10 100%);
-                background-size: 400% 400%;
-                background-attachment: fixed;
-                animation: bgFlow 20s linear infinite;
-                z-index: -1;
-                /* 放在最底层 */
-                pointer-events: none;
+        /* 新增伪元素背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 多层渐变模拟沙粒和光晕 */
+            background:
+                /* 1. 基底暗色 */
+                radial-gradient(circle at 20% 30%, rgba(20, 8, 12, 0.9), rgba(5, 2, 4, 1)),
+                /* 2. 金色沙粒聚集点 */
+                radial-gradient(ellipse at 70% 40%, rgba(200, 150, 80, 0.25), transparent 60%),
+                radial-gradient(ellipse at 30% 80%, rgba(180, 110, 60, 0.2), transparent 70%),
+                /* 3. 红色柔光区域 */
+                radial-gradient(circle at 85% 15%, rgba(180, 50, 60, 0.2), transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(210, 70, 90, 0.15), transparent 60%),
+                /* 4. 流动的沙纹（模拟流沙） */
+                repeating-linear-gradient(45deg,
+                    rgba(210, 170, 100, 0.08) 0px,
+                    rgba(210, 170, 100, 0.08) 2px,
+                    transparent 2px,
+                    transparent 8px),
+                repeating-linear-gradient(135deg,
+                    rgba(160, 100, 50, 0.06) 0px,
+                    rgba(160, 100, 50, 0.06) 3px,
+                    transparent 3px,
+                    transparent 12px),
+                /* 5. 主渐变流沙色带 */
+                linear-gradient(135deg,
+                    #2a181c 0%,
+                    #3e2a2a 20%,
+                    #5e3a2c 40%,
+                    #7f4e2e 60%,
+                    #5e3a2c 80%,
+                    #2a181c 100%);
+            background-blend-mode: overlay, normal, normal, normal, normal, normal;
+            background-size: 400% 400%, auto, auto, auto, auto, auto;
+            background-attachment: fixed, fixed, fixed, fixed, fixed, fixed;
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+            animation: flowSand 28s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes flowSand {
+            0% {
+                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+            }
+
+            100% {
+                background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%;
             }
         }
+
 
         html.is-loading,
         body.is-loading {
