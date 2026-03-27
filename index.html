@@ -49,8 +49,9 @@
             overflow-x: hidden;
             padding: 100px 20px 50px 20px;
             transition: background 0.8s ease, color 0.5s ease;
-
-            background-color: #fbfbfd;
+            background: #0a0a0a !important;
+            color: #ffffff !important;
+            background-color: #0a0a0a !important;
             background-image:
                 linear-gradient(135deg,
                     #0f0f10 0%,
@@ -63,20 +64,6 @@
             background-attachment: fixed;
             animation: bgFlow 20s linear infinite;
             /* 放慢动画，减少视觉干扰 */
-            color: #1d1d1f;
-        }
-
-        body.light-mode {
-            background-color: #f5f5f7;
-            background-image:
-                linear-gradient(135deg,
-                    #ededf0 0%,
-                    #fbfbfd 25%,
-                    #e2e2e7 50%,
-                    #f5f5f7 75%,
-                    #ededf0 100%);
-            background-size: 400% 400%;
-            color: #1d1d1f;
         }
 
         /* --- 2. 核心翻转容器 (去掉了所有 .is-flipped 逻辑) --- */
@@ -126,11 +113,6 @@
             color: inherit;
         }
 
-        body.light-mode .floating-btn {
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-        }
-
         .btn-left {
             left: 20px;
         }
@@ -172,11 +154,10 @@
             align-items: center;
             padding: 0 15px;
             overflow: hidden;
-        }
-
-        body.light-mode .notice-bar {
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 100;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
         .notice-content {
@@ -211,34 +192,22 @@
 
         /* 1. 基础结构（不含颜色） */
         .glass-card {
-            backdrop-filter: blur(25px);
+            backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(25px);
-            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             overflow: hidden;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* 2. 暗色模式下的卡片 (Body 默认状态) */
         body .glass-card {
-            background: rgba(45, 45, 50, 0.45);
+            background: rgba(255, 255, 255, 0.05) !important;
             /* 调亮暗色卡片，增加钛灰感 */
             border: 1px solid rgba(255, 255, 255, 0.18);
             /* 强化高光边框 */
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
             color: rgba(255, 255, 255, 0.9);
         }
-
-        /* 3. 浅色模式下的卡片 (由 .light-mode 类控制) */
-        body.light-mode .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            /* 纯白透亮 */
-            border: 1px solid rgba(255, 255, 255, 1);
-            /* 亮白实边 */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            /* 极淡阴影 */
-            color: #1a1a1a;
-        }
-
 
         .avatar-halo {
             position: relative;
@@ -406,6 +375,12 @@
             line-height: 0;
         }
 
+        #dropdown-menu {
+            background: rgba(30, 30, 30, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
+
         /* 展开菜单基础样式 */
         .dropdown-menu {
             display: none;
@@ -459,10 +434,6 @@
             opacity: 0.8;
         }
 
-        /* 浅色模式适配微调 */
-        [data-theme="light"] .menu-item:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
 
         /* 邮件弹窗基础 */
         .mail-modal {
@@ -576,14 +547,6 @@
             pointer-events: none;
             z-index: 1 !important;
             /* 确保在最底层 */
-        }
-
-        [data-theme='dark'] .glass-card.profile-card-large::after {
-            /* 深色模式下，JPG 的白边在 multiply 模式下会消失 */
-            /* 如果 Logo 颜色太深看不清，可以改用这个模式 */
-            mix-blend-mode: screen;
-            filter: invert(1);
-            opacity: 0.15;
         }
 
         /* 3. 细节防护：确保卡片原本的内容（头像、名字）在水印层上面 */
@@ -814,8 +777,8 @@
         .modal-content {
             width: 85% !important;
             max-width: 380px !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(20px) !important;
+            background: rgba(255, 255, 255, 1) !important;
+            backdrop-filter: blur(15px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
             margin: 0 !important;
             padding: 30px !important;
@@ -823,13 +786,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
             transform: none !important;
-        }
-
-        /* 浅色模式适配 - 增强钛白感 */
-        .light-mode .modal-content {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border: 1px solid rgba(255, 255, 255, 1) !important;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
         }
 
         /* 针对移动端的微调 */
@@ -912,18 +868,6 @@
             /* 保留用户的换行 */
         }
 
-        .light-mode .message-item {
-            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
-        }
-
-        .light-mode .message-content {
-            color: #444;
-        }
-
-        .light-mode .message-time {
-            color: #888;
-        }
-
         /* 悬停微动效 */
         .message-item:hover {
             transform: translateX(5px);
@@ -931,12 +875,13 @@
         }
 
         /* 当这个类加到 body 上时，禁止背景滚动 */
-body.modal-open {
-    overflow: hidden !important;
-    height: 100%;
-    position: fixed; /* 针对 iOS 的双重保险 */
-    width: 100%;
-}
+        body.modal-open {
+            overflow: hidden !important;
+            height: 100%;
+            position: fixed;
+            /* 针对 iOS 的双重保险 */
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -960,7 +905,6 @@ body.modal-open {
             <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
         </div>
     </div>
-    <div class="floating-btn btn-right" id="theme-toggle"><i data-lucide="moon" size="20"></i></div>
 
     <div class="header-section">
         <h1 class="main-title">个人博客</h1>
@@ -1155,17 +1099,28 @@ body.modal-open {
         function openGuestbook() {
             const modal = document.getElementById('guestbook-modal');
             if (!modal) return;
+
             modal.style.display = 'flex';
-            document.body.classList.add('modal-open');
-            setTimeout(() => modal.style.opacity = '1', 10);
+
+            // 改用这种方式锁定，不影响页面布局定位
+            document.body.style.overflow = 'hidden';
+            // 如果是 iOS 端，为了防止橡皮泥回弹，可以再加上：
+            document.body.style.touchAction = 'none';
+
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
         }
 
         function closeModal() {
             const modal = document.getElementById('guestbook-modal');
             if (!modal) return;
+
             modal.style.opacity = '0';
-            document.body.classList.remove('modal-open');
-            setTimeout(() => modal.style.display = 'none', 300);
+
+            // 恢复滚动
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
         }
 
         // --- 数据加载与显示 ---
@@ -1244,56 +1199,48 @@ body.modal-open {
         // --- 页面启动 ---
 
         window.onload = () => {
-            // 1. 基础 UI 初始化
-            if (!window.matchMedia('(prefers-color-scheme: dark)').matches) body.classList.add('light-mode');
-            themeToggle.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
+            // 1. 直接创建图标（不需要判断亮色模式了）
             lucide.createIcons();
 
-            // 2. 按钮绑定
+            // 2. 按钮绑定（保留留言板功能）
             const openBtn = document.getElementById('open-guestbook');
             if (openBtn) openBtn.onclick = (e) => { e.preventDefault(); openGuestbook(); };
             const closeBtn = document.getElementById('close-modal');
             if (closeBtn) closeBtn.onclick = closeModal;
 
-            // 3. 实时时钟 + 倒计时逻辑 (补回这里！)
+            // 3. 实时时钟 + 倒计时逻辑
             const clockEl = document.getElementById('live-clock');
             const countdownEl = document.getElementById('countdown-timer');
             const targetTime = new Date("2026-03-24T13:00:00").getTime();
 
             function runLiveTimers() {
                 const now = new Date();
-
-                // 实时时钟：HH:mm:ss.SSS
                 if (clockEl) {
-                    const h = String(now.getHours()).padStart(2, '0');
-                    const m = String(now.getMinutes()).padStart(2, '0');
-                    const s = String(now.getSeconds()).padStart(2, '0');
-                    const ms = String(now.getMilliseconds()).padStart(3, '0');
+                    const h = String(now.getHours()).padStart(2, '0'),
+                        m = String(now.getMinutes()).padStart(2, '0'),
+                        s = String(now.getSeconds()).padStart(2, '0'),
+                        ms = String(now.getMilliseconds()).padStart(3, '0');
                     clockEl.textContent = `${h}:${m}:${s}.${ms}`;
                 }
-
-                // 倒计时逻辑
                 if (countdownEl) {
                     const diff = targetTime - now.getTime();
                     if (diff > 0) {
-                        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-                        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-                        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-                        const ms = String(diff % 1000).padStart(3, '0');
+                        const h = String(Math.floor(diff / 3600000)).padStart(2, '0'),
+                            m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+                            s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+                            ms = String(diff % 1000).padStart(3, '0');
                         countdownEl.textContent = `${h}:${m}:${s}.${ms}`;
-                    } else {
-                        countdownEl.textContent = "TIME UP!";
-                    }
+                    } else { countdownEl.textContent = "TIME UP!"; }
                 }
                 requestAnimationFrame(runLiveTimers);
             }
-            runLiveTimers(); // 启动
+            runLiveTimers();
 
-            // 4. 运行时间计时器 (天/时/分/秒)
+            // 4. 运行时间计时器
             setInterval(updateRuntime, 1000);
             updateRuntime();
 
-            // 5. 提交逻辑
+            // 5. 留言提交逻辑（注意这里用 window.db）
             const submitBtn = document.getElementById('submit-msg');
             if (submitBtn) {
                 submitBtn.onclick = async () => {
@@ -1302,31 +1249,28 @@ body.modal-open {
                     if (!name || !content) return alert("写点什么吧...");
 
                     submitBtn.disabled = true;
+                    submitBtn.innerText = "发送中...";
+
+                    // 修复你截图里的那个 supabase.from 报错，统一用 window.db
                     const { error } = await window.db.from('guestbook').insert([{ nickname: name, content: content }]);
                     if (!error) {
                         alert("留言成功！");
                         document.getElementById('guest-name').value = '';
                         document.getElementById('guest-content').value = '';
                         closeModal();
-                        loadGuestbook();
+                        if (typeof loadGuestbook === 'function') loadGuestbook();
                     } else {
                         alert("发送失败: " + error.message);
                     }
                     submitBtn.disabled = false;
+                    submitBtn.innerText = "发送留言";
                 };
             }
 
-            // 6. 最终进入页面
+            // 6. 进入页面
             setTimeout(showPage, 500);
-            loadLatestMoment();
-            loadGuestbook();
-        };
-
-        // 主题切换
-        themeToggle.onclick = function () {
-            body.classList.toggle('light-mode');
-            this.innerHTML = body.classList.contains('light-mode') ? '<i data-lucide="sun" size="20"></i>' : '<i data-lucide="moon" size="20"></i>';
-            lucide.createIcons();
+            if (typeof loadLatestMoment === 'function') loadLatestMoment();
+            if (typeof loadGuestbook === 'function') loadGuestbook();
         };
 
         // 全局点击关闭
