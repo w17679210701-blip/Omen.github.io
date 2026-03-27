@@ -363,24 +363,6 @@
             transition: 0.6s ease;
         }
 
-        /* 导航容器 */
-        .nav-container-left {
-            position: absolute;
-            /* 改用绝对定位，固定在 header 的左侧 */
-            left: 24px;
-            /* 对应 header 的 padding 距离 */
-            top: 44px;
-            /* 对应 header 的 padding-top 距离 */
-            z-index: 2001;
-            line-height: 0;
-        }
-
-        #dropdown-menu {
-            background: rgba(30, 30, 30, 0.9) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
-        }
-
         /* 展开菜单基础样式 */
         .dropdown-menu {
             display: none;
@@ -882,28 +864,71 @@
             /* 针对 iOS 的双重保险 */
             width: 100%;
         }
+
+        #loader {
+            /* ...原有样式... */
+            transition: opacity 0.5s ease, visibility 0.5s ease !important;
+        }
+
+        /* 当淡出时，立即释放点击权 */
+        #loader.fade-out {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            /* 关键：这比 display: none 反应更快，直接让出鼠标点击 */
+            pointer-events: none !important;
+        }
+
+        .nav-container-top {
+            position: fixed !important;
+            top: 25px !important;
+            left: 20px !important;
+            z-index: 9999999 !important;
+            width: 44px !important;
+            height: 44px !important;
+        }
+
+        .floating-btn.btn-left {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* 菜单也固定在下方 */
+        #dropdown-menu {
+            position: fixed !important;
+            top: 75px !important;
+            left: 20px !important;
+            z-index: 1000001 !important;
+        }
     </style>
 </head>
 
 <body class="is-loading">
+    <div class="nav-container-top">
+        <div class="floating-btn btn-left" onclick="toggleMenu(event)" id="menu-trigger">
+            <i data-lucide="menu"></i>
+        </div>
+    </div>
     <div id="loader">
         <div class="loader-text">LOADING</div>
     </div>
-
-    <div class="nav-container-left">
-        <div class="floating-btn btn-left" id="menu-trigger" onclick="toggleMenu(event)">
-            <i data-lucide="menu" size="20"></i>
-        </div>
-
-        <div class="dropdown-menu" id="dropdown-menu">
-            <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
-            <a href="moments.html" class="menu-item"><i data-lucide="aperture" size="18"></i>朋友圈</a>
-            <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
-            <a href="javascript:void(0)" class="menu-item" id="open-guestbook">
-                <i data-lucide="message-square" size="18"></i>留个言
-            </a>
-            <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
-        </div>
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
+        <a href="moments.html" class="menu-item"><i data-lucide="aperture" size="18"></i>朋友圈</a>
+        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+        <a href="javascript:void(0)" class="menu-item" id="open-guestbook">
+            <i data-lucide="message-square" size="18"></i>留个言
+        </a>
+        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+    </div>
     </div>
 
     <div class="header-section">
@@ -1127,9 +1152,20 @@
 
         const showPage = () => {
             const loader = document.getElementById('loader');
-            if (loader) loader.classList.add('fade-out');
-            html.classList.remove('is-loading');
-            body.classList.remove('is-loading');
+            if (loader) {
+                // 1. 让它变透明
+                loader.classList.add('fade-out');
+
+                // 2. 关键：等动画播完（假设 0.5 秒），彻底隐藏并移除点击拦截
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+
+            // 移除加载状态类
+            if (typeof html !== 'undefined') html.classList.remove('is-loading');
+            document.body.classList.remove('is-loading');
+
             const main = document.getElementById('main-content');
             if (main) {
                 main.style.opacity = "1";
