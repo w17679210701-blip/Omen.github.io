@@ -4,40 +4,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMEN'S MOMENTS</title>
+    <title>OMEN的朋友圈</title>
     <script src="supabase.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
+ 
     <style>
-        :root {
-            --bg-color: #f2f2f7;
-            --container-bg: #ffffff;
-            --text-color: #1c1c1e;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --accent: #ffcc00;
-            --btn-bg: #ffffff;
-            --radius-lg: 16px;
-            --radius-md: 12px;
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(20, 8, 12, 0.9), rgba(5, 2, 4, 1)),
+                radial-gradient(ellipse at 70% 40%, rgba(200, 150, 80, 0.25), transparent 60%),
+                radial-gradient(ellipse at 30% 80%, rgba(180, 110, 60, 0.2), transparent 70%),
+                radial-gradient(circle at 85% 15%, rgba(180, 50, 60, 0.2), transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(210, 70, 90, 0.15), transparent 60%),
+                repeating-linear-gradient(45deg,
+                    rgba(210, 170, 100, 0.08) 0px,
+                    rgba(210, 170, 100, 0.08) 2px,
+                    transparent 2px,
+                    transparent 8px),
+                repeating-linear-gradient(135deg,
+                    rgba(160, 100, 50, 0.06) 0px,
+                    rgba(160, 100, 50, 0.06) 3px,
+                    transparent 3px,
+                    transparent 12px),
+                linear-gradient(135deg,
+                    #2a181c 0%,
+                    #3e2a2a 20%,
+                    #5e3a2c 40%,
+                    #7f4e2e 60%,
+                    #5e3a2c 80%,
+                    #2a181c 100%),
+                repeating-linear-gradient(120deg,
+                    rgba(255, 215, 120, 0.25) 0px,
+                    rgba(255, 215, 120, 0.25) 40px,
+                    transparent 40px,
+                    transparent 100px);
+            background-size: 400% 400%, auto, auto, auto, auto, auto, auto, auto, 300% auto;
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
+            background-blend-mode: overlay, normal, normal, normal, normal, normal, normal, normal, normal;
+            background-attachment: fixed;
+            animation: flowSand 28s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
+            z-index: -1;
+            pointer-events: none;
         }
 
-        [data-theme="dark"] {
-            --bg-color: #000000;
-            --container-bg: #1c1c1e;
-            --text-color: #ffffff;
-            --glass-bg: rgba(28, 28, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            --btn-bg: rgba(255, 255, 255, 0.05);
+        @keyframes flowSand {
+            0% {
+                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
+            }
+
+            100% {
+                background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%, 100% 100%, 100% 100%, 200% 0%;
+            }
         }
 
         body {
             margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: #0a0a0a;
+            color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            transition: all 0.4s ease;
+            transition: none;
             min-height: 100vh;
         }
 
@@ -45,14 +77,20 @@
         header {
             padding: 44px 20px 12px;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 70px auto 0 auto;
         }
 
         .nav-bar {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 20px) + 20px);
+            left: 20px;
+            right: 20px;
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 0;
+            box-sizing: border-box;
         }
 
         .nav-group {
@@ -69,12 +107,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--btn-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            box-shadow: var(--card-shadow);
-            color: var(--text-color);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            color: #ffffff;
             text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
         }
 
         .title-group {
@@ -95,15 +140,16 @@
         }
 
         .announcement {
-            background: var(--btn-bg);
-            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
             padding: 8px 16px;
-            border-radius: 40px;
             font-size: 12px;
             overflow: hidden;
             white-space: nowrap;
             margin-bottom: 20px;
-            box-shadow: var(--card-shadow);
+            color: #ffcc00;
         }
 
         .announcement-text {
@@ -111,7 +157,6 @@
             animation: scroll 18s linear infinite;
         }
 
-        /* --- 小红书双列布局 --- */
         .container {
             width: 100%;
             max-width: 800px;
@@ -123,56 +168,58 @@
         #moments-container {
             column-count: 2;
             /* 双列 */
-            column-gap: 10px;
-            /* 列间距 */
+            column-gap: 12px;
             width: 100%;
         }
 
         .moment-card {
             break-inside: avoid;
-            /* 防止卡片被切断 */
-            background: var(--container-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            background: rgba(20, 20, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--card-shadow);
-            animation: fadeIn 0.5s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .moment-image {
+        .moment-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 204, 0, 0.5);
+        }
+
+        .moment-card img.moment-image {
             width: 100%;
-            display: block;
             height: auto;
+            max-height: 280px;
+            object-fit: cover;
             cursor: zoom-in;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .moment-info {
-            padding: 10px;
+            padding: 12px;
         }
 
         .moment-text {
             font-size: 14px;
-            line-height: 1.5;
-            color: var(--text-color);
+            line-height: 1.4;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+            text-overflow: ellipsis;
             display: -webkit-box;
             -webkit-line-clamp: 3;
-            /* 最多显示3行 */
             -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 8px;
         }
 
         .moment-footer {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-size: 11px;
-            opacity: 0.4;
-            font-weight: 500;
+            opacity: 0.6;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* --- 弹窗与其它 --- */
@@ -195,10 +242,13 @@
         .modal-content {
             width: 88%;
             max-width: 350px;
-            background: var(--container-bg);
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(20, 20, 25, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            color: #ffffff;
         }
 
         textarea {
@@ -215,15 +265,52 @@
             outline: none;
         }
 
+        textarea,
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 14px 16px;
+            color: #ffffff;
+            font-size: 15px;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        textarea:focus,
+        input:focus {
+            border-color: #ffcc00;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
         .action-btn {
-            background: var(--text-color);
-            color: var(--container-bg);
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 204, 0, 0.4);
+            border-radius: 40px;
+            padding: 12px 0;
+            font-size: 16px;
             font-weight: 600;
+            color: #ffcc00;
             width: 100%;
             cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 204, 0, 0.2);
+            border-color: #ffcc00;
+            transform: translateY(-1px);
+        }
+
+        .action-btn:active {
+            transform: translateY(1px);
         }
 
         .viewer {
@@ -295,33 +382,25 @@
                 <div class="nav-btn" onclick="openPublish()"><i data-lucide="plus"></i></div>
                 <div class="nav-btn" id="delete-mode-btn" onclick="toggleDeleteMode()"><i data-lucide="trash-2"></i>
                 </div>
-                <div class="nav-btn" onclick="toggleTheme()"><i data-lucide="moon" id="theme-icon"></i></div>
             </div>
         </div>
-        <div id="delete-bar" onclick="executeDelete()" style="
-        display: none; 
-        position: fixed; 
-        bottom: calc(30px + env(safe-area-inset-bottom)); /* 适配移动端底部 */
-        left: 50%; 
-        transform: translateX(-50%); 
-        background: #ff4d4d; 
-        color: white; 
-        padding: 12px 40px; 
-        border-radius: 50px; 
-        z-index: 9999; 
-        box-shadow: 0 10px 30px rgba(255,77,77,0.4); 
-        cursor: pointer; 
-        font-weight: 600;
-        white-space: nowrap;
-    ">
-            确认删除 (<span id="delete-count">0</span>)
+        <div id="delete-controls"
+            style="display: none; position: fixed; bottom: calc(30px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); gap: 15px; z-index: 9999;">
+            <div id="delete-bar" onclick="executeDelete()"
+                style="background: #ff4d4d; color: white; padding: 12px 24px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 16px; white-space: nowrap; box-shadow: 0 8px 20px rgba(255,77,77,0.3);">
+                确认删除 (<span id="delete-count">0</span>)
+            </div>
+            <div id="cancel-delete" onclick="cancelDeleteMode()"
+                style="background: rgba(255,255,255,0.2); backdrop-filter: blur(12px); color: white; padding: 12px 24px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 16px; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
+                取消
+            </div>
         </div>
         <div class="title-group">
-            <h1 class="title-main">Moments</h1>
+            <h1 class="title-main">朋友圈</h1>
             <p class="title-sub">捕捉生活中的美好瞬息</p>
         </div>
         <div class="announcement">
-            <span class="announcement-text">💡 提示：点击左上角箭头返回主页，点击右上角加号发布你的动态。</span>
+            <span class="announcement-text" id="notice-content">💡 提示：点击左上角箭头返回主页，点击右上角加号发布你的动态。</span>
         </div>
     </header>
 
@@ -341,8 +420,10 @@
                     style="width: 0%; height: 100%; background: #ff4d4d; transition: width 0.3s ease;"></div>
             </div>
             <button class="action-btn" onclick="handlePublish()">发 布</button>
-            <p style="text-align:center; font-size:13px; opacity:0.4; cursor:pointer; margin-top:15px;"
-                onclick="closeModal()">取消</p>
+            <div onclick="closeModal()"
+                style="background: rgba(255,255,255,0.12); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 10px 0; margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.8);">
+                取消
+            </div>
         </div>
     </div>
 
@@ -354,20 +435,6 @@
         const PROJECT_URL = 'https://hmsovwceyinvwgplgywr.supabase.co';
         const ANON_KEY = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
         const _supabase = supabase.createClient(PROJECT_URL, ANON_KEY);
-
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            const isDark = body.getAttribute('data-theme') === 'dark';
-            if (isDark) {
-                body.removeAttribute('data-theme');
-                icon.setAttribute('data-lucide', 'moon');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                icon.setAttribute('data-lucide', 'sun');
-            }
-            lucide.createIcons();
-        }
 
         async function openPublish() {
             const pw = prompt("请输入发布密码:");
@@ -401,7 +468,6 @@
             const now = new Date();
 
             container.innerHTML = data.map(m => {
-                // --- 加入时间格式化逻辑 ---
                 const postDate = new Date(m.created_at);
                 const diffInMinutes = Math.floor((now - postDate) / (1000 * 60));
                 let displayTime;
@@ -414,16 +480,15 @@
                 } else {
                     displayTime = `${postDate.getMonth() + 1}月${postDate.getDate()}日`;
                 }
-                // -----------------------
 
                 return `
-            <div class="moment-card">
-                ${m.image_url ? `<img src="${m.image_url}" class="moment-image" onclick="viewImg('${m.image_url}')" loading="lazy">` : ''}
+            <div class="moment-card" data-id="${m.id}" onclick="handleCardClick(this, '${m.id}')">
+                ${m.image_url ? `<img src="${m.image_url}" class="moment-image" loading="lazy">` : ''}
                 <div class="moment-info">
                     <div class="moment-text">${m.content || ''}</div>
                     <div class="moment-footer">
                         <span>${displayTime}</span>
-                        <span style="opacity:0.8">❤️</span>
+                        <span>❤️</span>
                     </div>
                 </div>
             </div>
@@ -519,20 +584,18 @@
         function toggleDeleteMode() {
             isDeleteMode = !isDeleteMode;
             const btn = document.getElementById('delete-mode-btn');
-            const deleteBar = document.getElementById('delete-bar');
+            const deleteControls = document.getElementById('delete-controls');
 
             if (isDeleteMode) {
-                // 进入删除模式
                 document.body.classList.add('delete-mode');
                 btn.classList.add('active');
                 selectedIds.clear();
                 updateDeleteBar();
+                deleteControls.style.display = 'flex';      // 显示底部按钮组
             } else {
-                // 退出删除模式
                 document.body.classList.remove('delete-mode');
                 btn.classList.remove('active');
-                deleteBar.style.display = 'none';
-                // 清除所有选中的样式
+                deleteControls.style.display = 'none';      // 隐藏底部按钮组
                 document.querySelectorAll('.moment-card').forEach(el => el.classList.remove('selected'));
             }
         }
@@ -576,40 +639,39 @@
 
         // 4. 更新底部删除条状态
         function updateDeleteBar() {
-            const deleteBar = document.getElementById('delete-bar');
             const countEl = document.getElementById('delete-count');
-            if (selectedIds.size > 0) {
-                deleteBar.style.display = 'block';
-                countEl.innerText = selectedIds.size;
-            } else {
-                deleteBar.style.display = 'none';
-            }
+            countEl.innerText = selectedIds.size;
+        }
+
+        function cancelDeleteMode() {
+            toggleDeleteMode();
         }
 
         // 5. 执行删除操作
         async function executeDelete() {
-    const pw = prompt(`确定要删除选中的 ${selectedIds.size} 条动态吗？请输入管理密码:`);
-    if (pw === null) return;
+            const pw = prompt(`确定要删除选中的 ${selectedIds.size} 条动态吗？请输入管理密码:`);
+            if (pw === null) return;
 
-    // 调用后端 RPC
-    const { data: isCorrect } = await _supabase.rpc('verify_admin', { 
-        input_pw: pw 
-    });
+            // 调用后端 RPC
+            const { data: isCorrect } = await _supabase.rpc('verify_admin', {
+                input_pw: pw
+            });
 
-    if (isCorrect) {
-        // ... 原有的 supabase.delete() 逻辑 ...
-        const idsToDelete = Array.from(selectedIds);
-        const { error } = await _supabase.from('moments').delete().in('id', idsToDelete);
-        
-        if (!error) {
-            alert("删除成功");
-            location.reload();
+            if (isCorrect) {
+                // ... 原有的 supabase.delete() 逻辑 ...
+                const idsToDelete = Array.from(selectedIds);
+                const { error } = await _supabase.from('moments').delete().in('id', idsToDelete);
+
+                if (!error) {
+                    alert("删除成功");
+                    location.reload();
+                }
+            } else {
+                alert("密码错误，操作已拒绝");
+            }
         }
-    } else {
-        alert("密码错误，操作已拒绝");
-    }
-}
     </script>
+    
 </body>
 
 </html>
