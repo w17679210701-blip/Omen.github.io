@@ -7,6 +7,7 @@
     <title>OMEN'S MOMENTS</title>
     <script src="supabase.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
     <style>
         :root {
             --bg-color: #f2f2f7;
@@ -41,29 +42,95 @@
         }
 
         /* --- 顶部导航 --- */
-        header { padding: 44px 20px 12px; max-width: 800px; margin: 0 auto; }
-        .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .nav-group { display: flex; gap: 10px; }
-        .nav-btn { cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--btn-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); box-shadow: var(--card-shadow); color: var(--text-color); text-decoration: none; }
-        
-        .title-group { text-align: left; margin-bottom: 20px; }
-        .title-main { font-size: 30px; font-weight: 700; margin: 0; }
-        .title-sub { font-size: 14px; opacity: 0.5; margin-top: 4px; }
+        header {
+            padding: 44px 20px 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-        .announcement { background: var(--btn-bg); border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 40px; font-size: 12px; overflow: hidden; white-space: nowrap; margin-bottom: 20px; box-shadow: var(--card-shadow); }
-        .announcement-text { display: inline-block; animation: scroll 18s linear infinite; }
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-group {
+            display: flex;
+            gap: 12px;
+            /* 增加图标之间的间距 */
+            align-items: center;
+        }
+
+        .nav-btn {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--btn-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--card-shadow);
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .title-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .title-main {
+            font-size: 30px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .title-sub {
+            font-size: 14px;
+            opacity: 0.5;
+            margin-top: 4px;
+        }
+
+        .announcement {
+            background: var(--btn-bg);
+            border: 1px solid var(--glass-border);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .announcement-text {
+            display: inline-block;
+            animation: scroll 18s linear infinite;
+        }
 
         /* --- 小红书双列布局 --- */
-        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
-        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
         #moments-container {
-            column-count: 2; /* 双列 */
-            column-gap: 10px; /* 列间距 */
+            column-count: 2;
+            /* 双列 */
+            column-gap: 10px;
+            /* 列间距 */
             width: 100%;
         }
 
         .moment-card {
-            break-inside: avoid; /* 防止卡片被切断 */
+            break-inside: avoid;
+            /* 防止卡片被切断 */
             background: var(--container-bg);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
@@ -83,14 +150,17 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .moment-info { padding: 10px; }
-        
+        .moment-info {
+            padding: 10px;
+        }
+
         .moment-text {
             font-size: 14px;
             line-height: 1.5;
             color: var(--text-color);
             display: -webkit-box;
-            -webkit-line-clamp: 3; /* 最多显示3行 */
+            -webkit-line-clamp: 3;
+            /* 最多显示3行 */
             -webkit-box-orient: vertical;
             overflow: hidden;
             margin-bottom: 8px;
@@ -106,18 +176,114 @@
         }
 
         /* --- 弹窗与其它 --- */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { width: 88%; max-width: 350px; background: var(--container-bg); border-radius: 24px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        
-        textarea { width: 100%; background: var(--bg-color); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; color: var(--text-color); font-size: 15px; resize: none; box-sizing: border-box; margin-bottom: 15px; outline: none; }
-        .action-btn { background: var(--text-color); color: var(--container-bg); border: none; padding: 12px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
 
-        .viewer { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; }
-        .viewer img { max-width: 95%; max-height: 95%; object-fit: contain; }
+        .modal-overlay.active {
+            display: flex;
+        }
 
-        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-content {
+            width: 88%;
+            max-width: 350px;
+            background: var(--container-bg);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text-color);
+            font-size: 15px;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .action-btn {
+            background: var(--text-color);
+            color: var(--container-bg);
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .viewer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .viewer img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 删除模式下的卡片变灰暗 */
+        body.delete-mode .moment-card {
+            cursor: pointer;
+            filter: grayscale(0.5);
+            opacity: 0.8;
+        }
+
+        /* 被选中的卡片样式 */
+        .moment-card.selected {
+            outline: 3px solid #ff4d4d !important;
+            filter: grayscale(0) !important;
+            opacity: 1 !important;
+            transform: scale(0.98);
+        }
+
+        /* 删除按钮激活时的颜色 */
+        #delete-mode-btn.active {
+            background: #ff4d4d;
+            color: white;
+        }
     </style>
 </head>
 
@@ -127,8 +293,28 @@
             <a href="index.html" class="nav-btn"><i data-lucide="arrow-left"></i></a>
             <div class="nav-group">
                 <div class="nav-btn" onclick="openPublish()"><i data-lucide="plus"></i></div>
+                <div class="nav-btn" id="delete-mode-btn" onclick="toggleDeleteMode()"><i data-lucide="trash-2"></i>
+                </div>
                 <div class="nav-btn" onclick="toggleTheme()"><i data-lucide="moon" id="theme-icon"></i></div>
             </div>
+        </div>
+        <div id="delete-bar" onclick="executeDelete()" style="
+        display: none; 
+        position: fixed; 
+        bottom: calc(80px + env(safe-area-inset-bottom)); /* 适配移动端底部 */
+        left: 50%; 
+        transform: translateX(-50%); 
+        background: #ff4d4d; 
+        color: white; 
+        padding: 12px 40px; 
+        border-radius: 50px; 
+        z-index: 9999; 
+        box-shadow: 0 10px 30px rgba(255,77,77,0.4); 
+        cursor: pointer; 
+        font-weight: 600;
+        white-space: nowrap;
+    ">
+            确认删除 (<span id="delete-count">0</span>)
         </div>
         <div class="title-group">
             <h1 class="title-main">Moments</h1>
@@ -147,9 +333,16 @@
         <div class="modal-content">
             <h2 style="margin-top:0; font-size: 20px; text-align:center">新动态</h2>
             <textarea id="post-text" placeholder="此时此刻的想法..." rows="4"></textarea>
-            <input type="file" id="post-file" accept="image/*" style="margin-bottom: 15px; font-size: 12px; width: 100%;">
+            <input type="file" id="post-file" accept="image/*"
+                style="margin-bottom: 15px; font-size: 12px; width: 100%;">
+            <div id="publish-progress-container"
+                style="display: none; width: 100%; background: rgba(0,0,0,0.05); height: 4px; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
+                <div id="publish-progress-bar"
+                    style="width: 0%; height: 100%; background: #ff4d4d; transition: width 0.3s ease;"></div>
+            </div>
             <button class="action-btn" onclick="handlePublish()">发 布</button>
-            <p style="text-align:center; font-size:13px; opacity:0.4; cursor:pointer; margin-top:15px;" onclick="closeModal()">取消</p>
+            <p style="text-align:center; font-size:13px; opacity:0.4; cursor:pointer; margin-top:15px;"
+                onclick="closeModal()">取消</p>
         </div>
     </div>
 
@@ -160,7 +353,7 @@
     <script>
         const PROJECT_URL = 'https://hmsovwceyinvwgplgywr.supabase.co';
         const ANON_KEY = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-        const client = supabase.createClient(PROJECT_URL, ANON_KEY);
+        const _supabase = supabase.createClient(PROJECT_URL, ANON_KEY);
 
         function toggleTheme() {
             const body = document.body;
@@ -176,12 +369,19 @@
             lucide.createIcons();
         }
 
-        function openPublish() {
+        async function openPublish() {
             const pw = prompt("请输入发布密码:");
-            if (pw === "990701") {
+            if (pw === null) return;
+
+            // 调用后端 RPC
+            const { data: isCorrect, error } = await _supabase.rpc('verify_admin', {
+                input_pw: pw
+            });
+
+            if (isCorrect) {
                 document.getElementById('post-modal').classList.add('active');
-            } else if (pw !== null) {
-                alert("密码错误");
+            } else {
+                alert("密码错误，请联系 Omen");
             }
         }
 
@@ -190,43 +390,49 @@
         }
 
         async function loadMoments() {
-            const { data, error } = await client.from('moments').select('*').order('created_at', { ascending: false });
+            // 将 client 改为 _supabase
+            const { data, error } = await _supabase.from('moments').select('*').order('created_at', { ascending: false });
             if (error) return;
             renderMoments(data);
         }
 
         function renderMoments(data) {
             const container = document.getElementById('moments-container');
-            container.innerHTML = data.map(m => `
-                <div class="moment-card">
-                    ${m.image_url ? `<img src="${m.image_url}" class="moment-image" onclick="viewImg('${m.image_url}')" loading="lazy">` : ''}
-                    <div class="moment-info">
-                        <div class="moment-text">${m.content || ''}</div>
-                        <div class="moment-footer">
-                            <span>${new Date(m.created_at).toLocaleDateString('zh-CN')}</span>
-                            <span style="opacity:0.8">❤️</span>
-                        </div>
+            const now = new Date();
+
+            container.innerHTML = data.map(m => {
+                // --- 加入时间格式化逻辑 ---
+                const postDate = new Date(m.created_at);
+                const diffInMinutes = Math.floor((now - postDate) / (1000 * 60));
+                let displayTime;
+
+                if (diffInMinutes < 60 && diffInMinutes >= 0) {
+                    displayTime = diffInMinutes <= 1 ? "刚刚" : `${diffInMinutes}分钟前`;
+                } else if (postDate.toDateString() === now.toDateString()) {
+                    displayTime = postDate.getHours().toString().padStart(2, '0') + ':' +
+                        postDate.getMinutes().toString().padStart(2, '0');
+                } else {
+                    displayTime = `${postDate.getMonth() + 1}月${postDate.getDate()}日`;
+                }
+                // -----------------------
+
+                return `
+            <div class="moment-card">
+                ${m.image_url ? `<img src="${m.image_url}" class="moment-image" onclick="viewImg('${m.image_url}')" loading="lazy">` : ''}
+                <div class="moment-info">
+                    <div class="moment-text">${m.content || ''}</div>
+                    <div class="moment-footer">
+                        <span>${displayTime}</span>
+                        <span style="opacity:0.8">❤️</span>
                     </div>
                 </div>
-            `).join('');
+            </div>
+        `;
+            }).join('');
             lucide.createIcons();
         }
 
-        async function handlePublish() {
-            const content = document.getElementById('post-text').value;
-            const file = document.getElementById('post-file').files[0];
-            let url = "";
-            if (!content && !file) return;
-            try {
-                if (file) {
-                    const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
-                    await client.storage.from('moment-files').upload(fileName, file);
-                    url = client.storage.from('moment-files').getPublicUrl(fileName).data.publicUrl;
-                }
-                await client.from('moments').insert([{ content, image_url: url }]);
-                location.reload();
-            } catch (e) { alert("发布失败"); }
-        }
+
 
         function viewImg(url) {
             document.getElementById('viewer-img').src = url;
@@ -237,6 +443,173 @@
             loadMoments();
             lucide.createIcons();
         };
+
+        // 初始化腾讯云 COS
+        const cos = new COS({
+            SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi',
+            SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS',
+        });
+
+        async function handlePublish() {
+            const btn = document.querySelector('.action-btn');
+            const progressBar = document.getElementById('publish-progress-bar');
+            const progressContainer = document.getElementById('publish-progress-container');
+            const contentText = document.getElementById('post-text').value;
+            const fileInput = document.getElementById('post-file');
+            const file = fileInput.files[0];
+
+            // 锁定按钮状态
+            btn.disabled = true;
+            btn.innerText = "上传中...";
+            progressContainer.style.display = 'block';
+
+            // 注意：这里必须用 let
+            let finalImageUrl = null;
+
+            try {
+                // 1. 处理图片上传（如果有）
+                if (file) {
+                    const fileName = '朋友圈/' + Date.now() + '-' + file.name; // 加上前缀
+                    const uploadRes = await new Promise((resolve, reject) => {
+                        cos.uploadFile({
+                            Bucket: 'hiomen-1312408524',
+                            Region: 'ap-guangzhou',
+                            Key: fileName,
+                            Body: file,
+                            onProgress: (info) => {
+                                progressBar.style.width = Math.floor(info.percent * 80) + '%';
+                            }
+                        }, (err, data) => {
+                            if (err) reject(err);
+                            else resolve('https://' + data.Location);
+                        });
+                    });
+                    finalImageUrl = uploadRes; // 现在这里不会报错了
+                }
+
+                // 2. 写入 Supabase
+                const { error: dbError } = await _supabase
+                    .from('moments')
+                    .insert([{
+                        content: contentText,
+                        image_url: finalImageUrl,
+                        created_at: new Date().toISOString()
+                    }]);
+
+                if (dbError) throw dbError;
+
+                // 3. 发布成功
+                progressBar.style.width = '100%';
+                btn.innerText = "完成";
+                setTimeout(() => location.reload(), 600);
+
+            } catch (err) {
+                console.error("发布失败:", err);
+                alert("发布失败: " + (err.message || "请检查配置"));
+                btn.disabled = false;
+                btn.innerText = "发 布";
+                progressContainer.style.display = 'none';
+            }
+        }
+
+        let isDeleteMode = false;
+        let selectedIds = new Set(); // 存储被选中的动态 ID
+
+        // 1. 切换删除模式
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            const btn = document.getElementById('delete-mode-btn');
+            const deleteBar = document.getElementById('delete-bar');
+
+            if (isDeleteMode) {
+                // 进入删除模式
+                document.body.classList.add('delete-mode');
+                btn.classList.add('active');
+                selectedIds.clear();
+                updateDeleteBar();
+            } else {
+                // 退出删除模式
+                document.body.classList.remove('delete-mode');
+                btn.classList.remove('active');
+                deleteBar.style.display = 'none';
+                // 清除所有选中的样式
+                document.querySelectorAll('.moment-card').forEach(el => el.classList.remove('selected'));
+            }
+        }
+
+        // 2. 修改渲染逻辑 (点击事件)
+        // 注意：你需要修改你之前的 renderMoments 函数，给卡片加一个 onclick
+        function renderMoments(data) {
+            const container = document.getElementById('moments-container');
+            container.innerHTML = data.map(m => `
+        <div class="moment-card" data-id="${m.id}" onclick="handleCardClick(this, '${m.id}')">
+            ${m.image_url ? `<img src="${m.image_url}" class="moment-image" loading="lazy">` : ''}
+            <div class="moment-info">
+                <div class="moment-text">${m.content || ''}</div>
+                <div class="moment-footer">
+                    <span>${new Date(m.created_at).toLocaleString()}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+        }
+
+        // 3. 处理卡片点击
+        function handleCardClick(element, id) {
+            if (!isDeleteMode) {
+                // 如果不是删除模式，可以执行之前的看图逻辑
+                const img = element.querySelector('img');
+                if (img) viewImg(img.src);
+                return;
+            }
+
+            // 删除模式下的选中切换
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+                element.classList.remove('selected');
+            } else {
+                selectedIds.add(id);
+                element.classList.add('selected');
+            }
+            updateDeleteBar();
+        }
+
+        // 4. 更新底部删除条状态
+        function updateDeleteBar() {
+            const deleteBar = document.getElementById('delete-bar');
+            const countEl = document.getElementById('delete-count');
+            if (selectedIds.size > 0) {
+                deleteBar.style.display = 'block';
+                countEl.innerText = selectedIds.size;
+            } else {
+                deleteBar.style.display = 'none';
+            }
+        }
+
+        // 5. 执行删除操作
+        async function executeDelete() {
+    const pw = prompt(`确定要删除选中的 ${selectedIds.size} 条动态吗？请输入管理密码:`);
+    if (pw === null) return;
+
+    // 调用后端 RPC
+    const { data: isCorrect } = await _supabase.rpc('verify_admin', { 
+        input_pw: pw 
+    });
+
+    if (isCorrect) {
+        // ... 原有的 supabase.delete() 逻辑 ...
+        const idsToDelete = Array.from(selectedIds);
+        const { error } = await _supabase.from('moments').delete().in('id', idsToDelete);
+        
+        if (!error) {
+            alert("删除成功");
+            location.reload();
+        }
+    } else {
+        alert("密码错误，操作已拒绝");
+    }
+}
     </script>
 </body>
+
 </html>

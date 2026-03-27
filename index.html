@@ -1208,7 +1208,29 @@
 
                     // 格式化一下时间 (2026-03-24 -> 3月24日)
                     const date = new Date(data.created_at);
-                    document.getElementById('moment-time').innerText = `${date.getMonth() + 1}月${date.getDate()}日`;
+                    // --- 替换开始 ---
+                    const postDate = new Date(data.created_at);
+                    const now = new Date();
+                    const diffInMs = now - postDate;
+                    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+
+                    let displayTime;
+
+                    if (diffInMinutes < 60 && diffInMinutes >= 0) {
+                        // 1. 一小时内：显示 xx分钟前
+                        displayTime = diffInMinutes <= 1 ? "刚刚" : `${diffInMinutes}分钟前`;
+                    } else if (postDate.toDateString() === now.toDateString()) {
+                        // 2. 今天之内：显示 14:30
+                        const hours = postDate.getHours().toString().padStart(2, '0');
+                        const minutes = postDate.getMinutes().toString().padStart(2, '0');
+                        displayTime = `${hours}:${minutes}`;
+                    } else {
+                        // 3. 昨天及更早：显示 3月27日
+                        displayTime = `${postDate.getMonth() + 1}月${postDate.getDate()}日`;
+                    }
+
+                    document.getElementById('moment-time').innerText = displayTime;
+                    // --- 替换结束 ---
 
                     // 4. 处理图片
                     const mediaContainer = document.getElementById('moment-media');
