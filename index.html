@@ -31,7 +31,6 @@
             }
         }
 
-        /* 新增伪元素背景动画 */
         body::before {
             content: '';
             position: fixed;
@@ -75,6 +74,16 @@
             animation: flowSand 28s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
             z-index: -1;
             pointer-events: none;
+        }
+
+        @keyframes flowSand {
+            0% {
+                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+            }
+
+            100% {
+                background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%;
+            }
         }
 
         @keyframes flowSand {
