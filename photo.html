@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMEN's GALLERY</title>
+    <title>相册</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         /* --- 1. 基础重置 --- */
         * {
@@ -346,6 +347,135 @@
                 background-position: 100% 50%;
             }
         }
+
+        /* 模态框通用样式（若未定义） */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 88%;
+            max-width: 350px;
+            background: rgba(20, 20, 25, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 204, 0, 0.4);
+            border-radius: 40px;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffcc00;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 204, 0, 0.2);
+            border-color: #ffcc00;
+            transform: translateY(-1px);
+        }
+
+        .action-btn:active {
+            transform: translateY(1px);
+        }
+
+        textarea,
+        select,
+        input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        /* 删除模式样式 */
+        body.delete-mode .album-card {
+            cursor: pointer;
+            filter: grayscale(0.5);
+            opacity: 0.8;
+        }
+
+        .album-card.selected {
+            outline: 3px solid #ff4d4d !important;
+            filter: grayscale(0) !important;
+            opacity: 1 !important;
+            transform: scale(0.98);
+        }
+
+        #delete-mode-btn.active {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .photo-item.selected {
+            outline: 3px solid #ff4d4d;
+            filter: grayscale(0) !important;
+            opacity: 1 !important;
+            transform: scale(0.98);
+        }
+
+        /* 底部删除按钮组 */
+        #delete-controls {
+            position: fixed;
+            bottom: calc(30px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            z-index: 9999;
+            display: none;
+            /* 初始隐藏 */
+        }
+
+        #delete-bar,
+        #cancel-delete {
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        #delete-bar {
+            background: #ff4d4d;
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 77, 77, 0.4);
+        }
+
+        #cancel-delete {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 
@@ -353,8 +483,14 @@
     <div class="floating-btn btn-left" id="back-btn">
         <i data-lucide="arrow-left" size="20"></i>
     </div>
+    <div class="floating-btn btn-right" style="right: 75px;" onclick="openUploadModal()">
+        <i data-lucide="plus" size="20"></i>
+    </div>
+    <div class="floating-btn btn-right" onclick="toggleDeleteMode()" id="delete-mode-btn">
+        <i data-lucide="trash-2" size="20"></i>
+    </div>
     <header class="main-header">
-        <h1>个人相册</h1>
+        <h1>相册</h1>
         <p>一人 丨 一猫 丨 一首歌</p>
     </header>
 
@@ -379,6 +515,27 @@
         </div>
     </div>
 
+    <!-- 上传模态框 -->
+    <div class="modal-overlay" id="upload-modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0; font-size: 20px; text-align:center">上传图片</h2>
+            <select id="upload-folder"
+                style="width:100%; margin-bottom:15px; background: rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px; color:white;">
+                <option value="日常">日常</option>
+                <option value="猫">猫</option>
+                <option value="加密相册">加密相册</option>
+            </select>
+            <input type="file" id="upload-file" accept="image/*"
+                style="margin-bottom:15px; width:100%; background: rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:8px; color:white;">
+            <textarea id="upload-description" rows="3" placeholder="描述（可选）" style="margin-bottom:15px;"></textarea>
+            <button class="action-btn" onclick="handleUpload()">上传</button>
+            <div onclick="closeUploadModal()"
+                style="background: rgba(255,255,255,0.12); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 10px 0; margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.8);">
+                取消
+            </div>
+        </div>
+    </div>
+
     <div id="photo-viewer-container" class="container hidden">
         <h2 id="current-album-title" style="color:#f5bc00; text-align:center; margin-bottom:1.5rem; font-size: 1.4rem;">
         </h2>
@@ -391,8 +548,204 @@
             <img id="main-viewer-img" src="">
         </div>
     </div>
-
+    <div id="delete-controls">
+        <div id="delete-bar" onclick="executeDelete()">确认删除 (<span id="delete-count">0</span>)</div>
+        <div id="cancel-delete" onclick="cancelDeleteMode()">取消</div>
+    </div>
     <script>
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        function openUploadModal() {
+            document.getElementById('upload-modal').classList.add('active');
+        }
+        function closeUploadModal() {
+            document.getElementById('upload-modal').classList.remove('active');
+        }
+        async function handleUpload() {
+            const folder = document.getElementById('upload-folder').value;
+            const file = document.getElementById('upload-file').files[0];
+            const description = document.getElementById('upload-description').value;
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            // 如果是加密相册，验证密码
+            if (folder === '加密相册') {
+                const pw = prompt('请输入加密相册密码：');
+                if (!pw) return;
+                const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
+                if (!isCorrect) {
+                    alert('密码错误');
+                    return;
+                }
+            }
+            // 生成文件名：文件夹/时间戳_原始文件名
+            const timestamp = Date.now();
+            const ext = file.name.split('.').pop();
+            const key = `${folder}/${timestamp}.${ext}`;
+            // 上传到 COS
+            cos.uploadFile({
+                Bucket: CONFIG.Bucket,
+                Region: CONFIG.Region,
+                Key: key,
+                Body: file,
+                onProgress: (info) => {
+                    // 可显示进度条（可选）
+                    console.log('上传进度', info.percent);
+                }
+            }, async (err, data) => {
+                if (err) {
+                    alert('上传失败：' + err.message);
+                    return;
+                }
+                const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${key}`;
+                // 保存到 Supabase
+                const { error } = await supabaseClient.from('photos').insert({
+                    folder: folder,
+                    key: key,
+                    url: url,
+                    description: description
+                });
+                if (error) {
+                    alert('保存记录失败：' + error.message);
+                    return;
+                }
+                alert('上传成功！');
+                closeUploadModal();
+                loadAlbums(); // 重新加载相册列表
+            });
+        }
+
+        let isDeleteMode = false;
+        let selectedKeys = new Set(); // 存储选中的图片 Key
+
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            const btn = document.getElementById('delete-mode-btn');
+            const controls = document.getElementById('delete-controls');
+            if (isDeleteMode) {
+                document.body.classList.add('delete-mode');
+                btn.classList.add('active');
+                selectedKeys.clear();
+                updateDeleteBar();
+                controls.style.display = 'flex';   // 显示按钮组
+            } else {
+                document.body.classList.remove('delete-mode');
+                btn.classList.remove('active');
+                controls.style.display = 'none';    // 隐藏按钮组
+                document.querySelectorAll('.photo-item').forEach(el => el.classList.remove('selected'));
+            }
+        }
+
+        function cancelDeleteMode() {
+            toggleDeleteMode();
+        }
+
+        // 在 renderAlbumCards 中，为每个卡片添加 onclick 和 data-key 属性
+        // 修改 renderAlbumCards 函数，在卡片 div 中添加 data-key 属性，并绑定点击事件
+        function renderAlbumCards(folders) {
+            const grid = document.getElementById('album-grid');
+            const iconMap = { '日常': 'aperture', '猫': 'cat', '加密相册': 'shield-check' };
+            let html = folders.map(name => {
+                const iconName = iconMap[name] || 'folder-open';
+                return `<div onclick="handleEntry('${name}')" class="album-card" data-folder="${name}">
+            <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#f5bc00;"></i></div>
+            <div class="name">${name}</div>
+            <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} PHOTOS</div>
+        </div>`;
+            }).join('');
+            grid.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // 注意：删除功能需要作用于单个图片，而不是相册分类。我们需要在照片瀑布流中实现选中删除。
+        // 因此，删除模式的逻辑应该在进入相册内部（showPhotos 渲染的图片列表）中实现。
+        // 我们需要为每张图片添加可点击的选中功能。
+
+        function showPhotos(folderName) {
+            document.querySelector('.main-header').classList.add('hidden');
+            document.getElementById('category-view').classList.add('hidden');
+            document.getElementById('photo-viewer-container').classList.remove('hidden');
+            document.getElementById('current-album-title').innerText = folderName;
+            const list = document.getElementById('photo-list');
+            const photos = OMEN_STATE.allPhotos[folderName] || [];
+            list.innerHTML = photos.map((url, idx) => {
+                const key = url.split('.myqcloud.com/')[1];
+                return `<div class="photo-item" data-key="${key}" data-index="${idx}" onclick="handlePhotoClick(this, '${key}', ${idx})">
+            <img src="${url}" loading="lazy">
+        </div>`;
+            }).join('');
+            window.scrollTo(0, 0);
+            updateBackButton();
+        }
+
+        // 图片点击处理（删除模式）
+        function handlePhotoClick(element, key, idx) {
+            if (!isDeleteMode) {
+                openViewer(idx);
+            } else {
+                if (selectedKeys.has(key)) {
+                    selectedKeys.delete(key);
+                    element.classList.remove('selected');
+                } else {
+                    selectedKeys.add(key);
+                    element.classList.add('selected');
+                }
+                updateDeleteBar();
+            }
+        }
+
+        function updateDeleteBar() {
+            const countEl = document.getElementById('delete-count');
+            if (countEl) countEl.innerText = selectedKeys.size;
+        }
+
+        // 执行删除
+        async function executeDelete() {
+            const pw = prompt(`确定要删除选中的 ${selectedKeys.size} 张图片吗？请输入管理密码：`);
+            if (!pw) return;
+            const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
+            if (!isCorrect) {
+                alert('密码错误');
+                return;
+            }
+            // 删除 COS 文件
+            const keysToDelete = Array.from(selectedKeys);
+            const deletePromises = keysToDelete.map(key => {
+                return new Promise((resolve, reject) => {
+                    cos.deleteObject({
+                        Bucket: CONFIG.Bucket,
+                        Region: CONFIG.Region,
+                        Key: key
+                    }, (err, data) => {
+                        if (err) reject(err);
+                        else resolve(data);
+                    });
+                });
+            });
+            try {
+                await Promise.all(deletePromises);
+                // 删除 Supabase 记录
+                const { error } = await supabaseClient.from('photos').delete().in('key', keysToDelete);
+                if (error) throw error;
+                alert('删除成功');
+                // 重新加载数据，并停留在当前相册内
+                await loadAlbums();
+                if (OMEN_STATE.currentFolder) {
+                    showPhotos(OMEN_STATE.currentFolder);
+                }
+                // 清除选中状态并退出删除模式
+                selectedKeys.clear();
+                if (isDeleteMode) {
+                    toggleDeleteMode();
+                }
+            } catch (err) {
+                alert('删除失败：' + err.message);
+            }
+        }
+
         const CONFIG = {
             SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi',
             SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS',
@@ -434,37 +787,38 @@
         async function loadAlbums() {
             const grid = document.getElementById('album-grid');
             grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.3; padding:5rem 0;">LOADING GALLERY...</p>`;
-            cos.getBucket({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '' }, function (err, data) {
-                if (err) return;
+
+            // 先从 Supabase 获取照片记录
+            const { data: photos, error } = await supabaseClient.from('photos').select('*');
+            if (!error && photos && photos.length > 0) {
+                // 按文件夹分组
                 const albumMap = {};
-                CONFIG.albumList.forEach(name => albumMap[name] = []);
-                (data.Contents || []).forEach(item => {
-                    if (item.Size > 0) {
-                        const parts = item.Key.split('/');
-                        const folderName = parts.length > 1 ? parts[0] : '默认相册';
-                        const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${item.Key}`;
-                        if (!albumMap[folderName]) albumMap[folderName] = [];
-                        albumMap[folderName].push(url);
-                    }
+                photos.forEach(photo => {
+                    const folder = photo.folder;
+                    if (!albumMap[folder]) albumMap[folder] = [];
+                    albumMap[folder].push(photo.url);
                 });
                 OMEN_STATE.allPhotos = albumMap;
                 renderAlbumCards(Object.keys(albumMap));
-            });
-        }
-
-        function renderAlbumCards(folders) {
-            const grid = document.getElementById('album-grid');
-            const iconMap = { '日常': 'aperture', '猫': 'cat', '加密相册': 'shield-check' };
-            let html = folders.map(name => {
-                const iconName = iconMap[name] || 'folder-open';
-                return `<div onclick="handleEntry('${name}')" class="album-card">
-                    <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#f5bc00;"></i></div>
-                    <div class="name">${name}</div>
-                    <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} PHOTOS</div>
-                </div>`;
-            }).join('');
-            grid.innerHTML = html;
-            lucide.createIcons();
+            } else {
+                // 后备：从 COS 读取（原有逻辑，用于首次运行）
+                cos.getBucket({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '' }, function (err, data) {
+                    if (err) return;
+                    const albumMap = {};
+                    CONFIG.albumList.forEach(name => albumMap[name] = []);
+                    (data.Contents || []).forEach(item => {
+                        if (item.Size > 0) {
+                            const parts = item.Key.split('/');
+                            const folderName = parts.length > 1 ? parts[0] : '默认相册';
+                            const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${item.Key}`;
+                            if (!albumMap[folderName]) albumMap[folderName] = [];
+                            albumMap[folderName].push(url);
+                        }
+                    });
+                    OMEN_STATE.allPhotos = albumMap;
+                    renderAlbumCards(Object.keys(albumMap));
+                });
+            }
         }
 
         function handleEntry(name) {
@@ -485,15 +839,18 @@
         function closeModal() { document.getElementById('password-modal').classList.remove('flex'); }
 
         function showPhotos(folderName) {
-            // 修正：不再隐藏 notice-bar
             document.querySelector('.main-header').classList.add('hidden');
             document.getElementById('category-view').classList.add('hidden');
             document.getElementById('photo-viewer-container').classList.remove('hidden');
             document.getElementById('current-album-title').innerText = folderName;
             const list = document.getElementById('photo-list');
-            list.innerHTML = (OMEN_STATE.allPhotos[folderName] || []).map((url, idx) =>
-                `<div class="photo-item"><img src="${url}" loading="lazy" onclick="openViewer(${idx})"></div>`
-            ).join('');
+            const photos = OMEN_STATE.allPhotos[folderName] || [];
+            list.innerHTML = photos.map((url, idx) => {
+                const key = url.split('.myqcloud.com/')[1];
+                return `<div class="photo-item" data-key="${key}" data-index="${idx}" onclick="handlePhotoClick(this, '${key}', ${idx})">
+            <img src="${url}" loading="lazy">
+        </div>`;
+            }).join('');
             window.scrollTo(0, 0);
             updateBackButton();
         }
@@ -553,7 +910,7 @@
             }, { passive: true });
         }
     </script>
-    
+
 </body>
 
 </html>
