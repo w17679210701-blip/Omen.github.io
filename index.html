@@ -1050,6 +1050,11 @@
                             style="font-family: monospace; font-size: 0.95rem; font-weight: bold; color: #ffcc00; text-align: center;">
                             0天 00时 00分 00秒
                         </div>
+                        <div style="margin-top: 8px; font-size: 10px; opacity: 0.5;">累计访问量</div>
+                        <div id="visit-count"
+                            style="font-family: monospace; font-size: 0.9rem; font-weight: bold; color: #ffcc00;">
+                            加载中...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1256,6 +1261,7 @@
 
             // 4. 运行时间计时器
             setInterval(updateRuntime, 1000);
+            updateVisitCount();   // 更新并显示访问量
             updateRuntime();
 
             // 6. 进入页面
@@ -1301,6 +1307,35 @@
                 wechatModal.classList.remove('active');
             }
         };
+
+        // 更新访问量（每次页面加载时 PV +1）
+        async function updateVisitCount() {
+            if (!window.db) return;
+            try {
+                // 使用 RPC 原子增加并返回新值（推荐）
+                const { data, error } = await window.db.rpc('increment_pv');
+                if (error) {
+                    // 如果 RPC 未创建，回退到普通查询+更新（有并发风险）
+                    console.warn('RPC not found, using fallback');
+                    const { data: current } = await window.db
+                        .from('site_stats')
+                        .select('pv')
+                        .eq('id', 1)
+                        .single();
+                    if (current) {
+                        const newPv = current.pv + 1;
+                        await window.db.from('site_stats').update({ pv: newPv }).eq('id', 1);
+                        document.getElementById('visit-count').innerText = newPv;
+                    }
+                } else {
+                    // RPC 成功，data 即为新值
+                    document.getElementById('visit-count').innerText = data;
+                }
+            } catch (err) {
+                console.error('访问量更新失败', err);
+                document.getElementById('visit-count').innerText = '--';
+            }
+        }
     </script>
 </body>
 
