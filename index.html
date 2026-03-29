@@ -845,6 +845,161 @@
             left: calc(env(safe-area-inset-left, 20px) + 25px) !important;
             z-index: 2147483646 !important;
         }
+
+        /* ===== 灵动岛音乐播放器 ===== */
+        #music-player {
+            position: fixed;
+            top: 30px !important;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2147483647;
+            width: 220px;
+            min-width: auto;
+            max-width: none;
+            height: 44px !important;
+            background: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #music-player:hover {
+            background: rgba(40, 40, 40, 0.9);
+            transform: translateX(-50%) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .music-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffcc00;
+            margin-right: 15px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .music-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+
+        #music-player.playing .music-toggle {
+            background: rgba(255, 204, 0, 0.15);
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+        }
+
+        .music-title-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            /* 垂直居中 */
+            justify-content: center;
+            /* 水平居中 */
+        }
+
+        .music-title-wrapper {
+            display: inline-block;
+            white-space: nowrap;
+            /* padding-left: 100%; */
+            /* 初始位置在容器右侧 */
+            animation: scrollText 15s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .music-title-container.scrollable .music-title-wrapper {
+            padding-left: 100%;
+            /* 只有需要滚动时才添加 */
+            animation: scrollText 15s linear infinite;
+            animation-play-state: running;
+        }
+
+        @keyframes scrollText {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        #music-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.2px;
+            padding-right: 40px;
+            transition: color 0.3s ease;
+            line-height: 1;
+        }
+
+        #music-player.playing #music-title {
+            color: #ffcc00;
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+        }
+
+        .music-title-container.scrollable .music-title-scrolling {
+            animation-play-state: running;
+        }
+
+        @keyframes musicSpin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #music-player.playing #music-icon {
+            animation: musicSpin 4s linear infinite;
+        }
+
+        @media (max-width: 480px) {
+            #music-player {
+                max-width: 280px;
+                height: 46px;
+                padding: 0 16px;
+                top: calc(env(safe-area-inset-top, 20px) + 15px);
+            }
+
+            #music-title {
+                display: inline-block;
+                font-size: 14px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.9);
+                letter-spacing: 0.2px;
+                transition: color 0.3s ease;
+            }
+
+            .music-toggle {
+                width: 32px;
+                height: 32px;
+                margin-right: 12px;
+            }
+        }
     </style>
 </head>
 
@@ -852,6 +1007,17 @@
     <div class="nav-container-top">
         <div class="floating-btn btn-left" onclick="toggleMenu(event)" id="menu-trigger">
             <i data-lucide="menu"></i>
+        </div>
+    </div>
+    <!-- 音乐组件 -->
+    <div id="music-player" class="music-player">
+        <button id="music-toggle" class="music-toggle">
+            <i data-lucide="music" id="music-icon"></i>
+        </button>
+        <div id="music-title-container" class="music-title-container">
+            <div class="music-title-wrapper">
+                <span id="music-title">正在加载音乐...</span>
+            </div>
         </div>
     </div>
     <div id="loader">
@@ -1171,6 +1337,29 @@
             if (el) el.innerHTML = `${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
         }
 
+        // 将日期转换为"刚刚"、"n分钟前"、"n小时前"、"n天前"等格式
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 0) return '刚刚'; // 未来时间统一显示为刚刚
+
+            const intervals = [
+                { label: '年', seconds: 31536000 },
+                { label: '月', seconds: 2592000 },
+                { label: '天', seconds: 86400 },
+                { label: '小时', seconds: 3600 },
+                { label: '分钟', seconds: 60 },
+                { label: '秒', seconds: 1 }
+            ];
+
+            for (const interval of intervals) {
+                const count = Math.floor(seconds / interval.seconds);
+                if (count >= 1) {
+                    return `${count}${interval.label}前`;
+                }
+            }
+            return '刚刚';
+        }
+
         // 朋友圈动态
         async function loadLatestMoment() {
             if (!window.db) return;
@@ -1220,98 +1409,6 @@
 
         // 随机颜色选项
         const loadingColors = ['#ff69b4', '#ff4d4d'];
-
-        // --- 页面启动 ---
-
-        window.onload = () => {
-
-            loadSiteConfig();
-
-            // 随机设置加载文字颜色
-            const loaderText = document.querySelector('.loader-text');
-            if (loaderText) {
-                const randomColor = loadingColors[Math.floor(Math.random() * loadingColors.length)];
-                loaderText.style.color = randomColor;
-            }
-            // 1. 直接创建图标（不需要判断亮色模式了）
-            lucide.createIcons();
-
-            // 3. 实时时钟 + 倒计时逻辑
-            const clockEl = document.getElementById('live-clock');
-            const countdownEl = document.getElementById('countdown-timer');
-            const targetTime = new Date("2026-03-24T13:00:00").getTime();
-
-            function runLiveTimers() {
-                const now = new Date();
-                if (clockEl) {
-                    const h = String(now.getHours()).padStart(2, '0'),
-                        m = String(now.getMinutes()).padStart(2, '0'),
-                        s = String(now.getSeconds()).padStart(2, '0'),
-                        ms = String(now.getMilliseconds()).padStart(3, '0');
-                    clockEl.textContent = `${h}:${m}:${s}.${ms}`;
-                }
-                if (countdownEl) {
-                    const diff = targetTime - now.getTime();
-                    if (diff > 0) {
-                        const h = String(Math.floor(diff / 3600000)).padStart(2, '0'),
-                            m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
-                            s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
-                            ms = String(diff % 1000).padStart(3, '0');
-                        countdownEl.textContent = `${h}:${m}:${s}.${ms}`;
-                    } else { countdownEl.textContent = "TIME UP!"; }
-                }
-                requestAnimationFrame(runLiveTimers);
-            }
-            runLiveTimers();
-
-            // 4. 运行时间计时器
-            setInterval(updateRuntime, 1000);
-            updateVisitCount();   // 更新并显示访问量
-            updateRuntime();
-
-            // 6. 进入页面
-            setTimeout(showPage, 200);
-            if (typeof loadLatestMoment === 'function') loadLatestMoment();
-            if (typeof loadGuestbook === 'function') loadGuestbook();
-        };
-
-        // 将日期转换为“刚刚”、“n分钟前”、“n小时前”、“n天前”等格式
-        function timeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            if (seconds < 0) return '刚刚'; // 未来时间统一显示为刚刚
-
-            const intervals = [
-                { label: '年', seconds: 31536000 },
-                { label: '月', seconds: 2592000 },
-                { label: '天', seconds: 86400 },
-                { label: '小时', seconds: 3600 },
-                { label: '分钟', seconds: 60 },
-                { label: '秒', seconds: 1 }
-            ];
-
-            for (const interval of intervals) {
-                const count = Math.floor(seconds / interval.seconds);
-                if (count >= 1) {
-                    return `${count}${interval.label}前`;
-                }
-            }
-            return '刚刚';
-        }
-
-        window.onclick = function (e) {
-            const menu = document.getElementById('dropdown-menu');
-            const mailModal = document.getElementById('mail-modal');
-            const wechatModal = document.getElementById('wechat-modal');
-            if (menu && !document.getElementById('menu-trigger').contains(e.target)) {
-                menu.classList.remove('active');
-            }
-            if (mailModal && !e.target.closest('.contact-btn') && !mailModal.contains(e.target)) {
-                mailModal.classList.remove('active');
-            }
-            if (wechatModal && !e.target.closest('.contact-btn') && !wechatModal.contains(e.target)) {
-                wechatModal.classList.remove('active');
-            }
-        };
 
         // 更新访问量（每次页面加载时 PV +1）
         async function updateVisitCount() {
@@ -1369,6 +1466,181 @@
             const nameEl = document.querySelector('.profile-name');
             if (nameEl) nameEl.innerText = config.home_name || 'Omen';
         }
+
+        // --- 页面启动 ---
+        window.onload = () => {
+            loadSiteConfig();
+
+            // 随机设置加载文字颜色
+            const loaderText = document.querySelector('.loader-text');
+            if (loaderText) {
+                const randomColor = loadingColors[Math.floor(Math.random() * loadingColors.length)];
+                loaderText.style.color = randomColor;
+            }
+            // 1. 直接创建图标（不需要判断亮色模式了）
+            lucide.createIcons();
+
+            // 3. 实时时钟 + 倒计时逻辑
+            const clockEl = document.getElementById('live-clock');
+            const countdownEl = document.getElementById('countdown-timer');
+            const targetTime = new Date("2026-03-24T13:00:00").getTime();
+
+            function runLiveTimers() {
+                const now = new Date();
+                if (clockEl) {
+                    const h = String(now.getHours()).padStart(2, '0'),
+                        m = String(now.getMinutes()).padStart(2, '0'),
+                        s = String(now.getSeconds()).padStart(2, '0'),
+                        ms = String(now.getMilliseconds()).padStart(3, '0');
+                    clockEl.textContent = `${h}:${m}:${s}.${ms}`;
+                }
+                if (countdownEl) {
+                    const diff = targetTime - now.getTime();
+                    if (diff > 0) {
+                        const h = String(Math.floor(diff / 3600000)).padStart(2, '0'),
+                            m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+                            s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+                            ms = String(diff % 1000).padStart(3, '0');
+                        countdownEl.textContent = `${h}:${m}:${s}.${ms}`;
+                    } else { countdownEl.textContent = "TIME UP!"; }
+                }
+                requestAnimationFrame(runLiveTimers);
+            }
+            runLiveTimers();
+
+            // 4. 运行时间计时器
+            setInterval(updateRuntime, 1000);
+            updateVisitCount();   // 更新并显示访问量
+            updateRuntime();
+
+            // 6. 进入页面
+            setTimeout(showPage, 200);
+            if (typeof loadLatestMoment === 'function') loadLatestMoment();
+            if (typeof loadGuestbook === 'function') loadGuestbook();
+
+            // --- 灵动岛音乐播放器逻辑 ---
+            const audio = new Audio('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/bgmusic.mp3');
+            audio.loop = true;
+            audio.volume = 1.0;
+            let isPlaying = false;
+
+            const musicPlayer = document.getElementById('music-player');
+            const musicToggle = document.getElementById('music-toggle');
+            const musicIcon = document.getElementById('music-icon');
+            const musicTitle = document.getElementById('music-title');
+            const musicTitleContainer = document.getElementById('music-title-container');
+
+            const defaultMusicTitle = "《神树》钢琴版";
+            const defaultArtist = "抖音：寒汐Music（1859763507）";
+            const currentTitle = `${defaultMusicTitle} - ${defaultArtist}`;
+
+            function updateMusicTitle() {
+                // 先重新获取元素，确保不是null
+                const musicTitle = document.getElementById('music-title');
+                const musicTitleContainer = document.getElementById('music-title-container');
+                const musicTitleWrapper = document.querySelector('.music-title-wrapper');
+
+                if (!musicTitle || !musicTitleContainer || !musicTitleWrapper) {
+                    console.warn('音乐标题元素未找到，延迟重试...');
+                    setTimeout(updateMusicTitle, 100);
+                    return;
+                }
+
+                musicTitle.textContent = currentTitle;
+
+                setTimeout(() => {
+                    const titleWidth = musicTitle.scrollWidth;
+                    const containerWidth = musicTitleContainer.clientWidth;
+
+                    // 先移除之前的类
+                    musicTitleContainer.classList.remove('scrollable');
+
+                    if (titleWidth > containerWidth) {
+                        musicTitleContainer.classList.add('scrollable');
+                        console.log('标题超长，启用滚动效果');
+                    } else {
+                        console.log('标题未超出，不启用滚动');
+                    }
+                }, 100);
+            }
+
+            function togglePlayPause() {
+                if (isPlaying) {
+                    audio.pause();
+                    musicPlayer.classList.remove('playing');
+                    musicIcon.setAttribute('data-lucide', 'play');
+                    isPlaying = false;
+                } else {
+                    audio.muted = false;
+                    audio.play()
+                        .then(() => {
+                            musicPlayer.classList.add('playing');
+                            musicIcon.setAttribute('data-lucide', 'pause');
+                            isPlaying = true;
+                        })
+                        .catch(err => {
+                            console.error('播放失败', err);
+                            musicTitle.textContent = '点击播放按钮开始音乐';
+                        });
+                }
+                lucide.createIcons();
+            }
+
+            // 自动播放策略
+            audio.muted = true;
+            audio.play()
+                .then(() => {
+                    setTimeout(() => {
+                        audio.muted = false;
+                        musicPlayer.classList.add('playing');
+                        musicIcon.setAttribute('data-lucide', 'pause');
+                        isPlaying = true;
+                        updateMusicTitle();
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.warn('自动播放被阻止', err);
+                    musicTitle.textContent = '点击播放按钮开始音乐';
+                });
+
+            musicToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                togglePlayPause();
+            });
+
+            musicPlayer.addEventListener('click', function (e) {
+                if (!e.target.closest('.music-toggle')) {
+                    togglePlayPause();
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && isPlaying) {
+                    audio.pause();
+                } else if (!document.hidden && isPlaying) {
+                    audio.play();
+                }
+            });
+
+            // 初始化
+            lucide.createIcons();
+            updateMusicTitle();
+        };
+
+        window.onclick = function (e) {
+            const menu = document.getElementById('dropdown-menu');
+            const mailModal = document.getElementById('mail-modal');
+            const wechatModal = document.getElementById('wechat-modal');
+            if (menu && !document.getElementById('menu-trigger').contains(e.target)) {
+                menu.classList.remove('active');
+            }
+            if (mailModal && !e.target.closest('.contact-btn') && !mailModal.contains(e.target)) {
+                mailModal.classList.remove('active');
+            }
+            if (wechatModal && !e.target.closest('.contact-btn') && !wechatModal.contains(e.target)) {
+                wechatModal.classList.remove('active');
+            }
+        };
     </script>
 </body>
 

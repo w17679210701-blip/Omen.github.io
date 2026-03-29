@@ -657,7 +657,7 @@
                 return `<div onclick="handleEntry('${name}')" class="album-card" data-folder="${name}">
             <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#f5bc00;"></i></div>
             <div class="name">${name}</div>
-            <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} PHOTOS</div>
+            <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} FILE</div>
         </div>`;
             }).join('');
             grid.innerHTML = html;
