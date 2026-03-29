@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -60,6 +61,7 @@
             0% {
                 background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
             }
+
             100% {
                 background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%, 100% 100%, 100% 100%, 200% 0%;
             }
@@ -117,7 +119,8 @@
             letter-spacing: 0.5px;
         }
 
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -131,7 +134,8 @@
             transition: all 0.2s;
         }
 
-        input:focus, textarea:focus {
+        input:focus,
+        textarea:focus {
             border-color: #ffcc00;
             background: rgba(0, 0, 0, 0.6);
         }
@@ -196,131 +200,202 @@
         .hidden {
             display: none;
         }
+
+        /* 悬浮提示弹窗 */
+        .toast-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            padding: 16px 32px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            white-space: nowrap;
+            animation: fadeInOut 2s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+                visibility: hidden;
+            }
+        }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h1>⚙️ 网站管理后台</h1>
+    <div class="container">
+        <h1>⚙️ 网站管理后台</h1>
 
-    <!-- 登录界面 -->
-    <div id="login-panel">
-        <div class="login-form">
-            <input type="password" id="admin-password" placeholder="管理密码" autocomplete="off">
-            <button onclick="login()">登录</button>
-            <div id="login-error" class="error"></div>
+        <!-- 登录界面 -->
+        <div id="login-panel">
+            <div class="login-form">
+                <input type="text" id="admin-account" placeholder="账号" autocomplete="off">
+                <input type="password" id="admin-password" placeholder="密码" autocomplete="off">
+                <button onclick="login()">登录</button>
+                <button onclick="location.href='index.html'"
+                    style="margin-top: 12px; background: rgba(255,255,255,0.15);">取消</button>
+                <div id="login-error" class="error"></div>
+            </div>
+        </div>
+
+        <!-- 管理界面（初始隐藏） -->
+        <div id="admin-panel" class="hidden">
+            <div class="section">
+                <h2>🏠 主页设置</h2>
+                <label>标题</label>
+                <input type="text" id="home_title">
+                <label>副标题</label>
+                <input type="text" id="home_subtitle">
+                <label>头像 URL</label>
+                <input type="text" id="home_avatar">
+                <label>昵称</label>
+                <input type="text" id="home_name">
+            </div>
+            <div class="section">
+                <h2>📱 朋友圈设置</h2>
+                <label>副标题</label>
+                <input type="text" id="moments_subtitle">
+            </div>
+            <div class="section">
+                <h2>🖼️ 相册设置</h2>
+                <label>副标题</label>
+                <input type="text" id="photo_subtitle">
+            </div>
+            <div class="section">
+                <h2>📢 通用公告栏（三站同步）</h2>
+                <textarea id="common_notice" rows="3" placeholder="公告内容，将同时更新主页、朋友圈、相册的公告栏"></textarea>
+            </div>
+            <button onclick="saveConfig()">保存修改</button>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+            <button onclick="location.href='index.html'" class="logout-btn" style="margin-top: 12px;">返回主页</button>
         </div>
     </div>
 
-    <!-- 管理界面（初始隐藏） -->
-    <div id="admin-panel" class="hidden">
-        <div class="section">
-            <h2>🏠 主页设置</h2>
-            <label>标题</label>
-            <input type="text" id="home_title">
-            <label>副标题</label>
-            <input type="text" id="home_subtitle">
-            <label>头像 URL</label>
-            <input type="text" id="home_avatar">
-            <label>昵称</label>
-            <input type="text" id="home_name">
-        </div>
-        <div class="section">
-            <h2>📱 朋友圈设置</h2>
-            <label>副标题</label>
-            <input type="text" id="moments_subtitle">
-        </div>
-        <div class="section">
-            <h2>🖼️ 相册设置</h2>
-            <label>副标题</label>
-            <input type="text" id="photo_subtitle">
-        </div>
-        <div class="section">
-            <h2>📢 通用公告栏（三站同步）</h2>
-            <textarea id="common_notice" rows="3" placeholder="公告内容，将同时更新主页、朋友圈、相册的公告栏"></textarea>
-        </div>
-        <button onclick="saveConfig()">保存修改</button>
-        <button class="logout-btn" onclick="logout()">退出登录</button>
-        <div id="save-result"></div>
-    </div>
-</div>
+    <script>
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-<script>
-    const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
-    const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let currentAccount = '';
+        let currentPassword = '';
 
-    let currentPassword = '';
+        async function login() {
+            const account = document.getElementById('admin-account').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
+            if (!account || !password) {
+                document.getElementById('login-error').innerText = '请输入账号和密码';
+                return;
+            }
+            const { data, error } = await supabaseClient.rpc('verify_admin_account', {
+                acc: account,
+                pwd: password
+            });
+            if (error) {
+                console.error('验证失败', error);
+                document.getElementById('login-error').innerText = '验证出错，请重试';
+                return;
+            }
+            if (data === true) {
+                currentAccount = account;
+                currentPassword = password;
+                document.getElementById('login-panel').style.display = 'none';
+                document.getElementById('admin-panel').classList.remove('hidden');
+                loadConfig();
 
-    async function login() {
-        const pw = document.getElementById('admin-password').value;
-        if (!pw) {
-            document.getElementById('login-error').innerText = '请输入密码';
-            return;
+            } else {
+                document.getElementById('login-error').innerText = '账号或密码错误';
+            }
         }
-        const { data, error } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
-        if (data === true) {
-            currentPassword = pw;
-            document.getElementById('login-panel').style.display = 'none';
-            document.getElementById('admin-panel').classList.remove('hidden');
-            loadConfig();
-        } else {
-            document.getElementById('login-error').innerText = '密码错误';
+
+        async function loadConfig() {
+            const { data, error } = await supabaseClient.from('site_config').select('key, value');
+            if (error) {
+                console.error('加载配置失败', error);
+                return;
+            }
+            const config = {};
+            data.forEach(item => config[item.key] = item.value);
+
+            document.getElementById('home_title').value = config.home_title || '';
+            document.getElementById('home_subtitle').value = config.home_subtitle || '';
+            document.getElementById('home_avatar').value = config.home_avatar || '';
+            document.getElementById('home_name').value = config.home_name || '';
+            document.getElementById('moments_subtitle').value = config.moments_subtitle || '';
+            document.getElementById('photo_subtitle').value = config.photo_subtitle || '';
+            document.getElementById('common_notice').value = config.home_notice || '';
         }
-    }
+        async function saveConfig() {
+            const commonNotice = document.getElementById('common_notice').value;
+            const updates = {
+                home_title: document.getElementById('home_title').value,
+                home_subtitle: document.getElementById('home_subtitle').value,
+                home_avatar: document.getElementById('home_avatar').value,
+                home_name: document.getElementById('home_name').value,
+                moments_subtitle: document.getElementById('moments_subtitle').value,
+                photo_subtitle: document.getElementById('photo_subtitle').value,
+                home_notice: commonNotice,
+                moments_notice: commonNotice,
+                photo_notice: commonNotice,
+            };
+            const { data, error } = await supabaseClient.rpc('update_site_config', {
+                acc: currentAccount,
+                pwd: currentPassword,
+                updates: updates
+            });
+            const existingToast = document.querySelector('.toast-message');
+            if (existingToast) existingToast.remove();
 
-    async function loadConfig() {
-        const { data, error } = await supabaseClient.from('site_config').select('key, value');
-        if (error) {
-            console.error('加载配置失败', error);
-            return;
+            // 创建新弹窗
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = data === true ? '✅ 保存成功！' : '❌ 保存失败，请检查密码或网络。';
+            document.body.appendChild(toast);
+
+            // 2秒后自动移除
+            setTimeout(() => {
+                if (toast && toast.parentNode) toast.remove();
+            }, 2000);
         }
-        const config = {};
-        data.forEach(item => config[item.key] = item.value);
 
-        document.getElementById('home_title').value = config.home_title || '';
-        document.getElementById('home_subtitle').value = config.home_subtitle || '';
-        document.getElementById('home_avatar').value = config.home_avatar || '';
-        document.getElementById('home_name').value = config.home_name || '';
-        document.getElementById('moments_subtitle').value = config.moments_subtitle || '';
-        document.getElementById('photo_subtitle').value = config.photo_subtitle || '';
-        // 通用公告：优先显示 home_notice，因为它是已有的（保持兼容）
-        document.getElementById('common_notice').value = config.home_notice || '';
-    }
-
-    async function saveConfig() {
-        const commonNotice = document.getElementById('common_notice').value;
-        const updates = {
-            home_title: document.getElementById('home_title').value,
-            home_subtitle: document.getElementById('home_subtitle').value,
-            home_avatar: document.getElementById('home_avatar').value,
-            home_name: document.getElementById('home_name').value,
-            moments_subtitle: document.getElementById('moments_subtitle').value,
-            photo_subtitle: document.getElementById('photo_subtitle').value,
-            home_notice: commonNotice,
-            moments_notice: commonNotice,
-            photo_notice: commonNotice
-        };
-        const { data, error } = await supabaseClient.rpc('update_site_config', {
-            input_pw: currentPassword,
-            updates: updates
-        });
-        const resultDiv = document.getElementById('save-result');
-        if (data === true) {
-            resultDiv.innerHTML = '<div class="success">✅ 保存成功！</div>';
-            setTimeout(() => resultDiv.innerHTML = '', 2000);
-        } else {
-            resultDiv.innerHTML = '<div class="error">❌ 保存失败，请检查密码或网络。</div>';
+        function logout() {
+            currentAccount = '';
+            currentPassword = '';
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('login-panel').style.display = 'block';
+            document.getElementById('admin-account').value = '';
+            document.getElementById('admin-password').value = '';
+            document.getElementById('login-error').innerText = '';
+            document.getElementById('save-result').innerHTML = '';
         }
-    }
 
-    function logout() {
-        currentPassword = '';
-        document.getElementById('admin-panel').classList.add('hidden');
-        document.getElementById('login-panel').style.display = 'block';
-        document.getElementById('admin-password').value = '';
-        document.getElementById('login-error').innerText = '';
-        document.getElementById('save-result').innerHTML = '';
-    }
-</script>
+        let creditSourceIndex = 0; // 用于生成唯一 ID
+        container.appendChild(div);
+    </script>
 </body>
+
 </html>

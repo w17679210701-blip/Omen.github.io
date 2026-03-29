@@ -154,7 +154,7 @@
 
         .announcement-text {
             display: inline-block;
-            animation: scroll 18s linear infinite;
+            animation: scroll 35s linear infinite;
         }
 
         .container {
@@ -331,7 +331,7 @@
 
         @keyframes scroll {
             0% {
-                transform: translateX(100%);
+                transform: translateX(25%);
             }
 
             100% {
@@ -377,7 +377,12 @@
 <body>
     <header>
         <div class="nav-bar">
-            <a href="index.html" class="nav-btn"><i data-lucide="arrow-left"></i></a>
+            <a href="index.html" class="nav-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M5.79889 24H41.7989" />
+                    <path d="M17.7988 36L5.79883 24L17.7988 12" />
+                </svg></a>
             <div class="nav-group">
                 <div class="nav-btn" onclick="openPublish()"><i data-lucide="plus"></i></div>
                 <div class="nav-btn" id="delete-mode-btn" onclick="toggleDeleteMode()"><i data-lucide="trash-2"></i>
@@ -400,7 +405,7 @@
             <p class="title-sub">思想是作品的灵魂，尊重是它应得的回响</p>
         </div>
         <div class="announcement">
-            <span class="announcement-text" id="notice-content">💡 提示：点击左上角箭头返回主页，点击右上角加号发布你的动态。</span>
+            <span class="announcement-text" id="notice-content"></span>
         </div>
     </header>
 
@@ -673,8 +678,8 @@
         }
 
         async function loadSiteConfig() {
-            if (!window._supabase) return;  // 根据实际客户端变量名调整
-            const { data, error } = await window._supabase.from('site_config').select('key, value');
+            if (!_supabase) return;   // 改为直接使用局部变量 _supabase
+            const { data, error } = await _supabase.from('site_config').select('key, value');
             if (error) return;
             const config = {};
             data.forEach(item => config[item.key] = item.value);
