@@ -8,7 +8,7 @@
     <script src="supabase.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
- 
+
     <style>
         body::before {
             content: '';
@@ -505,6 +505,7 @@
         }
 
         window.onload = () => {
+            loadSiteConfig();
             loadMoments();
             lucide.createIcons();
         };
@@ -670,8 +671,22 @@
                 alert("密码错误，操作已拒绝");
             }
         }
+
+        async function loadSiteConfig() {
+            if (!window._supabase) return;  // 根据实际客户端变量名调整
+            const { data, error } = await window._supabase.from('site_config').select('key, value');
+            if (error) return;
+            const config = {};
+            data.forEach(item => config[item.key] = item.value);
+
+            const subtitleEl = document.querySelector('.title-sub');
+            if (subtitleEl) subtitleEl.innerText = config.moments_subtitle || '捕捉生活中的美好瞬息';
+
+            const noticeEl = document.getElementById('notice-content');
+            if (noticeEl) noticeEl.innerText = config.moments_notice || '💡 提示：点击左上角箭头返回主页，点击右上角加号发布你的动态。';
+        }
     </script>
-    
+
 </body>
 
 </html>

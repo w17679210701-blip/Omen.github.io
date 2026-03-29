@@ -761,6 +761,7 @@
         let startX = 0;
 
         window.onload = () => {
+            loadSiteConfig();
             // 初始绑定返回按钮（默认返回上一页）
             const backBtn = document.getElementById('back-btn');
             if (backBtn) {
@@ -908,6 +909,19 @@
                 const diff = e.changedTouches[0].clientX - startX;
                 if (Math.abs(diff) > 50) { diff > 0 ? switchPhoto(-1) : switchPhoto(1); }
             }, { passive: true });
+        }
+
+        async function loadSiteConfig() {
+            const { data, error } = await supabaseClient.from('site_config').select('key, value');
+            if (error) return;
+            const config = {};
+            data.forEach(item => config[item.key] = item.value);
+
+            const subtitleEl = document.querySelector('.main-header p');
+            if (subtitleEl) subtitleEl.innerText = config.photo_subtitle || '一人 丨 一猫 丨 一首歌';
+
+            const noticeEl = document.getElementById('notice-content');
+            if (noticeEl) noticeEl.innerText = config.photo_notice || '📢 欢迎来到我的摄影小站！...';
         }
     </script>
 

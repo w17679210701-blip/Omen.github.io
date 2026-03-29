@@ -1222,6 +1222,8 @@
 
         window.onload = () => {
 
+            loadSiteConfig();
+
             // 随机设置加载文字颜色
             const loaderText = document.querySelector('.loader-text');
             if (loaderText) {
@@ -1335,6 +1337,34 @@
                 console.error('访问量更新失败', err);
                 document.getElementById('visit-count').innerText = '--';
             }
+        }
+
+        // 加载网站配置并更新页面元素
+        async function loadSiteConfig() {
+            if (!window.db) return;
+            const { data, error } = await window.db.from('site_config').select('key, value');
+            if (error) {
+                console.error('加载配置失败', error);
+                return;
+            }
+            const config = {};
+            data.forEach(item => config[item.key] = item.value);
+
+            // 更新主页元素（根据实际 ID 或类名）
+            const titleEl = document.querySelector('.main-title');
+            if (titleEl) titleEl.innerText = config.home_title || '个人博客';
+
+            const subtitleEl = document.querySelector('.sub-title');
+            if (subtitleEl) subtitleEl.innerText = config.home_subtitle || '一人 丨 一猫 丨 一首歌';
+
+            const noticeEl = document.getElementById('notice-content');
+            if (noticeEl) noticeEl.innerText = config.home_notice || '📢 欢迎来到 OMEN 的空间！';
+
+            const avatarEl = document.querySelector('.avatar-box img');
+            if (avatarEl) avatarEl.src = config.home_avatar || 'images/avatar.jpg';
+
+            const nameEl = document.querySelector('.profile-name');
+            if (nameEl) nameEl.innerText = config.home_name || 'Omen';
         }
     </script>
 </body>
