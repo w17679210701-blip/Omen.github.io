@@ -63,6 +63,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
         }
 
         .user-avatar {
@@ -155,10 +158,10 @@
             </svg>
         </button>
 
-        <div class="user-info">
+        <a href="index.html" class="user-info" style="text-decoration: none;">
             <img src="images/avatar.jpg" alt="头像" class="user-avatar">
             <span class="user-name">Omen（Yitong）</span>
-        </div>
+        </a>
 
         <button class="share-btn" onclick="copyPageLink()">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
