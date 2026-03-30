@@ -914,8 +914,10 @@
             display: flex;
             align-items: center;
             /* 垂直居中 */
-            justify-content: center;
-            /* 水平居中 */
+            justify-content: flex-start;
+            /* 改为从左侧开始 */
+            min-width: 0;
+            /* 重要：允许内容被压缩 */
         }
 
         .music-title-wrapper {
@@ -936,7 +938,7 @@
 
         @keyframes scrollText {
             0% {
-                transform: translateX(0);
+                transform: translateX(100%);
             }
 
             100% {
@@ -1473,6 +1475,14 @@
         window.onload = () => {
             loadSiteConfig();
 
+            // 监听窗口大小变化，重新计算标题宽度
+            window.addEventListener('resize', updateMusicTitle);
+
+            // 页面完全加载后再计算一次
+            window.addEventListener('load', function () {
+                setTimeout(updateMusicTitle, 500);
+            });
+
             // 随机设置加载文字颜色
             const loaderText = document.querySelector('.loader-text');
             if (loaderText) {
@@ -1537,9 +1547,8 @@
             const currentTitle = `${defaultMusicTitle} - ${defaultArtist}`;
 
             function updateMusicTitle() {
-                // 先重新获取元素，确保不是null
                 const musicTitle = document.getElementById('music-title');
-                const musicTitleContainer = document.getElementById('music-title-container');
+                const musicTitleContainer = document.querySelector('.music-title-container'); // 改为类选择器
                 const musicTitleWrapper = document.querySelector('.music-title-wrapper');
 
                 if (!musicTitle || !musicTitleContainer || !musicTitleWrapper) {
@@ -1550,20 +1559,29 @@
 
                 musicTitle.textContent = currentTitle;
 
-                setTimeout(() => {
+                // 使用 requestAnimationFrame 确保 DOM 已更新
+                requestAnimationFrame(() => {
+                    // 获取实际宽度
+                    const containerWidth = musicTitleContainer.offsetWidth;
                     const titleWidth = musicTitle.scrollWidth;
-                    const containerWidth = musicTitleContainer.clientWidth;
 
-                    // 先移除之前的类
+                    console.log('容器宽度:', containerWidth, '标题宽度:', titleWidth);
+
+                    // 先移除所有可能的状态类
                     musicTitleContainer.classList.remove('scrollable');
+                    musicTitleWrapper.style.paddingLeft = '0';
 
+                    // 判断是否需要滚动
                     if (titleWidth > containerWidth) {
                         musicTitleContainer.classList.add('scrollable');
                         console.log('标题超长，启用滚动效果');
                     } else {
-                        console.log('标题未超出，不启用滚动');
+                        // 居中对齐
+                        musicTitleWrapper.style.paddingLeft = '0';
+                        musicTitleContainer.style.justifyContent = 'center';
+                        console.log('标题未超出，居中显示');
                     }
-                }, 100);
+                });
             }
 
             function togglePlayPause() {
@@ -1582,7 +1600,7 @@
                         })
                         .catch(err => {
                             console.error('播放失败', err);
-                            musicTitle.textContent = '点击播放按钮开始音乐';
+                            musicTitle.textContent = '播放按钮开始音乐';
                         });
                 }
                 lucide.createIcons();

@@ -132,7 +132,9 @@
             max-width: 800px;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            /* 强制一行两个 */
+            gap: 16px;
             margin-top: 20px;
         }
 
@@ -142,7 +144,7 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 28px;
-            padding: 20px;
+            padding: 16px;
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
             text-decoration: none;
             color: inherit;
@@ -165,25 +167,39 @@
         }
 
         .card-header svg {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             stroke: #ffcc00;
             stroke-width: 1.5;
             flex-shrink: 0;
         }
 
         .card-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin: 0;
             letter-spacing: 1px;
         }
 
         .card-desc {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             opacity: 0.7;
             line-height: 1.4;
             margin: 8px 0 0;
+        }
+
+        @media (max-width: 480px) {
+            .links-grid {
+                gap: 12px;
+            }
+
+            .card-title {
+                font-size: 1rem;
+            }
+
+            .card-desc {
+                font-size: 0.75rem;
+            }
         }
 
         /* 页脚 */
@@ -203,6 +219,12 @@
                 grid-template-columns: 1fr;
                 gap: 16px;
             }
+        }
+
+        /* 让素材来源卡片独占一行（两列网格） */
+        .links-grid .full-width {
+            grid-column: 1 / -1;
+            /* 从第一列开始，跨越到最后一列 */
         }
     </style>
 </head>
@@ -319,8 +341,77 @@
             </div>
             <p class="card-desc">优美、一致的 Feather 图标衍生库，支持动态加载。</p>
         </a>
+        <!-- DeepSeek 开放平台 -->
+        <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer" class="link-card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <h3 class="card-title">DeepSeek 开放平台</h3>
+            </div>
+            <p class="card-desc">API 用量与模型管理，探索前沿 AI 能力。</p>
+        </a>
 
-        <div class="link-card" style="margin-top: 30px;">
+        <!-- CherryStudio -->
+        <a href="https://www.cherry-ai.com/" target="_blank" rel="noopener noreferrer" class="link-card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                    <circle cx="12" cy="12" r="4" />
+                </svg>
+                <h3 class="card-title">CherryStudio</h3>
+            </div>
+            <p class="card-desc">强大易用的桌面 AI 应用，支持多模型接入与高效工作流。</p>
+        </a>
+
+        <!-- FFmpeg -->
+        <a href="https://www.ffmpeg.org/" target="_blank" rel="noopener noreferrer" class="link-card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                </svg>
+                <h3 class="card-title">FFmpeg</h3>
+            </div>
+            <p class="card-desc">跨平台多媒体框架，处理音视频转换、流媒体与滤镜。</p>
+        </a>
+
+        <!-- HandBrake -->
+        <a href="https://handbrake.fr/" target="_blank" rel="noopener noreferrer" class="link-card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                </svg>
+                <h3 class="card-title">HandBrake</h3>
+            </div>
+            <p class="card-desc">开源视频转码器，轻松转换几乎所有格式，支持硬件加速。</p>
+        </a>
+        <!-- OpenClaw -->
+        <a href="https://docs.openclaw.ai/zh-CN" target="_blank" rel="noopener noreferrer" class="link-card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M7.5 4.21l4.5 2.6 4.5-2.6" />
+                </svg>
+                <h3 class="card-title">OpenClaw</h3>
+            </div>
+            <p class="card-desc">AI 智能体网关，支持 WhatsApp、Telegram、Discord 等渠道，提供 Web 控制界面与插件扩展。</p>
+        </a>
+
+
+        <div class="link-card full-width" style="margin-top: 30px;">
             <div class="card-header">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -331,8 +422,8 @@
             </div>
             <p class="card-desc" style="margin: 8px 0 0;">
                 火星logo水印：<br>呆小东（小红书：Daidaimrrplayboy）<br>小小风车（小红书：1167574573）
-                    <br>主页背景音乐：<br>
-                        寒汐Music（抖音：1859763507）
+                <br>主页背景音乐：<br>
+                寒汐Music（抖音：1859763507）
             </p>
         </div>
     </div>
