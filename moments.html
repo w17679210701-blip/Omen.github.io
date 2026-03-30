@@ -182,6 +182,11 @@
             overflow: hidden;
             transition: all 0.3s ease;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            /* 新增：固定宽高比 3:4 */
+            aspect-ratio: 3 / 4;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
         }
 
         .moment-card:hover {
@@ -192,14 +197,26 @@
         .moment-card img.moment-image {
             width: 100%;
             height: auto;
-            max-height: 280px;
+            max-height: none;
+            /* 移除限制 */
             object-fit: cover;
+            /* 图片按比例填充，可能裁剪 */
             cursor: zoom-in;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            /* 新增：让图片占据剩余空间 */
+            flex: 1;
+            min-height: 0;
+            /* 允许flex收缩 */
         }
 
         .moment-info {
             padding: 12px;
+            /* 新增：固定高度，不参与flex伸缩 */
+            flex-shrink: 0;
+            max-height: 40%;
+            /* 文字区域不超过卡片高度的40% */
+            overflow-y: auto;
+            /* 内容过多时滚动 */
         }
 
         .moment-text {
@@ -210,7 +227,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
+            /* 限制最多显示4行，超出滚动 */
             -webkit-box-orient: vertical;
         }
 
@@ -371,6 +389,62 @@
             background: #ff4d4d;
             color: white;
         }
+
+        .media-type-selector {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .media-type-selector label {
+            cursor: pointer;
+        }
+
+        .media-container {
+            position: relative;
+        }
+
+        .image-more {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .video-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .moment-media,
+        .moment-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+        }
+
+        #video-preview {
+            max-width: 100%;
+            max-height: 200px;
+            /* 根据需要调整高度 */
+            object-fit: contain;
+        }
     </style>
 </head>
 
@@ -415,20 +489,27 @@
 
     <div class="modal-overlay" id="post-modal">
         <div class="modal-content">
-            <h2 style="margin-top:0; font-size: 20px; text-align:center">新动态</h2>
-            <textarea id="post-text" placeholder="此时此刻的想法..." rows="4"></textarea>
-            <input type="file" id="post-file" accept="image/*"
-                style="margin-bottom: 15px; font-size: 12px; width: 100%;">
-            <div id="publish-progress-container"
-                style="display: none; width: 100%; background: rgba(0,0,0,0.05); height: 4px; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
-                <div id="publish-progress-bar"
-                    style="width: 0%; height: 100%; background: #ff4d4d; transition: width 0.3s ease;"></div>
+            <h2>新动态</h2>
+            <textarea id="post-text" placeholder="此刻的想法..." rows="4"></textarea>
+
+            <div class="media-type-selector">
+                <label><input type="radio" name="mediaType" value="image" checked> 图片</label>
+                <label><input type="radio" name="mediaType" value="video"> 视频</label>
             </div>
-            <button class="action-btn" onclick="handlePublish()">发 布</button>
-            <div onclick="closeModal()"
-                style="background: rgba(255,255,255,0.12); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 10px 0; margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.8);">
-                取消
+
+            <div id="image-upload-area">
+                <input type="file" id="post-images" accept="image/*" multiple>
+                <div id="image-preview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
             </div>
+
+            <div id="video-upload-area" style="display: none;">
+                <input type="file" id="post-video" accept="video/*">
+                <video id="video-preview" controls style="width: 100%; margin-top: 8px; display: none;"></video>
+            </div>
+
+            <button class="action-btn" id="publish-btn">发布</button>
+            <div onclick="closeModal()" class="cancel-btn"
+                style="margin-top: 12px; text-align: center; cursor: pointer;">取消</div>
         </div>
     </div>
 
@@ -468,31 +549,51 @@
             renderMoments(data);
         }
 
+        // 格式化时间为友好显示（与之前风格一致）
+        function formatTime(date) {
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+            if (diffInMinutes < 60 && diffInMinutes >= 0) {
+                return diffInMinutes <= 1 ? "刚刚" : `${diffInMinutes}分钟前`;
+            } else if (date.toDateString() === now.toDateString()) {
+                return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+            } else {
+                return `${date.getMonth() + 1}月${date.getDate()}日`;
+            }
+        }
+
         function renderMoments(data) {
             const container = document.getElementById('moments-container');
-            const now = new Date();
-
             container.innerHTML = data.map(m => {
-                const postDate = new Date(m.created_at);
-                const diffInMinutes = Math.floor((now - postDate) / (1000 * 60));
-                let displayTime;
+                // 兼容旧数据：如果存在 image_url 且 images 为空，则转换为单张图片数组
+                let images = m.images || [];
+                if (!images.length && m.image_url) {
+                    images = [m.image_url];
+                }
+                const type = m.type || (m.video_url ? 'video' : (images.length ? 'image' : 'text'));
 
-                if (diffInMinutes < 60 && diffInMinutes >= 0) {
-                    displayTime = diffInMinutes <= 1 ? "刚刚" : `${diffInMinutes}分钟前`;
-                } else if (postDate.toDateString() === now.toDateString()) {
-                    displayTime = postDate.getHours().toString().padStart(2, '0') + ':' +
-                        postDate.getMinutes().toString().padStart(2, '0');
-                } else {
-                    displayTime = `${postDate.getMonth() + 1}月${postDate.getDate()}日`;
+                let mediaHtml = '';
+                if (type === 'video' && m.video_url) {
+                    mediaHtml = `<div class="media-container">
+                            <video class="moment-media" src="${m.video_url}" preload="metadata"></video>
+                            <div class="video-icon">▶</div>
+                         </div>`;
+                } else if (images.length > 0) {
+                    const firstImage = images[0];
+                    const moreCount = images.length - 1;
+                    mediaHtml = `<div class="media-container">
+                            <img src="${firstImage}" class="moment-image" loading="lazy">
+                            ${moreCount > 0 ? `<div class="image-more">+${moreCount}</div>` : ''}
+                         </div>`;
                 }
 
                 return `
-            <div class="moment-card" data-id="${m.id}" onclick="handleCardClick(this, '${m.id}')">
-                ${m.image_url ? `<img src="${m.image_url}" class="moment-image" loading="lazy">` : ''}
+            <div class="moment-card" data-id="${m.id}" onclick="cardClick('${m.id}', this)">
+                ${mediaHtml}
                 <div class="moment-info">
                     <div class="moment-text">${m.content || ''}</div>
                     <div class="moment-footer">
-                        <span>${displayTime}</span>
+                        <span>${formatTime(new Date(m.created_at))}</span>
                         <span>❤️</span>
                     </div>
                 </div>
@@ -509,11 +610,74 @@
             document.getElementById('viewer').style.display = 'flex';
         }
 
+
+
+        const CONFIG = {
+            Bucket: 'hiomen-1312408524',
+            Region: 'ap-guangzhou',
+            // 其他可能需要的配置（如 s, albumList 等，但此处只需 Bucket 和 Region）
+        };
+
         window.onload = () => {
             loadSiteConfig();
             loadMoments();
             lucide.createIcons();
+
+            // 绑定发布按钮
+            document.getElementById('publish-btn').onclick = handlePublish;
         };
+
+        // 获取元素
+        const mediaTypeRadios = document.querySelectorAll('input[name="mediaType"]');
+        const imageArea = document.getElementById('image-upload-area');
+        const videoArea = document.getElementById('video-upload-area');
+        const imageInput = document.getElementById('post-images');
+        const videoInput = document.getElementById('post-video');
+        const imagePreview = document.getElementById('image-preview');
+        const videoPreview = document.getElementById('video-preview');
+
+        // 切换媒体类型
+        mediaTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'image') {
+                    imageArea.style.display = 'block';
+                    videoArea.style.display = 'none';
+                } else {
+                    imageArea.style.display = 'none';
+                    videoArea.style.display = 'block';
+                }
+            });
+        });
+
+        // 图片预览
+        imageInput.addEventListener('change', () => {
+            imagePreview.innerHTML = '';
+            Array.from(imageInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    imagePreview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // 视频预览
+        videoInput.addEventListener('change', () => {
+            const file = videoInput.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                videoPreview.src = url;
+                videoPreview.style.display = 'block';
+            } else {
+                videoPreview.style.display = 'none';
+            }
+        });
 
         // 初始化腾讯云 COS
         const cos = new COS({
@@ -522,64 +686,79 @@
         });
 
         async function handlePublish() {
-            const btn = document.querySelector('.action-btn');
-            const progressBar = document.getElementById('publish-progress-bar');
-            const progressContainer = document.getElementById('publish-progress-container');
-            const contentText = document.getElementById('post-text').value;
-            const fileInput = document.getElementById('post-file');
-            const file = fileInput.files[0];
-
-            // 锁定按钮状态
+            const content = document.getElementById('post-text').value.trim();
+            const mediaType = document.querySelector('input[name="mediaType"]:checked').value;
+            const btn = document.getElementById('publish-btn');
             btn.disabled = true;
             btn.innerText = "上传中...";
-            progressContainer.style.display = 'block';
 
-            // 注意：这里必须用 let
-            let finalImageUrl = null;
+            let imageUrls = [];
+            let videoUrl = null;
 
             try {
-                // 1. 处理图片上传（如果有）
-                if (file) {
-                    const fileName = '朋友圈/' + Date.now() + '-' + file.name; // 加上前缀
-                    const uploadRes = await new Promise((resolve, reject) => {
-                        cos.uploadFile({
-                            Bucket: 'hiomen-1312408524',
-                            Region: 'ap-guangzhou',
-                            Key: fileName,
-                            Body: file,
-                            onProgress: (info) => {
-                                progressBar.style.width = Math.floor(info.percent * 80) + '%';
-                            }
-                        }, (err, data) => {
-                            if (err) reject(err);
-                            else resolve('https://' + data.Location);
+                if (mediaType === 'image') {
+                    const files = Array.from(imageInput.files);
+                    if (files.length === 0) {
+                        alert("请至少选择一张图片");
+                        btn.disabled = false;
+                        btn.innerText = "发布";
+                        return;
+                    }
+                    const uploadPromises = files.map(file => {
+                        const fileName = `moments/${Date.now()}_${file.name}`;
+                        return new Promise((resolve, reject) => {
+                            cos.uploadFile({
+                                Bucket: CONFIG.Bucket,
+                                Region: CONFIG.Region,
+                                Key: fileName,
+                                Body: file,
+                            }, (err, data) => {
+                                if (err) reject(err);
+                                else resolve(`https://${data.Location}`);
+                            });
                         });
                     });
-                    finalImageUrl = uploadRes; // 现在这里不会报错了
+                    imageUrls = await Promise.all(uploadPromises);
+                } else if (mediaType === 'video') {
+                    const file = videoInput.files[0];
+                    if (!file) {
+                        alert("请选择视频文件");
+                        btn.disabled = false;
+                        btn.innerText = "发布";
+                        return;
+                    }
+                    const fileName = `moments/${Date.now()}_${file.name}`;
+                    const uploadRes = await new Promise((resolve, reject) => {
+                        cos.uploadFile({
+                            Bucket: CONFIG.Bucket,
+                            Region: CONFIG.Region,
+                            Key: fileName,
+                            Body: file,
+                        }, (err, data) => {
+                            if (err) reject(err);
+                            else resolve(`https://${data.Location}`);
+                        });
+                    });
+                    videoUrl = uploadRes;
                 }
 
-                // 2. 写入 Supabase
-                const { error: dbError } = await _supabase
-                    .from('moments')
-                    .insert([{
-                        content: contentText,
-                        image_url: finalImageUrl,
-                        created_at: new Date().toISOString()
-                    }]);
-
-                if (dbError) throw dbError;
-
-                // 3. 发布成功
-                progressBar.style.width = '100%';
-                btn.innerText = "完成";
-                setTimeout(() => location.reload(), 600);
-
+                const insertData = {
+                    content: content,
+                    images: imageUrls,
+                    video_url: videoUrl,
+                    type: mediaType,
+                    created_at: new Date().toISOString()
+                };
+                const { error } = await _supabase.from('moments').insert([insertData]);
+                if (error) throw error;
+                alert("发布成功");
+                location.reload();
             } catch (err) {
-                console.error("发布失败:", err);
-                alert("发布失败: " + (err.message || "请检查配置"));
+                console.error(err);
+                alert("发布失败：" + err.message);
+            } finally {
                 btn.disabled = false;
-                btn.innerText = "发 布";
-                progressContainer.style.display = 'none';
+                btn.innerText = "发布";
             }
         }
 
@@ -606,21 +785,16 @@
             }
         }
 
-        // 2. 修改渲染逻辑 (点击事件)
-        // 注意：你需要修改你之前的 renderMoments 函数，给卡片加一个 onclick
-        function renderMoments(data) {
-            const container = document.getElementById('moments-container');
-            container.innerHTML = data.map(m => `
-        <div class="moment-card" data-id="${m.id}" onclick="handleCardClick(this, '${m.id}')">
-            ${m.image_url ? `<img src="${m.image_url}" class="moment-image" loading="lazy">` : ''}
-            <div class="moment-info">
-                <div class="moment-text">${m.content || ''}</div>
-                <div class="moment-footer">
-                    <span>${new Date(m.created_at).toLocaleString()}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
+        function cardClick(id, element) {
+            if (isDeleteMode) {
+                handleCardClick(element, id);
+            } else {
+                openDetail(id);
+            }
+        }
+
+        function openDetail(id) {
+            window.location.href = `post.html?id=${id}`;
         }
 
         // 3. 处理卡片点击
