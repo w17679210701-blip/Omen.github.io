@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>友情链接</title>
+    <link rel="stylesheet" href="css/common.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -131,7 +132,6 @@
             width: 100%;
             max-width: 800px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             grid-template-columns: repeat(2, 1fr);
             /* 强制一行两个 */
             gap: 16px;
@@ -441,7 +441,6 @@
         const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
         const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        loadCredits();
     </script>
 </body>
 

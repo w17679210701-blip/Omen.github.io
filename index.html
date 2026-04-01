@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HI OMEN</title>
+    <link rel="stylesheet" href="css/common.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -1291,18 +1292,6 @@
             } catch (err) { alert('复制失败'); }
         }
 
-        function closeModal(event) {
-            const modal = document.getElementById('guestbook-modal');
-            if (!modal) return;
-            // 只有点击遮罩层本身才关闭（event.target 是模态框自身）
-            if (event.target === modal) {
-                modal.style.opacity = '0';
-                document.body.style.overflow = '';
-                document.body.style.touchAction = '';
-                setTimeout(() => { modal.style.display = 'none'; }, 300);
-            }
-        }
-
         // --- 数据加载与显示 ---
 
         const showPage = () => {
@@ -1389,26 +1378,6 @@
                     }
                 }
             } catch (err) { console.error('动态加载失败', err); }
-        }
-
-        // 首页留言显示
-        async function loadGuestbook() {
-            if (!window.db) return;
-            try {
-                const { data } = await window.db.from('guestbook').select('*').order('created_at', { ascending: false }).limit(3);
-                if (data) {
-                    const list = document.getElementById('message-list');
-                    list.innerHTML = data.map(msg => `
-                    <div class="message-item">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="message-nickname">${msg.nickname}</span>
-                            <span class="message-time">${new Date(msg.created_at).toLocaleDateString()}</span>
-                        </div>
-                        <p class="message-content">${msg.content}</p>
-                    </div>
-                `).join('');
-                }
-            } catch (e) { }
         }
 
         // 随机颜色选项
@@ -1528,7 +1497,6 @@
             // 6. 进入页面
             setTimeout(showPage, 200);
             if (typeof loadLatestMoment === 'function') loadLatestMoment();
-            if (typeof loadGuestbook === 'function') loadGuestbook();
 
             // --- 灵动岛音乐播放器逻辑 ---
             const audio = new Audio('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/bgmusic.mp3');
@@ -1649,16 +1617,8 @@
 
         window.onclick = function (e) {
             const menu = document.getElementById('dropdown-menu');
-            const mailModal = document.getElementById('mail-modal');
-            const wechatModal = document.getElementById('wechat-modal');
             if (menu && !document.getElementById('menu-trigger').contains(e.target)) {
                 menu.classList.remove('active');
-            }
-            if (mailModal && !e.target.closest('.contact-btn') && !mailModal.contains(e.target)) {
-                mailModal.classList.remove('active');
-            }
-            if (wechatModal && !e.target.closest('.contact-btn') && !wechatModal.contains(e.target)) {
-                wechatModal.classList.remove('active');
             }
         };
     </script>

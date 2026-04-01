@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OMEN的朋友圈</title>
+    <link rel="stylesheet" href="css/common.css">
     <script src="supabase.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
@@ -565,40 +566,20 @@
         function renderMoments(data) {
             const container = document.getElementById('moments-container');
             container.innerHTML = data.map(m => {
-                // 兼容旧数据：如果存在 image_url 且 images 为空，则转换为单张图片数组
                 let images = m.images || [];
                 if (!images.length && m.image_url) {
                     images = [m.image_url];
                 }
                 const type = m.type || (m.video_url ? 'video' : (images.length ? 'image' : 'text'));
-
                 let mediaHtml = '';
                 if (type === 'video' && m.video_url) {
-                    mediaHtml = `<div class="media-container">
-                            <video class="moment-media" src="${m.video_url}" preload="metadata"></video>
-                            <div class="video-icon">▶</div>
-                         </div>`;
+                    mediaHtml = `<div class="media-container"><video class="moment-media" src="${m.video_url}" preload="metadata"></video><div class="video-icon">▶</div></div>`;
                 } else if (images.length > 0) {
                     const firstImage = images[0];
                     const moreCount = images.length - 1;
-                    mediaHtml = `<div class="media-container">
-                            <img src="${firstImage}" class="moment-image" loading="lazy">
-                            ${moreCount > 0 ? `<div class="image-more">+${moreCount}</div>` : ''}
-                         </div>`;
+                    mediaHtml = `<div class="media-container"><img src="${firstImage}" class="moment-image" loading="lazy">${moreCount > 0 ? `<div class="image-more">+${moreCount}</div>` : ''}</div>`;
                 }
-
-                return `
-            <div class="moment-card" data-id="${m.id}" onclick="cardClick('${m.id}', this)">
-                ${mediaHtml}
-                <div class="moment-info">
-                    <div class="moment-text">${m.content || ''}</div>
-                    <div class="moment-footer">
-                        <span>${formatTime(new Date(m.created_at))}</span>
-                        <span>❤️</span>
-                    </div>
-                </div>
-            </div>
-        `;
+                return `<div class="moment-card" data-id="${m.id}" onclick="cardClick('${m.id}', this)">${mediaHtml}<div class="moment-info"><div class="moment-text">${m.content || ''}</div><div class="moment-footer"><span>${formatTime(new Date(m.created_at))}</span><span>❤️</span></div></div></div>`;
             }).join('');
             lucide.createIcons();
         }
@@ -623,61 +604,61 @@
             loadMoments();
             lucide.createIcons();
 
+            // 获取元素
+            const mediaTypeRadios = document.querySelectorAll('input[name="mediaType"]');
+            const imageArea = document.getElementById('image-upload-area');
+            const videoArea = document.getElementById('video-upload-area');
+            const imageInput = document.getElementById('post-images');
+            const videoInput = document.getElementById('post-video');
+            const imagePreview = document.getElementById('image-preview');
+            const videoPreview = document.getElementById('video-preview');
+
+            // 切换媒体类型
+            mediaTypeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.value === 'image') {
+                        imageArea.style.display = 'block';
+                        videoArea.style.display = 'none';
+                    } else {
+                        imageArea.style.display = 'none';
+                        videoArea.style.display = 'block';
+                    }
+                });
+            });
+
+            // 图片预览
+            imageInput.addEventListener('change', () => {
+                imagePreview.innerHTML = '';
+                Array.from(imageInput.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '80px';
+                        img.style.height = '80px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '8px';
+                        imagePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // 视频预览
+            videoInput.addEventListener('change', () => {
+                const file = videoInput.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    videoPreview.src = url;
+                    videoPreview.style.display = 'block';
+                } else {
+                    videoPreview.style.display = 'none';
+                }
+            });
+
             // 绑定发布按钮
             document.getElementById('publish-btn').onclick = handlePublish;
         };
-
-        // 获取元素
-        const mediaTypeRadios = document.querySelectorAll('input[name="mediaType"]');
-        const imageArea = document.getElementById('image-upload-area');
-        const videoArea = document.getElementById('video-upload-area');
-        const imageInput = document.getElementById('post-images');
-        const videoInput = document.getElementById('post-video');
-        const imagePreview = document.getElementById('image-preview');
-        const videoPreview = document.getElementById('video-preview');
-
-        // 切换媒体类型
-        mediaTypeRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (e.target.value === 'image') {
-                    imageArea.style.display = 'block';
-                    videoArea.style.display = 'none';
-                } else {
-                    imageArea.style.display = 'none';
-                    videoArea.style.display = 'block';
-                }
-            });
-        });
-
-        // 图片预览
-        imageInput.addEventListener('change', () => {
-            imagePreview.innerHTML = '';
-            Array.from(imageInput.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '80px';
-                    img.style.height = '80px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '8px';
-                    imagePreview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-
-        // 视频预览
-        videoInput.addEventListener('change', () => {
-            const file = videoInput.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                videoPreview.src = url;
-                videoPreview.style.display = 'block';
-            } else {
-                videoPreview.style.display = 'none';
-            }
-        });
 
         // 初始化腾讯云 COS
         const cos = new COS({
