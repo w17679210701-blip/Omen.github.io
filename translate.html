@@ -83,7 +83,8 @@
         .chat-container {
             width: 100%;
             max-width: 900px;
-            height: 90vh;
+            height: calc(90vh - 70px);
+            margin-top: 70px;
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(20px);
             border-radius: 32px;
@@ -163,15 +164,6 @@
             border-color: #ffcc00;
         }
 
-        .clear-btn {
-            background: rgba(255, 77, 77, 0.2);
-            border-color: #ff4d4d;
-        }
-
-        .clear-btn:hover {
-            background: rgba(255, 77, 77, 0.4);
-        }
-
         /* 对话消息区域 */
         .messages-area {
             flex: 1;
@@ -230,7 +222,7 @@
         }
 
         .message.user .bubble {
-            background: rgba(255, 204, 0, 0.15);
+            background: rgba(255, 204, 0, 0.3);
             border-color: rgba(255, 204, 0, 0.3);
         }
 
@@ -256,7 +248,7 @@
 
         .input-wrapper {
             flex: 1;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 28px;
             padding: 8px 16px;
@@ -440,6 +432,9 @@
         }
 
         .message.assistant .bubble {
+            background: rgba(255, 255, 255, 0.12);
+            /* 更亮 */
+            border-color: rgba(255, 255, 255, 0.25);
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -516,7 +511,7 @@
                     <option value="幽默">幽默风格</option>
                     <option value="简洁">简洁风格</option>
                 </select>
-                <button id="clearChatBtn" class="clear-btn">清空对话</button>
+                <!-- 清空对话按钮已删除 -->
             </div>
         </div>
 
@@ -547,7 +542,6 @@
         const sendBtn = document.getElementById('sendBtn');
         const targetLangSelect = document.getElementById('targetLangSelect');
         const styleSelect = document.getElementById('styleSelect');
-        const clearChatBtn = document.getElementById('clearChatBtn');
 
         // 存储对话历史（用于上下文，可选）
         let conversationHistory = [];
@@ -696,12 +690,6 @@
             }
         }
 
-        // 清空对话（保留欢迎消息）
-        function clearChat() {
-            messagesArea.innerHTML = '';
-            addMessage('assistant', '对话已清空。你可以继续输入要翻译的文本～');
-        }
-
         // 绑定事件
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keydown', (e) => {
@@ -710,7 +698,6 @@
                 handleSend();
             }
         });
-        clearChatBtn.addEventListener('click', clearChat);
 
         // 自动调整textarea高度
         userInput.addEventListener('input', function () {
