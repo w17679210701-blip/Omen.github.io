@@ -236,28 +236,35 @@
             margin: 0;
         }
 
-        /* 输入区域 */
+        /* 输入区域 - 卡片式大圆角 */
         .input-area {
-            padding: 16px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-            background: rgba(0, 0, 0, 0.3);
+            padding: 0 20px 20px 20px;
+            background: transparent;
+            border-top: none;
         }
 
         .input-wrapper {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 28px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 32px;
             padding: 8px 16px;
             display: flex;
+            flex-wrap: nowrap;
             align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #ffcc00;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.2);
         }
 
         textarea {
-            width: 100%;
+            flex: 1;
+            min-width: 0;
             background: transparent;
             border: none;
             color: white;
@@ -266,6 +273,7 @@
             resize: none;
             outline: none;
             max-height: 120px;
+            padding: 12px 0;
         }
 
         textarea::placeholder {
@@ -273,19 +281,22 @@
         }
 
         .send-btn {
-            background: #ffcc00;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 40px;
-            padding: 8px 20px;
+            flex-shrink: 0;
+            background: rgba(255, 204, 0, 0.15);
+            border: 1px solid rgba(255, 204, 0, 0.4);
+            border-radius: 28px;
+            padding: 6px 16px;
             font-weight: 600;
+            font-size: 13px;
+            color: #ffcc00;
             cursor: pointer;
             transition: 0.2s;
+            white-space: nowrap;
         }
 
         .send-btn:hover {
-            background: #ffaa00;
-            transform: scale(0.98);
+            background: rgba(255, 204, 0, 0.3);
+            transform: scale(0.96);
         }
 
         /* 滚动条 */
@@ -525,8 +536,8 @@
         <div class="input-area">
             <div class="input-wrapper">
                 <textarea id="userInput" rows="1" placeholder="输入要翻译的文本..."></textarea>
+                <button id="sendBtn" class="send-btn">发送</button>
             </div>
-            <button id="sendBtn" class="send-btn">发送</button>
         </div>
     </div>
 
@@ -776,8 +787,9 @@
 
     <!-- 复制成功提示 -->
     <div id="copyToast"
-        style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); color: #ffcc00; padding: 8px 16px; border-radius: 40px; font-size: 14px; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none;">
-        已复制</div>
+    style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,204,0,0.3); color: #ffcc00; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    已复制
+</div>
 </body>
 
 </html>
