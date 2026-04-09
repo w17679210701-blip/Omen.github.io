@@ -1233,6 +1233,19 @@
                 </div>
             </div>
         </div>
+        <a href="tools.html" class="glass-card"
+            style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: inherit; margin-top: 15px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48" fill="none"
+                stroke="#ffcc00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 25V38C8 39.6569 9.34315 41 11 41H37C38.6569 41 40 39.6569 40 38V25" />
+                <path
+                    d="M5 15C5 13.8954 5.89543 13 7 13H41C42.1046 13 43 13.8954 43 15V23C43 24.1046 42.1046 25 41 25H7C5.89543 25 5 24.1046 5 23V15Z" />
+                <path d="M31 13V9C31 7.89543 30.1046 7 29 7H19C17.8954 7 17 7.89543 17 9V13" />
+                <path d="M15 23V29" />
+                <path d="M33 23V29" />
+            </svg>
+            <span style="font-size: 12px; letter-spacing: 2px;">工具箱</span>
+        </a>
     </div>
 
     <script>
@@ -1368,12 +1381,38 @@
                     document.getElementById('moment-text').innerText = data.content || '暂无动态';
                     const postDate = new Date(data.created_at);
                     const relativeTime = timeAgo(postDate);
-                    document.getElementById('moment-time').innerText = relativeTime;  // ← 改为相对时间
+                    document.getElementById('moment-time').innerText = relativeTime;
+
                     const mediaContainer = document.getElementById('moment-media');
-                    if (data.image_url) {
+
+                    // 处理视频
+                    if (data.video_url) {
+                        mediaContainer.innerHTML = `
+                    <div style="position: relative;">
+                        <video src="${data.video_url}" class="content-img" preload="metadata" style="width:100%; max-height:200px; object-fit:cover;"></video>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.6); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">▶</div>
+                    </div>
+                `;
+                        mediaContainer.style.display = 'block';
+                    }
+                    // 处理多图
+                    else if (data.images && data.images.length > 0) {
+                        const firstImage = data.images[0];
+                        const moreCount = data.images.length - 1;
+                        mediaContainer.innerHTML = `
+                    <div style="position: relative;">
+                        <img src="${firstImage}" class="content-img" style="width:100%; max-height:200px; object-fit:cover;">
+                        ${moreCount > 0 ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px;">+${moreCount}</div>` : ''}
+                    </div>
+                `;
+                        mediaContainer.style.display = 'block';
+                    }
+                    // 兼容旧数据（单张图片）
+                    else if (data.image_url) {
                         mediaContainer.innerHTML = `<img src="${data.image_url}" class="content-img">`;
                         mediaContainer.style.display = 'block';
-                    } else {
+                    }
+                    else {
                         mediaContainer.style.display = 'none';
                     }
                 }

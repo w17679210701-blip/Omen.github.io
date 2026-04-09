@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>翻译官 · 对话式翻译</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 深色流沙背景（与主站一致） */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(20, 8, 12, 0.9), rgba(5, 2, 4, 1)),
+                radial-gradient(ellipse at 70% 40%, rgba(200, 150, 80, 0.25), transparent 60%),
+                radial-gradient(ellipse at 30% 80%, rgba(180, 110, 60, 0.2), transparent 70%),
+                radial-gradient(circle at 85% 15%, rgba(180, 50, 60, 0.2), transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(210, 70, 90, 0.15), transparent 60%),
+                repeating-linear-gradient(45deg,
+                    rgba(210, 170, 100, 0.08) 0px,
+                    rgba(210, 170, 100, 0.08) 2px,
+                    transparent 2px,
+                    transparent 8px),
+                repeating-linear-gradient(135deg,
+                    rgba(160, 100, 50, 0.06) 0px,
+                    rgba(160, 100, 50, 0.06) 3px,
+                    transparent 3px,
+                    transparent 12px),
+                linear-gradient(135deg,
+                    #2a181c 0%,
+                    #3e2a2a 20%,
+                    #5e3a2c 40%,
+                    #7f4e2e 60%,
+                    #5e3a2c 80%,
+                    #2a181c 100%),
+                repeating-linear-gradient(120deg,
+                    rgba(255, 215, 120, 0.25) 0px,
+                    rgba(255, 215, 120, 0.25) 40px,
+                    transparent 40px,
+                    transparent 100px);
+            background-size: 400% 400%, auto, auto, auto, auto, auto, auto, auto, 300% auto;
+            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
+            background-blend-mode: overlay, normal, normal, normal, normal, normal, normal, normal, normal;
+            background-attachment: fixed;
+            animation: flowSand 28s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes flowSand {
+            0% {
+                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
+            }
+
+            100% {
+                background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%, 100% 100%, 100% 100%, 200% 0%;
+            }
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            color: #ffffff;
+            background: transparent;
+        }
+
+        /* 主容器 */
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 头部 */
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffcc00;
+        }
+
+        .sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        select,
+        button {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 6px 14px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        select,
+        option {
+            color: #ffffff;
+            background-color: #2a2a2e;
+        }
+
+        select {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffcc00;
+            /* 可选：金色字体与主题呼应 */
+        }
+
+        select:hover,
+        button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ffcc00;
+        }
+
+        .clear-btn {
+            background: rgba(255, 77, 77, 0.2);
+            border-color: #ff4d4d;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 77, 77, 0.4);
+        }
+
+        /* 对话消息区域 */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        /* 消息气泡 */
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .avatar {
+            background: rgba(255, 204, 0, 0.2);
+        }
+
+        .message.assistant .avatar {
+            background: rgba(100, 100, 200, 0.2);
+        }
+
+        .bubble {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 15px;
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .message.user .bubble {
+            background: rgba(255, 204, 0, 0.15);
+            border-color: rgba(255, 204, 0, 0.3);
+        }
+
+        .message.assistant .bubble {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .bubble pre {
+            white-space: pre-wrap;
+            font-family: inherit;
+            margin: 0;
+        }
+
+        /* 输入区域 */
+        .input-area {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            max-height: 120px;
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .send-btn {
+            background: #ffcc00;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #ffaa00;
+            transform: scale(0.98);
+        }
+
+        /* 滚动条 */
+        .messages-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: #ffcc00;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .message {
+                max-width: 95%;
+            }
+
+            .controls select,
+            .controls button {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+        }
+
+        /* 自定义下拉菜单样式 */
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .custom-select-trigger {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 6px 30px 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #ffcc00;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .custom-select-trigger::after {
+            content: '▼';
+            font-size: 10px;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s;
+        }
+
+        .custom-select.open .custom-select-trigger::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .custom-select-trigger:hover {
+            background: rgba(0, 0, 0, 0.7);
+            border-color: #ffcc00;
+        }
+
+        .custom-select-dropdown {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 0;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .custom-select.open .custom-select-dropdown {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-select-option {
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #fff;
+            transition: 0.1s;
+        }
+
+        .custom-select-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-select-option.selected {
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+        }
+
+        .hidden-native {
+            display: none;
+        }
+
+        /* 复制按钮样式 */
+        .copy-btn {
+            color: #ffcc00;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 12px;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .copy-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: none;
+            stroke: currentColor;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .message.assistant .bubble {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .message.assistant .bubble-text {
+            flex: 1;
+        }
+
+        .message.assistant .copy-btn {
+            margin-top: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 返回上一级按钮 -->
+    <a href="javascript:history.back()" class="back-btn"
+        style="position: fixed; top: calc(env(safe-area-inset-top, 20px) + 30px); left: calc(env(safe-area-inset-left, 20px) + 30px); z-index: 1000; width: 44px; height: 44px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.3s;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="none" stroke="#ffffff"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5.79889 24H41.7989" />
+            <path d="M17.7988 36L5.79883 24L17.7988 12" />
+        </svg>
+    </a>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-title">
+                <h1>🌐 二筒翻译官</h1>
+                <span class="sub">对话式翻译工具 · 采用deepseek-reasoner语言大模型</span>
+            </div>
+            <div class="controls">
+                <!-- 目标语言自定义下拉 -->
+                <div class="custom-select" data-select-id="targetLangSelect">
+                    <div class="custom-select-trigger">英语（美式）</div>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option" data-value="简体中文">简体中文</div>
+                        <div class="custom-select-option" data-value="繁体中文">繁体中文</div>
+                        <div class="custom-select-option" data-value="英语">英语</div>
+                        <div class="custom-select-option" data-value="英语（美式）">英语（美式）</div>
+                        <div class="custom-select-option" data-value="菲律宾语">菲律宾语</div>
+                        <div class="custom-select-option" data-value="文言文">文言文</div>
+                    </div>
+                </div>
+                <select id="targetLangSelect" class="hidden-native">
+                    <option value="简体中文">简体中文</option>
+                    <option value="繁体中文">繁体中文</option>
+                    <option value="英语">英语</option>
+                    <option value="英语（美式）" selected>英语（美式）</option>
+                    <option value="菲律宾语">菲律宾语</option>
+                    <option value="文言文">文言文</option>
+                </select>
+
+                <!-- 翻译风格自定义下拉 -->
+                <div class="custom-select" data-select-id="styleSelect">
+                    <div class="custom-select-trigger">标准风格</div>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option" data-value="标准">标准风格</div>
+                        <div class="custom-select-option" data-value="口语">口语/日常风格</div>
+                        <div class="custom-select-option" data-value="正式">正式/商务风格</div>
+                        <div class="custom-select-option" data-value="学术">学术风格</div>
+                        <div class="custom-select-option" data-value="文学">文学/文艺风格</div>
+                        <div class="custom-select-option" data-value="幽默">幽默风格</div>
+                        <div class="custom-select-option" data-value="简洁">简洁风格</div>
+                    </div>
+                </div>
+                <select id="styleSelect" class="hidden-native">
+                    <option value="标准">标准风格</option>
+                    <option value="口语" selected>口语/日常风格</option>
+                    <option value="正式">正式/商务风格</option>
+                    <option value="学术">学术风格</option>
+                    <option value="文学">文学/文艺风格</option>
+                    <option value="幽默">幽默风格</option>
+                    <option value="简洁">简洁风格</option>
+                </select>
+                <button id="clearChatBtn" class="clear-btn">清空对话</button>
+            </div>
+        </div>
+
+        <div class="messages-area" id="messagesArea">
+            <div class="message assistant">
+                <div class="avatar">🤖</div>
+                <div class="bubble">你好！我是二筒翻译官，你可以直接输入要翻译的文本，我会按照你选择的目标语言和风格进行翻译。试试看～</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea id="userInput" rows="1" placeholder="输入要翻译的文本..."></textarea>
+            </div>
+            <button id="sendBtn" class="send-btn">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // ====================== 配置 DeepSeek API ======================
+        // ⚠️ 请替换为你的真实 API Key（建议通过后端代理，此处仅供个人测试）
+        const DEEPSEEK_API_KEY = 'sk-bae263238eea441280e3370fb896a9a9';  // 修改这里
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+        // DOM 元素
+        const messagesArea = document.getElementById('messagesArea');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const targetLangSelect = document.getElementById('targetLangSelect');
+        const styleSelect = document.getElementById('styleSelect');
+        const clearChatBtn = document.getElementById('clearChatBtn');
+
+        // 存储对话历史（用于上下文，可选）
+        let conversationHistory = [];
+
+        // 添加一条消息到界面
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.innerText = role === 'user' ? '👤' : '🤖';
+            messageDiv.appendChild(avatar);
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            const textSpan = document.createElement('div');
+            textSpan.className = 'bubble-text';
+            textSpan.innerHTML = content.replace(/\n/g, '<br>');
+            bubble.appendChild(textSpan);
+
+            if (role === 'assistant') {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.title = '复制翻译结果';
+                copyBtn.style.cssText = `
+        background: rgba(255,255,255,0.1);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-left: 8px;
+        transition: 0.2s;
+    `;
+                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    copyToClipboard(content);
+                });
+                bubble.appendChild(copyBtn);
+            }
+
+            messageDiv.appendChild(bubble);
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // 显示“正在思考”的临时消息
+        let thinkingMsg = null;
+        function showThinking() {
+            if (thinkingMsg) thinkingMsg.remove();
+            const tempDiv = document.createElement('div');
+            tempDiv.className = 'message assistant';
+            tempDiv.innerHTML = `<div class="avatar">🤖</div><div class="bubble" style="opacity:0.7;">⏳ 翻译官思考中...</div>`;
+            messagesArea.appendChild(tempDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            thinkingMsg = tempDiv;
+        }
+        function hideThinking() {
+            if (thinkingMsg) {
+                thinkingMsg.remove();
+                thinkingMsg = null;
+            }
+        }
+
+        // 调用 DeepSeek API 进行翻译
+        async function translateWithDeepSeek(text, targetLang, style) {
+            const styleMap = {
+                '标准': '自然的、标准的翻译',
+                '口语': '口语化的、日常交流的风格，使用轻松的表达方式',
+                '正式': '正式的、商务场合的风格，用词严谨礼貌',
+                '学术': '学术论文风格，用词专业、结构清晰',
+                '文学': '文学性的、富有文采的风格，可以适当使用修辞',
+                '幽默': '幽默诙谐的风格，翻译时加入一点趣味性',
+                '简洁': '简洁明了、通俗易懂的风格，避免复杂词汇'
+            };
+            const styleInstruction = styleMap[style] || styleMap['标准'];
+            let targetLangDisplay = targetLang;
+            if (targetLang === '英语（美式）') targetLangDisplay = '美式英语';
+            const systemPrompt = `你是一个专业的翻译助手。请将用户提供的文本翻译成${targetLangDisplay}。翻译要求：${styleInstruction}。只输出翻译结果，不要添加额外解释、不要输出原文、不要输出任何标记。`;
+            const userMessage = `请翻译：${text}`;
+
+            // 发送请求到 DeepSeek API
+            const response = await fetch(DEEPSEEK_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userMessage }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 2000
+                })
+            });
+
+            const data = await response.json();
+            console.log('API 响应:', data);   // 查看完整响应，便于调试
+
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                console.error('意外的响应结构:', data);
+                throw new Error('API 返回了异常数据，请检查控制台');
+            }
+            const reply = data.choices[0].message.content.trim();
+            return reply;
+        }
+
+        // 处理用户发送消息
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            // 添加用户消息
+            addMessage('user', text);
+            userInput.value = '';
+            // 获取当前选择的目标语言和风格
+            const targetLang = targetLangSelect.value;
+            const style = styleSelect.value;
+            showThinking();
+            try {
+                const translated = await translateWithDeepSeek(text, targetLang, style);
+                hideThinking();
+                addMessage('assistant', translated);
+                // 可选：将对话保存到 localStorage
+            } catch (err) {
+                hideThinking();
+                console.error(err);
+                let errorMsg = '翻译失败：';
+                if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
+                else if (err.message.includes('402')) errorMsg += '账户余额不足';
+                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查 CORS 或代理';
+                else errorMsg += err.message;
+                addMessage('assistant', errorMsg);
+            }
+        }
+
+        // 清空对话（保留欢迎消息）
+        function clearChat() {
+            messagesArea.innerHTML = '';
+            addMessage('assistant', '对话已清空。你可以继续输入要翻译的文本～');
+        }
+
+        // 绑定事件
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+        clearChatBtn.addEventListener('click', clearChat);
+
+        // 自动调整textarea高度
+        userInput.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // 初始化所有自定义下拉
+        function initCustomSelects() {
+            document.querySelectorAll('.custom-select').forEach(customSelect => {
+                const trigger = customSelect.querySelector('.custom-select-trigger');
+                const dropdown = customSelect.querySelector('.custom-select-dropdown');
+                const hiddenSelectId = customSelect.getAttribute('data-select-id');
+                const hiddenSelect = document.getElementById(hiddenSelectId);
+                if (!hiddenSelect) return;
+
+                // 设置初始显示文本
+                const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
+                if (selectedOption) trigger.innerText = selectedOption.text;
+
+                // 点击触发器切换下拉
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // 关闭其他打开的下拉
+                    document.querySelectorAll('.custom-select.open').forEach(el => {
+                        if (el !== customSelect) el.classList.remove('open');
+                    });
+                    customSelect.classList.toggle('open');
+                });
+
+                // 选项点击
+                dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
+                    opt.addEventListener('click', (e) => {
+                        const value = opt.getAttribute('data-value');
+                        const text = opt.innerText;
+                        // 更新隐藏的 select
+                        for (let i = 0; i < hiddenSelect.options.length; i++) {
+                            if (hiddenSelect.options[i].value === value) {
+                                hiddenSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        // 更新触发器文本
+                        trigger.innerText = text;
+                        // 触发 change 事件，以便原有逻辑监听（如果有）
+                        const changeEvent = new Event('change', { bubbles: true });
+                        hiddenSelect.dispatchEvent(changeEvent);
+                        // 关闭下拉
+                        customSelect.classList.remove('open');
+                    });
+                });
+            });
+        }
+
+        // 点击页面其他地方关闭所有下拉
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
+        });
+
+        // 初始化
+        initCustomSelects();
+
+        // 复制到剪贴板并显示提示
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copyToast');
+                toast.style.opacity = '1';
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                }, 1500);
+            }).catch(() => {
+                alert('复制失败，请手动复制');
+            });
+        }
+    </script>
+
+    <!-- 复制成功提示 -->
+    <div id="copyToast"
+        style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); color: #ffcc00; padding: 8px 16px; border-radius: 40px; font-size: 14px; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+        已复制</div>
+</body>
+
+</html>
