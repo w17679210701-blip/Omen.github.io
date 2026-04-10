@@ -859,163 +859,6 @@
             left: calc(env(safe-area-inset-left, 20px) + 25px) !important;
             z-index: 2147483646 !important;
         }
-
-        /* ===== 灵动岛音乐播放器 ===== */
-        #music-player {
-            position: fixed;
-            top: 30px !important;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2147483647;
-            width: 220px;
-            min-width: auto;
-            max-width: none;
-            height: 44px !important;
-            background: rgba(30, 30, 30, 0.85);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 100px;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow: hidden;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        #music-player:hover {
-            background: rgba(40, 40, 40, 0.9);
-            transform: translateX(-50%) scale(1.02);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        .music-toggle {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #ffcc00;
-            margin-right: 15px;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
-        }
-
-        .music-toggle:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.05);
-        }
-
-        #music-player.playing .music-toggle {
-            background: rgba(255, 204, 0, 0.15);
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
-        }
-
-        .music-title-container {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            /* 垂直居中 */
-            justify-content: flex-start;
-            /* 改为从左侧开始 */
-            min-width: 0;
-            /* 重要：允许内容被压缩 */
-        }
-
-        .music-title-wrapper {
-            display: inline-block;
-            white-space: nowrap;
-            /* padding-left: 100%; */
-            /* 初始位置在容器右侧 */
-            animation: scrollText 15s linear infinite;
-            animation-play-state: paused;
-        }
-
-        .music-title-container.scrollable .music-title-wrapper {
-            padding-left: 100%;
-            /* 只有需要滚动时才添加 */
-            animation: scrollText 15s linear infinite;
-            animation-play-state: running;
-        }
-
-        @keyframes scrollText {
-            0% {
-                transform: translateX(100%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        #music-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
-            letter-spacing: 0.2px;
-            padding-right: 40px;
-            transition: color 0.3s ease;
-            line-height: 1;
-        }
-
-        #music-player.playing #music-title {
-            color: #ffcc00;
-            text-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
-        }
-
-        .music-title-container.scrollable .music-title-scrolling {
-            animation-play-state: running;
-        }
-
-        @keyframes musicSpin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        #music-player.playing #music-icon {
-            animation: musicSpin 4s linear infinite;
-        }
-
-        @media (max-width: 480px) {
-            #music-player {
-                max-width: 280px;
-                height: 46px;
-                padding: 0 16px;
-                top: calc(env(safe-area-inset-top, 20px) + 15px);
-            }
-
-            #music-title {
-                display: inline-block;
-                font-size: 14px;
-                font-weight: 500;
-                color: rgba(255, 255, 255, 0.9);
-                letter-spacing: 0.2px;
-                transition: color 0.3s ease;
-            }
-
-            .music-toggle {
-                width: 32px;
-                height: 32px;
-                margin-right: 12px;
-            }
-        }
     </style>
 </head>
 
@@ -1023,17 +866,6 @@
     <div class="nav-container-top">
         <div class="floating-btn btn-left" onclick="toggleMenu(event)" id="menu-trigger">
             <i data-lucide="menu"></i>
-        </div>
-    </div>
-    <!-- 音乐组件 -->
-    <div id="music-player" class="music-player">
-        <button id="music-toggle" class="music-toggle">
-            <i data-lucide="music" id="music-icon"></i>
-        </button>
-        <div id="music-title-container" class="music-title-container">
-            <div class="music-title-wrapper">
-                <span id="music-title">正在加载音乐...</span>
-            </div>
         </div>
     </div>
     <div id="loader">
@@ -1497,12 +1329,8 @@
         window.onload = () => {
             loadSiteConfig();
 
-            // 监听窗口大小变化，重新计算标题宽度
-            window.addEventListener('resize', updateMusicTitle);
-
             // 页面完全加载后再计算一次
             window.addEventListener('load', function () {
-                setTimeout(updateMusicTitle, 500);
             });
 
             // 随机设置加载文字颜色
@@ -1551,110 +1379,6 @@
             setTimeout(showPage, 200);
             if (typeof loadLatestMoment === 'function') loadLatestMoment();
 
-            // --- 灵动岛音乐播放器逻辑 ---
-            const audio = new Audio('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/bgmusic.mp3');
-            audio.loop = true;
-            audio.volume = 1.0;
-            let isPlaying = false;
-
-            const musicPlayer = document.getElementById('music-player');
-            const musicToggle = document.getElementById('music-toggle');
-            const musicIcon = document.getElementById('music-icon');
-            const musicTitle = document.getElementById('music-title');
-            const musicTitleContainer = document.getElementById('music-title-container');
-
-            const defaultMusicTitle = "《神树》钢琴版";
-            const defaultArtist = "抖音：寒汐Music（1859763507）";
-            const currentTitle = `${defaultMusicTitle} - ${defaultArtist}`;
-
-            function updateMusicTitle() {
-                const musicTitle = document.getElementById('music-title');
-                const musicTitleContainer = document.querySelector('.music-title-container'); // 改为类选择器
-                const musicTitleWrapper = document.querySelector('.music-title-wrapper');
-
-                if (!musicTitle || !musicTitleContainer || !musicTitleWrapper) {
-                    console.warn('音乐标题元素未找到，延迟重试...');
-                    setTimeout(updateMusicTitle, 100);
-                    return;
-                }
-
-                musicTitle.textContent = currentTitle;
-
-                // 使用 requestAnimationFrame 确保 DOM 已更新
-                requestAnimationFrame(() => {
-                    // 获取实际宽度
-                    const containerWidth = musicTitleContainer.offsetWidth;
-                    const titleWidth = musicTitle.scrollWidth;
-
-                    console.log('容器宽度:', containerWidth, '标题宽度:', titleWidth);
-
-                    // 先移除所有可能的状态类
-                    musicTitleContainer.classList.remove('scrollable');
-                    musicTitleWrapper.style.paddingLeft = '0';
-
-                    // 判断是否需要滚动
-                    if (titleWidth > containerWidth) {
-                        musicTitleContainer.classList.add('scrollable');
-                        console.log('标题超长，启用滚动效果');
-                    } else {
-                        // 居中对齐
-                        musicTitleWrapper.style.paddingLeft = '0';
-                        musicTitleContainer.style.justifyContent = 'center';
-                        console.log('标题未超出，居中显示');
-                    }
-                });
-            }
-
-            function togglePlayPause() {
-                if (isPlaying) {
-                    audio.pause();
-                    musicPlayer.classList.remove('playing');
-                    musicIcon.setAttribute('data-lucide', 'play');
-                    isPlaying = false;
-                } else {
-                    audio.muted = false;
-                    audio.play()
-                        .then(() => {
-                            musicPlayer.classList.add('playing');
-                            musicIcon.setAttribute('data-lucide', 'pause');
-                            isPlaying = true;
-                        })
-                        .catch(err => {
-                            console.error('播放失败', err);
-                            musicTitle.textContent = '播放按钮开始音乐';
-                        });
-                }
-                lucide.createIcons();
-            }
-
-            // 自动播放策略
-            audio.muted = true;
-            audio.play()
-                .then(() => {
-                    setTimeout(() => {
-                        audio.muted = false;
-                        musicPlayer.classList.add('playing');
-                        musicIcon.setAttribute('data-lucide', 'pause');
-                        isPlaying = true;
-                        updateMusicTitle();
-                    }, 1000);
-                })
-                .catch(err => {
-                    console.warn('自动播放被阻止', err);
-                    musicTitle.textContent = '点击播放按钮开始音乐';
-                });
-
-            musicToggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                togglePlayPause();
-            });
-
-            musicPlayer.addEventListener('click', function (e) {
-                if (!e.target.closest('.music-toggle')) {
-                    togglePlayPause();
-                }
-            });
-
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden && isPlaying) {
                     audio.pause();
@@ -1665,7 +1389,6 @@
 
             // 初始化
             lucide.createIcons();
-            updateMusicTitle();
         };
 
         window.onclick = function (e) {
