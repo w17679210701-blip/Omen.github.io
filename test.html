@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>翻译官 · 对话式翻译</title>
+    <title>二筒 · 对话式翻译机器人</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
@@ -17,57 +16,90 @@
             margin: 0;
             min-height: 100vh;
             background: #f5f5f5;
-            /* 微信内置浏览器常见底色 */
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            flex-direction: column;
+            padding: 0;
         }
 
-        /* 主容器 — 白色毛玻璃风格，与微信卡片融合 */
+        /* 主容器 — 占满全屏，不设固定高度 */
         .chat-container {
-            width: 100%;
-            max-width: 900px;
-            height: 90vh;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+            flex: 1;
             display: flex;
             flex-direction: column;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
             overflow: hidden;
             position: relative;
         }
 
-        /* 头部 */
+        /* 头部固定 */
         .chat-header {
-            padding: 20px 24px 8px 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 20px 24px 8px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: nowrap;
             gap: 12px;
-            background: transparent;
+            z-index: 10;
         }
 
+        /* 配置栏固定 */
+        .config-bar {
+            position: fixed;
+            top: 72px;  /* 默认头部高度，JS 动态调整 */
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 8px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-start;
+            z-index: 10;
+        }
+
+        /* 消息区域，增加上边距避开固定区域 */
+        .messages-area {
+            margin-top: 116px;  /* 初始值，JS 会动态计算 */
+            padding: 20px 24px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        /* 输入区域（随键盘上移） */
+        .input-area {
+            background: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 16px 24px 24px;
+        }
+
+        /* ---------- 以下为原有组件样式（未改动） ---------- */
         .action-buttons {
             display: flex;
             gap: 12px;
             align-items: center;
-            order: 1;
         }
 
         .header-title {
             display: flex;
             align-items: baseline;
             gap: 8px;
-            flex-wrap: wrap;
-            order: 2;
             flex: 1;
-            /* 占据剩余空间 */
             min-width: 0;
         }
 
@@ -80,21 +112,16 @@
             color: transparent;
             letter-spacing: -0.3px;
             white-space: nowrap;
-            /* 强制大标题不换行 */
             font-size: clamp(1.1rem, 5vw, 1.6rem);
-            /* 动态缩放 */
         }
 
         .sub {
             white-space: normal;
-            /* 允许副标题换行 */
             word-break: keep-all;
-            /* 避免单词内断行 */
             font-size: 0.65rem;
             color: #6c6c6c;
         }
 
-        /* 方形毛玻璃按钮 (浅色风格) */
         .nav-icon-btn {
             background: rgba(0, 0, 0, 0.04);
             backdrop-filter: blur(8px);
@@ -120,19 +147,6 @@
             height: 22px;
             stroke: #e6a017;
             stroke-width: 1.8;
-        }
-
-        /* 配置栏 — 两个下拉框紧凑排列 */
-        .config-bar {
-            padding: 8px 24px;
-            background: rgba(0, 0, 0, 0.02);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: flex-start;
         }
 
         .custom-select {
@@ -201,18 +215,6 @@
             display: none;
         }
 
-        /* 消息区域 */
-        .messages-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            scroll-behavior: smooth;
-        }
-
-        /* 气泡样式 — 浅色主题 */
         .message {
             display: flex;
             gap: 12px;
@@ -278,7 +280,6 @@
             color: #1a1a1a;
         }
 
-        /* 复制按钮 */
         .copy-btn {
             background: rgba(0, 0, 0, 0.04);
             border: none;
@@ -301,13 +302,6 @@
             width: 16px;
             height: 16px;
             stroke: #e6a017;
-        }
-
-        /* 输入区域 */
-        .input-area {
-            padding: 16px 24px 24px 24px;
-            background: rgba(0, 0, 0, 0.02);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .input-wrapper {
@@ -362,7 +356,6 @@
             transform: scale(0.96);
         }
 
-        /* 滚动条浅色 */
         .messages-area::-webkit-scrollbar {
             width: 4px;
         }
@@ -376,332 +369,317 @@
         }
 
         @media (max-width: 640px) {
-            .chat-container {
-                height: 95vh;
+            .chat-header {
+                padding: 16px 20px 8px;
             }
-
-            .message {
-                max-width: 95%;
-            }
-
             .config-bar {
                 padding: 8px 16px;
                 gap: 8px;
             }
-
             .custom-select {
                 min-width: 110px;
             }
-
             .custom-select-trigger {
                 font-size: 0.75rem;
                 padding: 4px 24px 4px 12px;
             }
-
             .input-area {
                 padding: 12px 16px 20px;
             }
-
             .bubble {
                 font-size: 0.85rem;
             }
-
             .action-buttons {
                 gap: 8px;
             }
-
             .nav-icon-btn {
                 width: 40px;
                 height: 40px;
             }
-
             .nav-icon-btn svg {
                 width: 20px;
                 height: 20px;
             }
-
-            .chat-header {
-                padding: 16px 20px 8px;
-            }
-
             h1 {
                 font-size: 1.3rem;
             }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="chat-container">
-        <div class="chat-header">
-            <!-- 左侧方形按钮组 -->
-            <div class="action-buttons">
-                <a href="tools.html" class="nav-icon-btn" title="工具箱">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                </a>
-                <a href="index.html" class="nav-icon-btn" title="主页">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                </a>
-            </div>
-            <!-- 标题区 -->
-            <div class="header-title">
-                <h1>二筒翻译机器人</h1>
-                <span class="sub">对话式 · 风格定制 · AI语言大模型</span>
-            </div>
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="action-buttons">
+            <a href="tools.html" class="nav-icon-btn" title="工具箱">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </a>
+            <a href="index.html" class="nav-icon-btn" title="主页">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </a>
         </div>
-
-        <!-- 配置栏：两个下拉框 -->
-        <div class="config-bar">
-            <!-- 目标语言下拉 -->
-            <div class="custom-select" data-select-id="targetLangSelect">
-                <div class="custom-select-trigger">英语（美式）</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="简体中文">简体中文</div>
-                    <div class="custom-select-option" data-value="繁体中文">繁体中文</div>
-                    <div class="custom-select-option" data-value="英语">英语</div>
-                    <div class="custom-select-option" data-value="英语（美式）">英语（美式）</div>
-                    <div class="custom-select-option" data-value="菲律宾语">菲律宾语</div>
-                    <div class="custom-select-option" data-value="文言文">文言文</div>
-                </div>
-            </div>
-            <select id="targetLangSelect" class="hidden-native">
-                <option value="简体中文">简体中文</option>
-                <option value="繁体中文">繁体中文</option>
-                <option value="英语">英语</option>
-                <option value="英语（美式）" selected>英语（美式）</option>
-                <option value="菲律宾语">菲律宾语</option>
-                <option value="文言文">文言文</option>
-            </select>
-
-            <!-- 翻译风格下拉 -->
-            <div class="custom-select" data-select-id="styleSelect">
-                <div class="custom-select-trigger">口语/日常风格</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="标准">标准风格</div>
-                    <div class="custom-select-option" data-value="口语">口语/日常风格</div>
-                    <div class="custom-select-option" data-value="正式">正式/商务风格</div>
-                    <div class="custom-select-option" data-value="学术">学术风格</div>
-                    <div class="custom-select-option" data-value="文学">文学/文艺风格</div>
-                    <div class="custom-select-option" data-value="幽默">幽默风格</div>
-                    <div class="custom-select-option" data-value="简洁">简洁风格</div>
-                </div>
-            </div>
-            <select id="styleSelect" class="hidden-native">
-                <option value="标准">标准风格</option>
-                <option value="口语" selected>口语/日常风格</option>
-                <option value="正式">正式/商务风格</option>
-                <option value="学术">学术风格</option>
-                <option value="文学">文学/文艺风格</option>
-                <option value="幽默">幽默风格</option>
-                <option value="简洁">简洁风格</option>
-            </select>
-        </div>
-
-        <!-- 消息列表 -->
-        <div class="messages-area" id="messagesArea">
-            <div class="message assistant">
-                <div class="avatar">🤖</div>
-                <div class="bubble">你好！我是二筒翻译机器人，输入文本，我会按照你选择的目标语言和风格进行翻译。试试看～</div>
-            </div>
-        </div>
-
-        <!-- 底部输入区 -->
-        <div class="input-area">
-            <div class="input-wrapper">
-                <textarea id="userInput" rows="1" placeholder="输入要翻译的文本... (Shift+Enter 换行，Enter 发送)"></textarea>
-                <button id="sendBtn" class="send-btn">发送</button>
-            </div>
+        <div class="header-title">
+            <h1>二筒 · 对话式翻译</h1>
+            <span class="sub">风格定制 · AI语言大模型</span>
         </div>
     </div>
 
-    <div id="copyToast"
-        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(230,160,23,0.4); color: #e6a017; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-        已复制</div>
+    <div class="config-bar">
+        <div class="custom-select" data-select-id="targetLangSelect">
+            <div class="custom-select-trigger">英语（美式）</div>
+            <div class="custom-select-dropdown">
+                <div class="custom-select-option" data-value="简体中文">简体中文</div>
+                <div class="custom-select-option" data-value="繁体中文">繁体中文</div>
+                <div class="custom-select-option" data-value="英语">英语</div>
+                <div class="custom-select-option" data-value="英语（美式）">英语（美式）</div>
+                <div class="custom-select-option" data-value="菲律宾语">菲律宾语</div>
+                <div class="custom-select-option" data-value="文言文">文言文</div>
+            </div>
+        </div>
+        <select id="targetLangSelect" class="hidden-native">
+            <option value="简体中文">简体中文</option>
+            <option value="繁体中文">繁体中文</option>
+            <option value="英语">英语</option>
+            <option value="英语（美式）" selected>英语（美式）</option>
+            <option value="菲律宾语">菲律宾语</option>
+            <option value="文言文">文言文</option>
+        </select>
 
-    <script>
-        // ====================== 配置 DeepSeek API ======================
-        const DEEPSEEK_API_KEY = 'sk-bae263238eea441280e3370fb896a9a9';  // 请替换为有效 Key
-        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+        <div class="custom-select" data-select-id="styleSelect">
+            <div class="custom-select-trigger">口语/日常风格</div>
+            <div class="custom-select-dropdown">
+                <div class="custom-select-option" data-value="标准">标准风格</div>
+                <div class="custom-select-option" data-value="口语">口语/日常风格</div>
+                <div class="custom-select-option" data-value="正式">正式/商务风格</div>
+                <div class="custom-select-option" data-value="学术">学术风格</div>
+                <div class="custom-select-option" data-value="文学">文学/文艺风格</div>
+                <div class="custom-select-option" data-value="幽默">幽默风格</div>
+                <div class="custom-select-option" data-value="简洁">简洁风格</div>
+            </div>
+        </div>
+        <select id="styleSelect" class="hidden-native">
+            <option value="标准">标准风格</option>
+            <option value="口语" selected>口语/日常风格</option>
+            <option value="正式">正式/商务风格</option>
+            <option value="学术">学术风格</option>
+            <option value="文学">文学/文艺风格</option>
+            <option value="幽默">幽默风格</option>
+            <option value="简洁">简洁风格</option>
+        </select>
+    </div>
 
-        const messagesArea = document.getElementById('messagesArea');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const targetLangSelect = document.getElementById('targetLangSelect');
-        const styleSelect = document.getElementById('styleSelect');
+    <div class="messages-area" id="messagesArea">
+        <div class="message assistant">
+            <div class="avatar">🤖</div>
+            <div class="bubble">你好！我是二筒翻译机器人，输入文本，我会按照你选择的目标语言和风格进行翻译。试试看～</div>
+        </div>
+    </div>
 
-        function addMessage(role, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            const avatar = document.createElement('div');
-            avatar.className = 'avatar';
-            avatar.innerText = role === 'user' ? '👤' : '🤖';
-            messageDiv.appendChild(avatar);
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="userInput" rows="1" placeholder="输入要翻译的文本..."></textarea>
+            <button id="sendBtn" class="send-btn">发送</button>
+        </div>
+    </div>
+</div>
 
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            const textSpan = document.createElement('div');
-            textSpan.className = 'bubble-text';
-            textSpan.innerHTML = content.replace(/\n/g, '<br>');
-            bubble.appendChild(textSpan);
+<div id="copyToast" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(230,160,23,0.4); color: #e6a017; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">已复制</div>
 
-            if (role === 'assistant') {
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.title = '复制翻译结果';
-                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    copyToClipboard(content);
-                });
-                bubble.appendChild(copyBtn);
-            }
-            messageDiv.appendChild(bubble);
-            messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+<script>
+    // ====================== 布局自适应：动态调整消息区域上边距 ======================
+    function adjustLayout() {
+        const header = document.querySelector('.chat-header');
+        const configBar = document.querySelector('.config-bar');
+        const messagesArea = document.querySelector('.messages-area');
+        if (header && configBar && messagesArea) {
+            const totalHeight = header.offsetHeight + configBar.offsetHeight;
+            messagesArea.style.marginTop = totalHeight + 'px';
+            // 同时修正 config-bar 的 top 值，确保紧贴头部
+            configBar.style.top = header.offsetHeight + 'px';
         }
+    }
+    window.addEventListener('load', adjustLayout);
+    window.addEventListener('resize', adjustLayout);
+    // 键盘弹出/收起时也会触发 resize，因此无需额外处理
 
-        let thinkingMsg = null;
-        function showThinking() {
-            if (thinkingMsg) thinkingMsg.remove();
-            const tempDiv = document.createElement('div');
-            tempDiv.className = 'message assistant';
-            tempDiv.innerHTML = `<div class="avatar">🤖</div><div class="bubble" style="opacity:0.7;">⏳ 翻译官思考中...</div>`;
-            messagesArea.appendChild(tempDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            thinkingMsg = tempDiv;
-        }
-        function hideThinking() {
-            if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
-        }
+    // ====================== 配置 DeepSeek API ======================
+    const DEEPSEEK_API_KEY = 'sk-bae263238eea441280e3370fb896a9a9';  // 请替换为有效 Key
+    const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
-        async function translateWithDeepSeek(text, targetLang, style) {
-            const styleMap = {
-                '标准': '自然的、标准的翻译',
-                '口语': '口语化的、日常交流的风格，使用轻松的表达方式',
-                '正式': '正式的、商务场合的风格，用词严谨礼貌',
-                '学术': '学术论文风格，用词专业、结构清晰',
-                '文学': '文学性的、富有文采的风格，可以适当使用修辞',
-                '幽默': '幽默诙谐的风格，翻译时加入一点趣味性',
-                '简洁': '简洁明了、通俗易懂的风格，避免复杂词汇'
-            };
-            const styleInstruction = styleMap[style] || styleMap['标准'];
-            let targetLangDisplay = targetLang;
-            if (targetLang === '英语（美式）') targetLangDisplay = '美式英语';
-            const systemPrompt = `你是一个专业的翻译助手。请将用户提供的文本翻译成${targetLangDisplay}。翻译要求：${styleInstruction}。只输出翻译结果，不要添加额外解释、不要输出原文、不要输出任何标记。`;
-            const userMessage = `请翻译：${text}`;
+    const messagesArea = document.getElementById('messagesArea');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const targetLangSelect = document.getElementById('targetLangSelect');
+    const styleSelect = document.getElementById('styleSelect');
 
-            const response = await fetch(DEEPSEEK_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
-                body: JSON.stringify({
-                    model: 'deepseek-chat',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userMessage }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 2000
-                })
+    function addMessage(role, content) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerText = role === 'user' ? '👤' : '🤖';
+        messageDiv.appendChild(avatar);
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const textSpan = document.createElement('div');
+        textSpan.className = 'bubble-text';
+        textSpan.innerHTML = content.replace(/\n/g, '<br>');
+        bubble.appendChild(textSpan);
+
+        if (role === 'assistant') {
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.title = '复制翻译结果';
+            copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                copyToClipboard(content);
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            if (!data.choices?.[0]?.message) throw new Error('API 返回异常');
-            return data.choices[0].message.content.trim();
+            bubble.appendChild(copyBtn);
         }
+        messageDiv.appendChild(bubble);
+        messagesArea.appendChild(messageDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
 
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text) return;
-            addMessage('user', text);
-            userInput.value = '';
-            const targetLang = targetLangSelect.value;
-            const style = styleSelect.value;
-            showThinking();
-            try {
-                const translated = await translateWithDeepSeek(text, targetLang, style);
-                hideThinking();
-                addMessage('assistant', translated);
-            } catch (err) {
-                hideThinking();
-                console.error(err);
-                let errorMsg = '翻译失败：';
-                if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
-                else if (err.message.includes('402')) errorMsg += '账户余额不足';
-                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查 CORS 或代理';
-                else errorMsg += err.message;
-                addMessage('assistant', errorMsg);
-            }
+    let thinkingMsg = null;
+    function showThinking() {
+        if (thinkingMsg) thinkingMsg.remove();
+        const tempDiv = document.createElement('div');
+        tempDiv.className = 'message assistant';
+        tempDiv.innerHTML = `<div class="avatar">🤖</div><div class="bubble" style="opacity:0.7;">⏳ 翻译官思考中...</div>`;
+        messagesArea.appendChild(tempDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+        thinkingMsg = tempDiv;
+    }
+    function hideThinking() {
+        if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
+    }
+
+    async function translateWithDeepSeek(text, targetLang, style) {
+        const styleMap = {
+            '标准': '自然的、标准的翻译',
+            '口语': '口语化的、日常交流的风格，使用轻松的表达方式',
+            '正式': '正式的、商务场合的风格，用词严谨礼貌',
+            '学术': '学术论文风格，用词专业、结构清晰',
+            '文学': '文学性的、富有文采的风格，可以适当使用修辞',
+            '幽默': '幽默诙谐的风格，翻译时加入一点趣味性',
+            '简洁': '简洁明了、通俗易懂的风格，避免复杂词汇'
+        };
+        const styleInstruction = styleMap[style] || styleMap['标准'];
+        let targetLangDisplay = targetLang;
+        if (targetLang === '英语（美式）') targetLangDisplay = '美式英语';
+        const systemPrompt = `你是一个专业的翻译助手。请将用户提供的文本翻译成${targetLangDisplay}。翻译要求：${styleInstruction}。只输出翻译结果，不要添加额外解释、不要输出原文、不要输出任何标记。`;
+        const userMessage = `请翻译：${text}`;
+
+        const response = await fetch(DEEPSEEK_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+            body: JSON.stringify({
+                model: 'deepseek-chat',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userMessage }
+                ],
+                temperature: 0.7,
+                max_tokens: 2000
+            })
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        if (!data.choices?.[0]?.message) throw new Error('API 返回异常');
+        return data.choices[0].message.content.trim();
+    }
+
+    async function handleSend() {
+        const text = userInput.value.trim();
+        if (!text) return;
+        addMessage('user', text);
+        userInput.value = '';
+        const targetLang = targetLangSelect.value;
+        const style = styleSelect.value;
+        showThinking();
+        try {
+            const translated = await translateWithDeepSeek(text, targetLang, style);
+            hideThinking();
+            addMessage('assistant', translated);
+        } catch (err) {
+            hideThinking();
+            console.error(err);
+            let errorMsg = '翻译失败：';
+            if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
+            else if (err.message.includes('402')) errorMsg += '账户余额不足';
+            else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查 CORS 或代理';
+            else errorMsg += err.message;
+            addMessage('assistant', errorMsg);
         }
+    }
 
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
-        userInput.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
+    sendBtn.addEventListener('click', handleSend);
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    });
+    userInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
 
-        // 自定义下拉菜单初始化
-        function initCustomSelects() {
-            document.querySelectorAll('.custom-select').forEach(customSelect => {
-                const trigger = customSelect.querySelector('.custom-select-trigger');
-                const dropdown = customSelect.querySelector('.custom-select-dropdown');
-                const hiddenSelectId = customSelect.getAttribute('data-select-id');
-                const hiddenSelect = document.getElementById(hiddenSelectId);
-                if (!hiddenSelect) return;
-                const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
-                if (selectedOption) trigger.innerText = selectedOption.text;
+    function initCustomSelects() {
+        document.querySelectorAll('.custom-select').forEach(customSelect => {
+            const trigger = customSelect.querySelector('.custom-select-trigger');
+            const dropdown = customSelect.querySelector('.custom-select-dropdown');
+            const hiddenSelectId = customSelect.getAttribute('data-select-id');
+            const hiddenSelect = document.getElementById(hiddenSelectId);
+            if (!hiddenSelect) return;
+            const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
+            if (selectedOption) trigger.innerText = selectedOption.text;
 
-                trigger.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll('.custom-select.open').forEach(el => {
-                        if (el !== customSelect) el.classList.remove('open');
-                    });
-                    customSelect.classList.toggle('open');
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-select.open').forEach(el => {
+                    if (el !== customSelect) el.classList.remove('open');
                 });
-                dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
-                    opt.addEventListener('click', (e) => {
-                        const value = opt.getAttribute('data-value');
-                        const text = opt.innerText;
-                        for (let i = 0; i < hiddenSelect.options.length; i++) {
-                            if (hiddenSelect.options[i].value === value) {
-                                hiddenSelect.selectedIndex = i;
-                                break;
-                            }
+                customSelect.classList.toggle('open');
+            });
+            dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    const value = opt.getAttribute('data-value');
+                    const text = opt.innerText;
+                    for (let i = 0; i < hiddenSelect.options.length; i++) {
+                        if (hiddenSelect.options[i].value === value) {
+                            hiddenSelect.selectedIndex = i;
+                            break;
                         }
-                        trigger.innerText = text;
-                        const changeEvent = new Event('change', { bubbles: true });
-                        hiddenSelect.dispatchEvent(changeEvent);
-                        customSelect.classList.remove('open');
-                    });
+                    }
+                    trigger.innerText = text;
+                    const changeEvent = new Event('change', { bubbles: true });
+                    hiddenSelect.dispatchEvent(changeEvent);
+                    customSelect.classList.remove('open');
                 });
             });
-        }
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
         });
-        initCustomSelects();
+    }
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
+    });
+    initCustomSelects();
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('copyToast');
-                toast.style.opacity = '1';
-                setTimeout(() => { toast.style.opacity = '0'; }, 1500);
-            }).catch(() => alert('复制失败，请手动复制'));
-        }
-    </script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('copyToast');
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+        }).catch(() => alert('复制失败，请手动复制'));
+    }
+</script>
 </body>
-
 </html>
