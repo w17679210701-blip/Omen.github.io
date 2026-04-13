@@ -628,7 +628,7 @@
             container.innerHTML = html;
         }
 
-        // 预览相关变量（全局）
+        // ========== 预览缩放与拖动（稳定版） ==========
         let viewerImg = null;
         let photoViewer = null;
         let currentScale = 1;
@@ -644,6 +644,23 @@
             const dx = touches[0].clientX - touches[1].clientX;
             const dy = touches[0].clientY - touches[1].clientY;
             return Math.hypot(dx, dy);
+        }
+
+        // 获取图片当前在屏幕上的实际边界（考虑 CSS 居中，但未应用 transform）
+        function getImageDefaultRect() {
+            if (!viewerImg) return { left: 0, top: 0, width: 0, height: 0 };
+            const rect = viewerImg.getBoundingClientRect();
+            // 注意：getBoundingClientRect 会反映当前 transform，但我们需要初始未缩放时的位置
+            // 由于图片默认 max-width:90vw; max-height:90vh; object-fit:contain; 并且通过 flex 居中，
+            // 我们可以通过 window 尺寸和图片原始尺寸比例来计算初始位置。
+            // 更可靠：临时移除 transform 获取位置再恢复？开销大。直接计算：
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            const imgW = rect.width / currentScale;  // 原始宽度
+            const imgH = rect.height / currentScale; // 原始高度
+            const left = (winW - imgW) / 2;
+            const top = (winH - imgH) / 2;
+            return { left, top, width: imgW, height: imgH };
         }
 
         function applyTransform() {
@@ -677,34 +694,22 @@
                 let newScale = currentScale * scaleChange;
                 newScale = Math.min(3, Math.max(1, newScale));
                 if (newScale !== currentScale) {
-                    // 计算两指中心点（相对屏幕）
+                    // 计算两指中心点（屏幕坐标）
                     const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                     const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                    // 获取图片当前边界（未应用 transform 前的原始尺寸位置）
-                    const rect = viewerImg.getBoundingClientRect();
-                    // 图片原始宽度和高度（由 CSS max-width/height 限制，但我们需要实际渲染尺寸）
-                    const imgWidth = rect.width;
-                    const imgHeight = rect.height;
-                    // 计算图片中心点（相对于图片左上角）在屏幕上的位置（考虑当前平移和缩放）
-                    // 当前图片左上角屏幕坐标 = (window.innerWidth/2 - imgWidth/2) + currentTranslateX, 类似 Y
-                    // 更精确：由于图片默认居中，初始未缩放时图片左上角屏幕坐标 = (winW/2 - imgWidth/2, winH/2 - imgHeight/2)
-                    const winW = window.innerWidth;
-                    const winH = window.innerHeight;
-                    const defaultLeft = (winW - imgWidth) / 2;
-                    const defaultTop = (winH - imgHeight) / 2;
-                    const currentLeft = defaultLeft + currentTranslateX;
-                    const currentTop = defaultTop + currentTranslateY;
-                    // 计算缩放中心点相对于图片当前左上角的偏移（像素）
-                    const offsetX = centerX - currentLeft;
-                    const offsetY = centerY - currentTop;
+                    // 获取图片未缩放时的位置和尺寸
+                    const defaultRect = getImageDefaultRect();
+                    // 计算中心点相对于图片左上角（未缩放时）的偏移
+                    const offsetX = centerX - (defaultRect.left + currentTranslateX);
+                    const offsetY = centerY - (defaultRect.top + currentTranslateY);
                     // 缩放后的新偏移
                     const newOffsetX = offsetX * (newScale / currentScale);
                     const newOffsetY = offsetY * (newScale / currentScale);
-                    // 新的平移值 = 新图片左上角屏幕坐标 - 默认左上角
+                    // 新的平移值 = 新的图片左上角位置 - 默认位置
                     const newLeft = centerX - newOffsetX;
                     const newTop = centerY - newOffsetY;
-                    currentTranslateX = newLeft - defaultLeft;
-                    currentTranslateY = newTop - defaultTop;
+                    currentTranslateX = newLeft - defaultRect.left;
+                    currentTranslateY = newTop - defaultRect.top;
                     currentScale = newScale;
                     applyTransform();
                 }
@@ -733,6 +738,7 @@
             }
         }
 
+        // 覆盖 openViewer 和 closeViewer
         window.openViewer = function (imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
