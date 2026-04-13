@@ -322,7 +322,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
             animation: previewFadeIn 0.3s ease-out;
             /* transition: transform 0.1s ease-out; */
-            transform-origin: center center;
+            /* transform-origin: center center; */
             transform: scale(1);
         }
 
@@ -492,9 +492,9 @@
 
         // 手动填写日期和地点（请按顺序从 99 到 1 修改）
         const timelineData = [
-            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}99.JPEG`, alt: "老照片 99" },
-            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}98.JPEG`, alt: "老照片 98" },
-            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}97.JPEG`, alt: "老照片 97" },
+            { date: "2007-01", location: "江西 · 上高 · 镜山广场", imageUrl: `${BASE_URL}99.JPEG`, alt: "老照片 99" },
+            { date: "2007-01", location: "江西 · 上高 · 镜山广场", imageUrl: `${BASE_URL}98.JPEG`, alt: "老照片 98" },
+            { date: "2007-01", location: "江西 · 上高 · 镜山广场", imageUrl: `${BASE_URL}97.JPEG`, alt: "老照片 97" },
             { date: "2006-07", location: "江西 · 上高 · 易家", imageUrl: `${BASE_URL}96.JPEG`, alt: "老照片 96" },
             { date: "2003-9", location: "江西 · 上高", imageUrl: `${BASE_URL}95.JPEG`, alt: "老照片 95" },
             { date: "", location: "", imageUrl: `${BASE_URL}94.JPEG`, alt: "老照片 94" },
@@ -759,44 +759,79 @@
 
             function onTouchStart(e) {
                 if (e.touches.length === 2) {
-                    e.preventDefault(); // 阻止页面滚动
-                    initialDistance = getDistance(e.touches);
+                    e.preventDefault();
+                    initialPinchDistance = getDistance(e.touches);
+                    // 记录当前变换值
+                    initialTranslateX = currentTranslateX;
+                    initialTranslateY = currentTranslateY;
                     isZooming = true;
+                    isDragging = false;
+                } else if (e.touches.length === 1 && currentScale > 1) {
+                    // 仅当图片被放大后，才启用拖动
+                    isDragging = true;
+                    dragStartX = e.touches[0].clientX - currentTranslateX;
+                    dragStartY = e.touches[0].clientY - currentTranslateY;
                 }
             }
             function onTouchMove(e) {
-                if (!isZooming || e.touches.length !== 2) return;
-                e.preventDefault();
-                const newDistance = getDistance(e.touches);
-                if (initialDistance === 0) return;
-                let scaleChange = newDistance / initialDistance;
-                let newScale = currentScale * scaleChange;
-                // 限制最小为1（原始大小），最大为3（可自定义）
-                newScale = Math.min(3, Math.max(1, newScale));
-                if (newScale !== currentScale) {
-                    viewerImg.style.transform = `scale(${newScale})`;
+                if (isZooming && e.touches.length === 2) {
+                    e.preventDefault();
+                    const newDistance = getDistance(e.touches);
+                    if (initialPinchDistance === 0) return;
+                    let scaleChange = newDistance / initialPinchDistance;
+                    let newScale = currentScale * scaleChange;
+                    newScale = Math.min(3, Math.max(1, newScale));
+                    if (newScale !== currentScale) {
+                        // 计算缩放中心点（两指中点）
+                        const rect = viewerImg.getBoundingClientRect();
+                        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                        // 图片当前变换后的位置需要计算偏移，简单实现：缩放时平移量按比例调整
+                        const scaleRatio = newScale / currentScale;
+                        currentTranslateX = centerX - (centerX - currentTranslateX) * scaleRatio;
+                        currentTranslateY = centerY - (centerY - currentTranslateY) * scaleRatio;
+                        currentScale = newScale;
+                        applyTransform();
+                    }
+                } else if (isDragging && e.touches.length === 1) {
+                    e.preventDefault();
+                    currentTranslateX = e.touches[0].clientX - dragStartX;
+                    currentTranslateY = e.touches[0].clientY - dragStartY;
+                    applyTransform();
                 }
             }
             function onTouchEnd(e) {
                 if (isZooming) {
-                    // 更新当前缩放值，以便下次继续缩放
-                    const computedScale = parseFloat(viewerImg.style.transform.replace(/[^0-9.]/g, '')) || 1;
-                    currentScale = Math.min(3, Math.max(1, computedScale));
                     isZooming = false;
-                    initialDistance = 0;
+                    initialPinchDistance = 0;
+                    // 可选：边界限制，防止图片移出视野太多（略）
                 }
+                isDragging = false;
+            }
+            function applyTransform() {
+                viewerImg.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentScale})`;
             }
             function openViewer(imageUrl) {
-                // ... 原有代码 ...
                 viewerImg.src = imageUrl;
+                currentScale = 1;
+                currentTranslateX = 0;
+                currentTranslateY = 0;
+                applyTransform();
                 // 重置缩放
                 currentScale = 1;
                 viewerImg.style.transform = 'scale(1)';
-                // ... 原有代码 ...
             }
             photoViewer.addEventListener('touchstart', onTouchStart, { passive: false });
             photoViewer.addEventListener('touchmove', onTouchMove, { passive: false });
             photoViewer.addEventListener('touchend', onTouchEnd);
+
+            let currentTranslateX = 0;
+            let currentTranslateY = 0;
+            let initialTranslateX = 0;
+            let initialTranslateY = 0;
+            let initialPinchDistance = 0;
+            let isDragging = false;
+            let dragStartX = 0, dragStartY = 0;
         };
 
     </script>
