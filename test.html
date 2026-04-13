@@ -19,7 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* 边缘畸变模拟层 */
+        /* 导航栏（毛玻璃效果） */
         .timeline-header {
             position: sticky;
             top: 20px;
@@ -37,29 +37,21 @@
             gap: 16px;
             flex-wrap: wrap;
             overflow: hidden;
-            /* 确保位移层不超出圆角边界 */
         }
 
-        /* 位移畸变层（模拟玻璃厚度导致的边缘偏转） */
         .displacement-layer {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             height: 8px;
-            /* 位移影响区域高度 */
-            background: linear-gradient(to top,
-                    rgba(0, 0, 0, 0.15) 0%,
-                    rgba(255, 255, 255, 0.2) 30%,
-                    transparent 100%);
+            background: linear-gradient(to top, rgba(0,0,0,0.15) 0%, rgba(255,255,255,0.2) 30%, transparent 100%);
             pointer-events: none;
             transition: transform 0.05s linear;
             z-index: 2;
             border-radius: 0 0 34px 34px;
-            /* 只影响底部边缘 */
         }
 
-        /* 左右两侧边缘畸变（模拟垂直边缘的位移） */
         .displacement-layer::before,
         .displacement-layer::after {
             content: '';
@@ -67,19 +59,12 @@
             top: 0;
             bottom: 0;
             width: 6px;
-            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, transparent 80%);
             pointer-events: none;
         }
 
-        .displacement-layer::before {
-            left: 0;
-            border-radius: 34px 0 0 0;
-        }
-
-        .displacement-layer::after {
-            right: 0;
-            border-radius: 0 34px 0 0;
-        }
+        .displacement-layer::before { left: 0; border-radius: 34px 0 0 0; }
+        .displacement-layer::after { right: 0; border-radius: 0 34px 0 0; }
 
         .timeline-header:hover {
             transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
@@ -90,15 +75,13 @@
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.4) 0%, transparent 70%);
             filter: blur(4px);
             mix-blend-mode: overlay;
             pointer-events: none;
             transform: translateZ(-1px) scale(1.02);
-            /* 模拟光线弯曲造成的边缘轻微缩放 */
         }
 
-        /* 按钮样式（圆形玻璃质感） */
         .back-btn-inline,
         .home-btn {
             background: rgba(120, 120, 128, 0.2);
@@ -131,7 +114,6 @@
             height: 22px;
         }
 
-        /* 中间标题区域 */
         .header-title {
             flex: 1;
             text-align: center;
@@ -140,10 +122,7 @@
         .header-title h1 {
             margin: 0;
             font-size: 1.5rem;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
             font-weight: 600;
-            color: #1a1a1a;
-            letter-spacing: -0.3px;
             background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
             background-clip: text;
             -webkit-background-clip: text;
@@ -158,7 +137,6 @@
             color: #666;
         }
 
-        /* 滚动内容区域（铺满屏幕） */
         .timeline-content {
             padding: 20px 20px 40px 20px;
             position: relative;
@@ -166,7 +144,6 @@
             margin: 0 auto;
         }
 
-        /* 中轴线 */
         .timeline-content::before {
             content: '';
             position: absolute;
@@ -174,12 +151,11 @@
             left: 50%;
             width: 2px;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.05));
+            background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.15), rgba(0,0,0,0.05));
             transform: translateX(-50%);
             z-index: 0;
         }
 
-        /* 时间线条目 */
         .timeline-item {
             position: relative;
             display: flex;
@@ -189,7 +165,6 @@
             z-index: 1;
         }
 
-        /* 照片容器 */
         .photo-card {
             width: 45%;
             padding: 0;
@@ -218,7 +193,6 @@
             display: block;
         }
 
-        /* 文字信息容器 */
         .info-card {
             width: 40%;
             padding: 0;
@@ -250,7 +224,6 @@
             stroke: #888;
         }
 
-        /* 左右交替 */
         .timeline-item.left {
             flex-direction: row;
         }
@@ -275,7 +248,6 @@
             margin-right: auto;
         }
 
-        /* 全屏预览层 */
         .photo-viewer {
             display: none;
             position: fixed;
@@ -299,7 +271,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        /* 移动端适配 */
         @media (max-width: 768px) {
             .timeline-header {
                 top: 12px;
@@ -307,52 +278,41 @@
                 padding: 8px 16px;
                 border-radius: 28px;
             }
-
             .back-btn-inline,
             .home-btn {
                 width: 40px;
                 height: 40px;
             }
-
             .photo-card {
                 width: 42%;
             }
-
             .info-card {
                 width: 45%;
             }
-
             .info-date {
                 font-size: 0.85rem;
             }
-
             .info-location {
                 font-size: 0.75rem;
             }
-
             .timeline-item {
                 margin-bottom: 32px;
             }
-
             .header-title h1 {
                 font-size: 1.2rem;
             }
-
             .timeline-content {
                 padding: 16px 16px 32px 16px;
             }
         }
 
-        /* 滚动条 */
         .timeline-content::-webkit-scrollbar {
             width: 4px;
         }
-
         .timeline-content::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(0,0,0,0.05);
             border-radius: 4px;
         }
-
         .timeline-content::-webkit-scrollbar-thumb {
             background: #ffcc00;
             border-radius: 4px;
@@ -361,80 +321,69 @@
 </head>
 
 <body>
-    <!-- 悬浮导航栏（增强液态玻璃 + 动态阴影） -->
     <div class="timeline-header" id="timelineHeader">
         <button class="back-btn-inline" onclick="history.back()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <div class="header-title">
-            <h1>年轮光影</h1>
-            <span class="sub">老街坊 小弄堂</span>
+            <h1>🌳 交错年轮</h1>
+            <span class="sub">中轴两侧 · 照片与文字交替</span>
         </div>
         <a href="index.html" class="home-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z" />
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z"/></svg>
         </a>
         <div class="displacement-layer"></div>
     </div>
 
-    <!-- 滚动内容 -->
     <div class="timeline-content" id="timelineContent"></div>
 
-    <!-- 全屏预览 -->
     <div id="photoViewer" class="photo-viewer" onclick="closeViewer()">
         <img id="viewerImg" src="" alt="">
     </div>
 
     <script>
-        const timelineData = [
-            {
-                date: "2025-04-12",
-                location: "浙江 · 莫干山",
-                imageUrl: "https://picsum.photos/id/104/800/600",
-                alt: "莫干山晨雾"
-            },
-            {
-                date: "2025-04-08",
-                location: "上海 · 外滩",
-                imageUrl: "https://picsum.photos/id/96/800/600",
-                alt: "外滩落日"
-            },
-            {
-                date: "2025-04-01",
-                location: "厦门 · 沙坡尾",
-                imageUrl: "https://picsum.photos/id/20/800/600",
-                alt: "沙坡尾旧书店"
-            },
-            {
-                date: "2025-03-27",
-                location: "青岛 · 小麦岛",
-                imageUrl: "https://picsum.photos/id/26/800/600",
-                alt: "小麦岛灯塔"
-            },
-            {
-                date: "2025-03-18",
-                location: "南京 · 鸡鸣寺路",
-                imageUrl: "https://picsum.photos/id/15/800/600",
-                alt: "樱花大道"
-            },
-            {
-                date: "2025-03-10",
-                location: "大理 · 喜洲古镇",
-                imageUrl: "https://picsum.photos/id/29/800/600",
-                alt: "喜洲稻田"
-            }
+        // 照片基础 URL（使用默认域名，广州地域）
+        const BASE_URL = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/timeline/';
+        
+        // 随机生成日期 (2020-2025)
+        function randomDate() {
+            const start = new Date(2020, 0, 1);
+            const end = new Date(2025, 11, 31);
+            const rand = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+            const year = rand.getFullYear();
+            const month = String(rand.getMonth() + 1).padStart(2, '0');
+            const day = String(rand.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // 随机地点库
+        const locations = [
+            "北京 · 胡同", "上海 · 外滩", "广州 · 西关", "深圳 · 南头古城",
+            "杭州 · 西湖", "南京 · 夫子庙", "成都 · 宽窄巷子", "重庆 · 山城步道",
+            "武汉 · 江汉路", "西安 · 回民街", "苏州 · 平江路", "长沙 · 太平街",
+            "青岛 · 八大关", "厦门 · 鼓浪屿", "大理 · 古城", "丽江 · 四方街",
+            "绍兴 · 仓桥直街", "徽州 · 宏村", "凤凰 · 沱江", "平遥 · 南大街"
         ];
-
+        function randomLocation() {
+            return locations[Math.floor(Math.random() * locations.length)];
+        }
+        
+        // 生成 99 张照片的数据（倒序 99 → 1）
+        const timelineData = [];
+        for (let i = 99; i >= 1; i--) {
+            timelineData.push({
+                date: randomDate(),
+                location: randomLocation(),
+                imageUrl: `${BASE_URL}${i}.JPEG`,
+                alt: `老照片 ${i}`
+            });
+        }
+        
         function formatDate(dateStr) {
             const [year, month, day] = dateStr.split('-');
-            return `${parseInt(month)}月${parseInt(day)}日`;
+            return `${parseInt(month)}月${parseInt(day)}日 · ${year}`;
         }
-
+        
         function renderTimeline() {
             const container = document.getElementById('timelineContent');
             if (!container) return;
@@ -463,7 +412,7 @@
             });
             container.innerHTML = html;
         }
-
+        
         function openViewer(imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
@@ -471,101 +420,64 @@
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
-
+        
         function closeViewer() {
             const viewer = document.getElementById('photoViewer');
             viewer.style.display = 'none';
             document.body.style.overflow = '';
         }
-
-        // 动态液体流动阴影效果
+        
+        // 动态导航栏阴影效果（不再覆盖 backdrop-filter）
         const header = document.getElementById('timelineHeader');
         let ticking = false;
-
         function updateHeaderShadow() {
             if (!header) return;
-            // 获取滚动位置（相对于文档顶部）
             const scrollY = window.scrollY;
-            // 产生流动感：阴影模糊半径在 12px 到 28px 之间波动，偏移量在 0 到 8px 之间波动
-            // 使用正弦函数根据滚动位置产生连续变化
-            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5; // 0-1 之间
-            const blur = 12 + wave * 16;          // 12 ~ 28
-            const spread = wave * 6;               // 0 ~ 6
-            const yOffset = 4 + wave * 8;          // 4 ~ 12
-            // 内阴影高光随滚动轻微变化
-            const highlight = 0.7 + wave * 0.3;     // 0.7 ~ 1.0
+            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+            const blur = 12 + wave * 16;
+            const yOffset = 4 + wave * 8;
+            const highlight = 0.7 + wave * 0.3;
             header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
             ticking = false;
-            const blurIntensity = 18 + Math.sin(scrollY * 0.03) * 4;  // 16~22 之间波动
-            header.style.backdropFilter = `blur(${blurIntensity}px) saturate(180%) brightness(110%) contrast(120%)`;
+            // 注意：不再动态修改 backdrop-filter，保留 CSS 中的毛玻璃效果
         }
-
         function onScroll() {
             if (!ticking) {
                 requestAnimationFrame(updateHeaderShadow);
                 ticking = true;
             }
         }
-
         window.addEventListener('scroll', onScroll);
         window.addEventListener('resize', () => updateHeaderShadow());
-        // 初始化一次
         updateHeaderShadow();
-
+        
+        function initEdgeDistortion() {
+            const headerEl = document.querySelector('.timeline-header');
+            const displacementLayer = document.querySelector('.displacement-layer');
+            if (!headerEl || !displacementLayer) return;
+            let tick = false;
+            function updateDisplacement() {
+                const scrollY = window.scrollY;
+                let intensity = 0;
+                if (scrollY > 0) intensity = (Math.sin(scrollY * 0.03) + 1) / 2;
+                const translateY = 2 + intensity * 3;
+                displacementLayer.style.transform = `translateY(${translateY}px)`;
+                tick = false;
+            }
+            window.addEventListener('scroll', () => {
+                if (!tick) {
+                    requestAnimationFrame(updateDisplacement);
+                    tick = true;
+                }
+            });
+            updateDisplacement();
+        }
+        
         window.onload = () => {
             renderTimeline();
             if (typeof lucide !== 'undefined') lucide.createIcons();
-        };
-
-        function initEdgeDistortion() {
-            const header = document.querySelector('.timeline-header');
-            const displacementLayer = document.querySelector('.displacement-layer');
-            if (!header || !displacementLayer) return;
-
-            let ticking = false;
-            function updateDisplacement() {
-                // 获取滚动位置（相对于文档顶部）
-                const scrollY = window.scrollY;
-                // 获取导航栏底部相对于视口的位置
-                const headerRect = header.getBoundingClientRect();
-                const headerBottom = headerRect.bottom;
-
-                // 计算畸变强度：当内容滚动到导航栏附近时（底部边缘附近）位移增大
-                // 强度范围 0 ~ 1
-                let intensity = 0;
-                if (scrollY > 0) {
-                    // 简单正弦波动，产生流动感
-                    intensity = (Math.sin(scrollY * 0.03) + 1) / 2; // 0~1 之间
-                }
-                // 位移量 2px ~ 5px
-                const translateY = 2 + intensity * 3;
-                // 应用到位移层，向下偏移模拟内容被吸入
-                displacementLayer.style.transform = `translateY(${translateY}px)`;
-
-                // 可选：左右边缘畸变幅度（轻微水平偏移）
-                const leftShift = intensity * 1.5;
-                const rightShift = intensity * 1.5;
-                displacementLayer.style.setProperty('--left-shift', `${leftShift}px`);
-                displacementLayer.style.setProperty('--right-shift', `${-rightShift}px`);
-
-                ticking = false;
-            }
-
-            window.addEventListener('scroll', () => {
-                if (!ticking) {
-                    requestAnimationFrame(updateDisplacement);
-                    ticking = true;
-                }
-            });
-            updateDisplacement(); // 初始调用
-        }
-
-        // 页面加载时初始化
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initEdgeDistortion);
-        } else {
             initEdgeDistortion();
-        }
+        };
     </script>
 </body>
 
