@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>时光相册 · 交错年轮</title>
+    <title>时光相册 · 年轮光影</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
@@ -19,14 +19,14 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* 边缘畸变模拟层 */
+        /* 导航栏（毛玻璃效果） */
         .timeline-header {
             position: sticky;
             top: 20px;
             z-index: 100;
             margin: 0 20px 20px 20px;
             background: transparent;
-            backdrop-filter: blur(30px) saturate(200%);
+            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
             border-radius: 34px;
             border: 0.5px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
@@ -37,29 +37,21 @@
             gap: 16px;
             flex-wrap: wrap;
             overflow: hidden;
-            /* 确保位移层不超出圆角边界 */
         }
 
-        /* 位移畸变层（模拟玻璃厚度导致的边缘偏转） */
         .displacement-layer {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             height: 8px;
-            /* 位移影响区域高度 */
-            background: linear-gradient(to top,
-                    rgba(0, 0, 0, 0.15) 0%,
-                    rgba(255, 255, 255, 0.2) 30%,
-                    transparent 100%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
             pointer-events: none;
             transition: transform 0.05s linear;
             z-index: 2;
             border-radius: 0 0 34px 34px;
-            /* 只影响底部边缘 */
         }
 
-        /* 左右两侧边缘畸变（模拟垂直边缘的位移） */
         .displacement-layer::before,
         .displacement-layer::after {
             content: '';
@@ -95,10 +87,8 @@
             mix-blend-mode: overlay;
             pointer-events: none;
             transform: translateZ(-1px) scale(1.02);
-            /* 模拟光线弯曲造成的边缘轻微缩放 */
         }
 
-        /* 按钮样式（圆形玻璃质感） */
         .back-btn-inline,
         .home-btn {
             background: rgba(120, 120, 128, 0.2);
@@ -131,7 +121,6 @@
             height: 22px;
         }
 
-        /* 中间标题区域 */
         .header-title {
             flex: 1;
             text-align: center;
@@ -140,10 +129,7 @@
         .header-title h1 {
             margin: 0;
             font-size: 1.5rem;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
             font-weight: 600;
-            color: #1a1a1a;
-            letter-spacing: -0.3px;
             background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
             background-clip: text;
             -webkit-background-clip: text;
@@ -158,7 +144,6 @@
             color: #666;
         }
 
-        /* 滚动内容区域（铺满屏幕） */
         .timeline-content {
             padding: 20px 20px 40px 20px;
             position: relative;
@@ -166,7 +151,6 @@
             margin: 0 auto;
         }
 
-        /* 中轴线 */
         .timeline-content::before {
             content: '';
             position: absolute;
@@ -179,7 +163,6 @@
             z-index: 0;
         }
 
-        /* 时间线条目 */
         .timeline-item {
             position: relative;
             display: flex;
@@ -189,7 +172,6 @@
             z-index: 1;
         }
 
-        /* 照片容器 */
         .photo-card {
             width: 45%;
             padding: 0;
@@ -218,11 +200,22 @@
             display: block;
         }
 
-        /* 文字信息容器 */
+        .info-date svg,
+        .info-location svg {
+            width: 16px;
+            height: 16px;
+            stroke: #888;
+        }
+
+        .timeline-item.right {
+            flex-direction: row-reverse;
+        }
+
         .info-card {
             width: 40%;
             padding: 0;
             background: transparent;
+            text-align: center;
         }
 
         .info-date {
@@ -231,6 +224,7 @@
             color: #2c2c2e;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             margin-bottom: 8px;
         }
@@ -240,42 +234,10 @@
             color: #666;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
         }
 
-        .info-date svg,
-        .info-location svg {
-            width: 16px;
-            height: 16px;
-            stroke: #888;
-        }
-
-        /* 左右交替 */
-        .timeline-item.left {
-            flex-direction: row;
-        }
-
-        .timeline-item.left .photo-card {
-            margin-right: auto;
-        }
-
-        .timeline-item.left .info-card {
-            margin-left: auto;
-        }
-
-        .timeline-item.right {
-            flex-direction: row-reverse;
-        }
-
-        .timeline-item.right .photo-card {
-            margin-left: auto;
-        }
-
-        .timeline-item.right .info-card {
-            margin-right: auto;
-        }
-
-        /* 全屏预览层 */
         .photo-viewer {
             display: none;
             position: fixed;
@@ -299,7 +261,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        /* 移动端适配 */
+        /* ========= 手机端专属样式（只改对齐，其他不变） ========= */
         @media (max-width: 768px) {
             .timeline-header {
                 top: 12px;
@@ -328,6 +290,7 @@
 
             .info-location {
                 font-size: 0.75rem;
+                margin-bottom: 0;
             }
 
             .timeline-item {
@@ -341,9 +304,28 @@
             .timeline-content {
                 padding: 16px 16px 32px 16px;
             }
+
+            /* ----- 核心对齐修改 ----- */
+            /* 所有行整体居中，图标通过 flex-direction 靠近中轴线 */
+            .timeline-item.left .info-date,
+            .timeline-item.left .info-location {
+                flex-direction: row-reverse;  /* 图标移到右边（靠近中轴线） */
+                justify-content: center;      /* 整体居中 */
+            }
+
+            .timeline-item.right .info-date,
+            .timeline-item.right .info-location {
+                flex-direction: row;          /* 图标在左边（靠近中轴线） */
+                justify-content: center;      /* 整体居中 */
+            }
+
+            /* 确保卡片内容也居中（无左右偏移） */
+            .timeline-item.left .info-card,
+            .timeline-item.right .info-card {
+                text-align: center;
+            }
         }
 
-        /* 滚动条 */
         .timeline-content::-webkit-scrollbar {
             width: 4px;
         }
@@ -361,78 +343,140 @@
 </head>
 
 <body>
-    <!-- 悬浮导航栏（增强液态玻璃 + 动态阴影） -->
     <div class="timeline-header" id="timelineHeader">
         <button class="back-btn-inline" onclick="history.back()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-                stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M15 18l-6-6 6-6" />
             </svg>
         </button>
         <div class="header-title">
-            <h1>🌳 交错年轮</h1>
-            <span class="sub">中轴两侧 · 照片与文字交替</span>
+            <h1>年轮光影</h1>
+            <span class="sub">老街坊 · 小弄堂</span>
         </div>
         <a href="index.html" class="home-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-                stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z" />
             </svg>
         </a>
         <div class="displacement-layer"></div>
     </div>
 
-    <!-- 滚动内容 -->
     <div class="timeline-content" id="timelineContent"></div>
 
-    <!-- 全屏预览 -->
     <div id="photoViewer" class="photo-viewer" onclick="closeViewer()">
         <img id="viewerImg" src="" alt="">
     </div>
 
     <script>
+        // 照片基础 URL（使用默认域名，广州地域）
+        const BASE_URL = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/timeline/';
+
+        // 手动填写日期和地点（请按顺序从 99 到 1 修改）
         const timelineData = [
-            {
-                date: "2025-04-12",
-                location: "浙江 · 莫干山",
-                imageUrl: "https://picsum.photos/id/104/800/600",
-                alt: "莫干山晨雾"
-            },
-            {
-                date: "2025-04-08",
-                location: "上海 · 外滩",
-                imageUrl: "https://picsum.photos/id/96/800/600",
-                alt: "外滩落日"
-            },
-            {
-                date: "2025-04-01",
-                location: "厦门 · 沙坡尾",
-                imageUrl: "https://picsum.photos/id/20/800/600",
-                alt: "沙坡尾旧书店"
-            },
-            {
-                date: "2025-03-27",
-                location: "青岛 · 小麦岛",
-                imageUrl: "https://picsum.photos/id/26/800/600",
-                alt: "小麦岛灯塔"
-            },
-            {
-                date: "2025-03-18",
-                location: "南京 · 鸡鸣寺路",
-                imageUrl: "https://picsum.photos/id/15/800/600",
-                alt: "樱花大道"
-            },
-            {
-                date: "2025-03-10",
-                location: "大理 · 喜洲古镇",
-                imageUrl: "https://picsum.photos/id/29/800/600",
-                alt: "喜洲稻田"
-            }
+            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}99.JPEG`, alt: "老照片 99" },
+            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}98.JPEG`, alt: "老照片 98" },
+            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}97.JPEG`, alt: "老照片 97" },
+            { date: "2006-07", location: "江西 · 上高 · 易家", imageUrl: `${BASE_URL}96.JPEG`, alt: "老照片 96" },
+            { date: "2003-9", location: "江西 · 上高", imageUrl: `${BASE_URL}95.JPEG`, alt: "老照片 95" },
+            { date: "", location: "", imageUrl: `${BASE_URL}94.JPEG`, alt: "老照片 94" },
+            { date: "", location: "", imageUrl: `${BASE_URL}93.JPEG`, alt: "老照片 93" },
+            { date: "", location: "", imageUrl: `${BASE_URL}92.JPEG`, alt: "老照片 92" },
+            { date: "", location: "", imageUrl: `${BASE_URL}91.JPEG`, alt: "老照片 91" },
+            { date: "", location: "", imageUrl: `${BASE_URL}90.JPEG`, alt: "老照片 90" },
+            { date: "", location: "", imageUrl: `${BASE_URL}89.JPEG`, alt: "老照片 89" },
+            { date: "", location: "", imageUrl: `${BASE_URL}88.JPEG`, alt: "老照片 88" },
+            { date: "", location: "", imageUrl: `${BASE_URL}87.JPEG`, alt: "老照片 87" },
+            { date: "", location: "", imageUrl: `${BASE_URL}86.JPEG`, alt: "老照片 86" },
+            { date: "", location: "", imageUrl: `${BASE_URL}85.JPEG`, alt: "老照片 85" },
+            { date: "", location: "", imageUrl: `${BASE_URL}84.JPEG`, alt: "老照片 84" },
+            { date: "", location: "", imageUrl: `${BASE_URL}83.JPEG`, alt: "老照片 83" },
+            { date: "", location: "", imageUrl: `${BASE_URL}82.JPEG`, alt: "老照片 82" },
+            { date: "", location: "", imageUrl: `${BASE_URL}81.JPEG`, alt: "老照片 81" },
+            { date: "", location: "", imageUrl: `${BASE_URL}80.JPEG`, alt: "老照片 80" },
+            { date: "", location: "", imageUrl: `${BASE_URL}79.JPEG`, alt: "老照片 79" },
+            { date: "", location: "", imageUrl: `${BASE_URL}78.JPEG`, alt: "老照片 78" },
+            { date: "", location: "", imageUrl: `${BASE_URL}77.JPEG`, alt: "老照片 77" },
+            { date: "", location: "", imageUrl: `${BASE_URL}76.JPEG`, alt: "老照片 76" },
+            { date: "", location: "", imageUrl: `${BASE_URL}75.JPEG`, alt: "老照片 75" },
+            { date: "", location: "", imageUrl: `${BASE_URL}74.JPEG`, alt: "老照片 74" },
+            { date: "", location: "", imageUrl: `${BASE_URL}73.JPEG`, alt: "老照片 73" },
+            { date: "", location: "", imageUrl: `${BASE_URL}72.JPEG`, alt: "老照片 72" },
+            { date: "", location: "", imageUrl: `${BASE_URL}71.JPEG`, alt: "老照片 71" },
+            { date: "", location: "", imageUrl: `${BASE_URL}70.JPEG`, alt: "老照片 70" },
+            { date: "", location: "", imageUrl: `${BASE_URL}69.JPEG`, alt: "老照片 69" },
+            { date: "", location: "", imageUrl: `${BASE_URL}68.JPEG`, alt: "老照片 68" },
+            { date: "", location: "", imageUrl: `${BASE_URL}67.JPEG`, alt: "老照片 67" },
+            { date: "", location: "", imageUrl: `${BASE_URL}66.JPEG`, alt: "老照片 66" },
+            { date: "", location: "", imageUrl: `${BASE_URL}65.JPEG`, alt: "老照片 65" },
+            { date: "", location: "", imageUrl: `${BASE_URL}64.JPEG`, alt: "老照片 64" },
+            { date: "", location: "", imageUrl: `${BASE_URL}63.JPEG`, alt: "老照片 63" },
+            { date: "", location: "", imageUrl: `${BASE_URL}62.JPEG`, alt: "老照片 62" },
+            { date: "", location: "", imageUrl: `${BASE_URL}61.JPEG`, alt: "老照片 61" },
+            { date: "", location: "", imageUrl: `${BASE_URL}60.JPEG`, alt: "老照片 60" },
+            { date: "", location: "", imageUrl: `${BASE_URL}59.JPEG`, alt: "老照片 59" },
+            { date: "", location: "", imageUrl: `${BASE_URL}58.JPEG`, alt: "老照片 58" },
+            { date: "", location: "", imageUrl: `${BASE_URL}57.JPEG`, alt: "老照片 57" },
+            { date: "", location: "", imageUrl: `${BASE_URL}56.JPEG`, alt: "老照片 56" },
+            { date: "", location: "", imageUrl: `${BASE_URL}55.JPEG`, alt: "老照片 55" },
+            { date: "", location: "", imageUrl: `${BASE_URL}54.JPEG`, alt: "老照片 54" },
+            { date: "", location: "", imageUrl: `${BASE_URL}53.JPEG`, alt: "老照片 53" },
+            { date: "", location: "", imageUrl: `${BASE_URL}52.JPEG`, alt: "老照片 52" },
+            { date: "", location: "", imageUrl: `${BASE_URL}51.JPEG`, alt: "老照片 51" },
+            { date: "", location: "", imageUrl: `${BASE_URL}50.JPEG`, alt: "老照片 50" },
+            { date: "", location: "", imageUrl: `${BASE_URL}49.JPEG`, alt: "老照片 49" },
+            { date: "", location: "", imageUrl: `${BASE_URL}48.JPEG`, alt: "老照片 48" },
+            { date: "", location: "", imageUrl: `${BASE_URL}47.JPEG`, alt: "老照片 47" },
+            { date: "", location: "", imageUrl: `${BASE_URL}46.JPEG`, alt: "老照片 46" },
+            { date: "", location: "", imageUrl: `${BASE_URL}45.JPEG`, alt: "老照片 45" },
+            { date: "", location: "", imageUrl: `${BASE_URL}44.JPEG`, alt: "老照片 44" },
+            { date: "", location: "", imageUrl: `${BASE_URL}43.JPEG`, alt: "老照片 43" },
+            { date: "", location: "", imageUrl: `${BASE_URL}42.JPEG`, alt: "老照片 42" },
+            { date: "", location: "", imageUrl: `${BASE_URL}41.JPEG`, alt: "老照片 41" },
+            { date: "", location: "", imageUrl: `${BASE_URL}40.JPEG`, alt: "老照片 40" },
+            { date: "", location: "", imageUrl: `${BASE_URL}39.JPEG`, alt: "老照片 39" },
+            { date: "", location: "", imageUrl: `${BASE_URL}38.JPEG`, alt: "老照片 38" },
+            { date: "", location: "", imageUrl: `${BASE_URL}37.JPEG`, alt: "老照片 37" },
+            { date: "", location: "", imageUrl: `${BASE_URL}36.JPEG`, alt: "老照片 36" },
+            { date: "", location: "", imageUrl: `${BASE_URL}35.JPEG`, alt: "老照片 35" },
+            { date: "", location: "", imageUrl: `${BASE_URL}34.JPEG`, alt: "老照片 34" },
+            { date: "", location: "", imageUrl: `${BASE_URL}33.JPEG`, alt: "老照片 33" },
+            { date: "", location: "", imageUrl: `${BASE_URL}32.JPEG`, alt: "老照片 32" },
+            { date: "", location: "", imageUrl: `${BASE_URL}31.JPEG`, alt: "老照片 31" },
+            { date: "", location: "", imageUrl: `${BASE_URL}30.JPEG`, alt: "老照片 30" },
+            { date: "", location: "", imageUrl: `${BASE_URL}29.JPEG`, alt: "老照片 29" },
+            { date: "", location: "", imageUrl: `${BASE_URL}28.JPEG`, alt: "老照片 28" },
+            { date: "", location: "", imageUrl: `${BASE_URL}27.JPEG`, alt: "老照片 27" },
+            { date: "", location: "", imageUrl: `${BASE_URL}26.JPEG`, alt: "老照片 26" },
+            { date: "", location: "", imageUrl: `${BASE_URL}25.JPEG`, alt: "老照片 25" },
+            { date: "", location: "", imageUrl: `${BASE_URL}24.JPEG`, alt: "老照片 24" },
+            { date: "", location: "", imageUrl: `${BASE_URL}23.JPEG`, alt: "老照片 23" },
+            { date: "", location: "", imageUrl: `${BASE_URL}22.JPEG`, alt: "老照片 22" },
+            { date: "", location: "", imageUrl: `${BASE_URL}21.JPEG`, alt: "老照片 21" },
+            { date: "", location: "", imageUrl: `${BASE_URL}20.JPEG`, alt: "老照片 20" },
+            { date: "", location: "", imageUrl: `${BASE_URL}19.JPEG`, alt: "老照片 19" },
+            { date: "", location: "", imageUrl: `${BASE_URL}18.JPEG`, alt: "老照片 18" },
+            { date: "", location: "", imageUrl: `${BASE_URL}17.JPEG`, alt: "老照片 17" },
+            { date: "", location: "", imageUrl: `${BASE_URL}16.JPEG`, alt: "老照片 16" },
+            { date: "", location: "", imageUrl: `${BASE_URL}15.JPEG`, alt: "老照片 15" },
+            { date: "", location: "", imageUrl: `${BASE_URL}14.JPEG`, alt: "老照片 14" },
+            { date: "", location: "", imageUrl: `${BASE_URL}13.JPEG`, alt: "老照片 13" },
+            { date: "", location: "", imageUrl: `${BASE_URL}12.JPEG`, alt: "老照片 12" },
+            { date: "", location: "", imageUrl: `${BASE_URL}11.JPEG`, alt: "老照片 11" },
+            { date: "", location: "", imageUrl: `${BASE_URL}10.JPEG`, alt: "老照片 10" },
+            { date: "", location: "", imageUrl: `${BASE_URL}9.JPEG`, alt: "老照片 9" },
+            { date: "", location: "", imageUrl: `${BASE_URL}8.JPEG`, alt: "老照片 8" },
+            { date: "", location: "", imageUrl: `${BASE_URL}7.JPEG`, alt: "老照片 7" },
+            { date: "", location: "", imageUrl: `${BASE_URL}6.JPEG`, alt: "老照片 6" },
+            { date: "", location: "", imageUrl: `${BASE_URL}5.JPEG`, alt: "老照片 5" },
+            { date: "", location: "", imageUrl: `${BASE_URL}4.JPEG`, alt: "老照片 4" },
+            { date: "", location: "", imageUrl: `${BASE_URL}3.JPEG`, alt: "老照片 3" },
+            { date: "", location: "", imageUrl: `${BASE_URL}2.JPEG`, alt: "老照片 2" },
+            { date: "", location: "", imageUrl: `${BASE_URL}1.JPEG`, alt: "老照片 1" }
         ];
 
         function formatDate(dateStr) {
-            const [year, month, day] = dateStr.split('-');
-            return `${parseInt(month)}月${parseInt(day)}日`;
+            const [year, month] = dateStr.split('-');
+            return `${year}年${parseInt(month)}月`;
         }
 
         function renderTimeline() {
@@ -478,94 +522,56 @@
             document.body.style.overflow = '';
         }
 
-        // 动态液体流动阴影效果
+        // 动态导航栏阴影效果
         const header = document.getElementById('timelineHeader');
         let ticking = false;
-
         function updateHeaderShadow() {
             if (!header) return;
-            // 获取滚动位置（相对于文档顶部）
             const scrollY = window.scrollY;
-            // 产生流动感：阴影模糊半径在 12px 到 28px 之间波动，偏移量在 0 到 8px 之间波动
-            // 使用正弦函数根据滚动位置产生连续变化
-            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5; // 0-1 之间
-            const blur = 12 + wave * 16;          // 12 ~ 28
-            const spread = wave * 6;               // 0 ~ 6
-            const yOffset = 4 + wave * 8;          // 4 ~ 12
-            // 内阴影高光随滚动轻微变化
-            const highlight = 0.7 + wave * 0.3;     // 0.7 ~ 1.0
+            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+            const blur = 12 + wave * 16;
+            const yOffset = 4 + wave * 8;
+            const highlight = 0.7 + wave * 0.3;
             header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
             ticking = false;
-            const blurIntensity = 18 + Math.sin(scrollY * 0.03) * 4;  // 16~22 之间波动
-            header.style.backdropFilter = `blur(${blurIntensity}px) saturate(180%) brightness(110%) contrast(120%)`;
         }
-
         function onScroll() {
             if (!ticking) {
                 requestAnimationFrame(updateHeaderShadow);
                 ticking = true;
             }
         }
-
         window.addEventListener('scroll', onScroll);
         window.addEventListener('resize', () => updateHeaderShadow());
-        // 初始化一次
         updateHeaderShadow();
+
+        function initEdgeDistortion() {
+            const headerEl = document.querySelector('.timeline-header');
+            const displacementLayer = document.querySelector('.displacement-layer');
+            if (!headerEl || !displacementLayer) return;
+            let tick = false;
+            function updateDisplacement() {
+                const scrollY = window.scrollY;
+                let intensity = 0;
+                if (scrollY > 0) intensity = (Math.sin(scrollY * 0.03) + 1) / 2;
+                const translateY = 2 + intensity * 3;
+                displacementLayer.style.transform = `translateY(${translateY}px)`;
+                tick = false;
+            }
+            window.addEventListener('scroll', () => {
+                if (!tick) {
+                    requestAnimationFrame(updateDisplacement);
+                    tick = true;
+                }
+            });
+            updateDisplacement();
+        }
 
         window.onload = () => {
             renderTimeline();
             if (typeof lucide !== 'undefined') lucide.createIcons();
-        };
-
-        function initEdgeDistortion() {
-            const header = document.querySelector('.timeline-header');
-            const displacementLayer = document.querySelector('.displacement-layer');
-            if (!header || !displacementLayer) return;
-
-            let ticking = false;
-            function updateDisplacement() {
-                // 获取滚动位置（相对于文档顶部）
-                const scrollY = window.scrollY;
-                // 获取导航栏底部相对于视口的位置
-                const headerRect = header.getBoundingClientRect();
-                const headerBottom = headerRect.bottom;
-
-                // 计算畸变强度：当内容滚动到导航栏附近时（底部边缘附近）位移增大
-                // 强度范围 0 ~ 1
-                let intensity = 0;
-                if (scrollY > 0) {
-                    // 简单正弦波动，产生流动感
-                    intensity = (Math.sin(scrollY * 0.03) + 1) / 2; // 0~1 之间
-                }
-                // 位移量 2px ~ 5px
-                const translateY = 2 + intensity * 3;
-                // 应用到位移层，向下偏移模拟内容被吸入
-                displacementLayer.style.transform = `translateY(${translateY}px)`;
-
-                // 可选：左右边缘畸变幅度（轻微水平偏移）
-                const leftShift = intensity * 1.5;
-                const rightShift = intensity * 1.5;
-                displacementLayer.style.setProperty('--left-shift', `${leftShift}px`);
-                displacementLayer.style.setProperty('--right-shift', `${-rightShift}px`);
-
-                ticking = false;
-            }
-
-            window.addEventListener('scroll', () => {
-                if (!ticking) {
-                    requestAnimationFrame(updateDisplacement);
-                    ticking = true;
-                }
-            });
-            updateDisplacement(); // 初始调用
-        }
-
-        // 页面加载时初始化
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initEdgeDistortion);
-        } else {
             initEdgeDistortion();
-        }
+        };
     </script>
 </body>
 

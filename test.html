@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>该页面为测试页面</title>
+    <title>时光相册 · 年轮光影</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
@@ -25,7 +25,6 @@
             top: 20px;
             z-index: 100;
             margin: 0 20px 20px 20px;
-            background: rgba(0, 0, 0, 0.15);
             background: transparent;
             backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
             border-radius: 34px;
@@ -201,30 +200,6 @@
             display: block;
         }
 
-        .info-card {
-            width: 40%;
-            padding: 0;
-            background: transparent;
-        }
-
-        .info-date {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #2c2c2e;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .info-location {
-            font-size: 0.9rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .info-date svg,
         .info-location svg {
             width: 16px;
@@ -263,7 +238,6 @@
             gap: 8px;
         }
 
-
         .photo-viewer {
             display: none;
             position: fixed;
@@ -287,6 +261,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
+        /* ========= 手机端专属样式（只改对齐，其他不变） ========= */
         @media (max-width: 768px) {
             .timeline-header {
                 top: 12px;
@@ -315,6 +290,7 @@
 
             .info-location {
                 font-size: 0.75rem;
+                margin-bottom: 0;
             }
 
             .timeline-item {
@@ -327,6 +303,26 @@
 
             .timeline-content {
                 padding: 16px 16px 32px 16px;
+            }
+
+            /* ----- 核心对齐修改 ----- */
+            /* 所有行整体居中，图标通过 flex-direction 靠近中轴线 */
+            .timeline-item.left .info-date,
+            .timeline-item.left .info-location {
+                flex-direction: row-reverse;  /* 图标移到右边（靠近中轴线） */
+                justify-content: center;      /* 整体居中 */
+            }
+
+            .timeline-item.right .info-date,
+            .timeline-item.right .info-location {
+                flex-direction: row;          /* 图标在左边（靠近中轴线） */
+                justify-content: center;      /* 整体居中 */
+            }
+
+            /* 确保卡片内容也居中（无左右偏移） */
+            .timeline-item.left .info-card,
+            .timeline-item.right .info-card {
+                text-align: center;
             }
         }
 
@@ -526,7 +522,7 @@
             document.body.style.overflow = '';
         }
 
-        // 动态导航栏阴影效果（不再覆盖 backdrop-filter）
+        // 动态导航栏阴影效果
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -538,7 +534,6 @@
             const highlight = 0.7 + wave * 0.3;
             header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
             ticking = false;
-            // 注意：不再动态修改 backdrop-filter，保留 CSS 中的毛玻璃效果
         }
         function onScroll() {
             if (!ticking) {
