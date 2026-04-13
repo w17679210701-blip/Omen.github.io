@@ -46,7 +46,7 @@
             left: 0;
             right: 0;
             height: 8px;
-            background: linear-gradient(to top, rgba(0,0,0,0.15) 0%, rgba(255,255,255,0.2) 30%, transparent 100%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
             pointer-events: none;
             transition: transform 0.05s linear;
             z-index: 2;
@@ -60,12 +60,19 @@
             top: 0;
             bottom: 0;
             width: 6px;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, transparent 80%);
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
             pointer-events: none;
         }
 
-        .displacement-layer::before { left: 0; border-radius: 34px 0 0 0; }
-        .displacement-layer::after { right: 0; border-radius: 0 34px 0 0; }
+        .displacement-layer::before {
+            left: 0;
+            border-radius: 34px 0 0 0;
+        }
+
+        .displacement-layer::after {
+            right: 0;
+            border-radius: 0 34px 0 0;
+        }
 
         .timeline-header:hover {
             transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
@@ -76,7 +83,7 @@
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.4) 0%, transparent 70%);
+            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
             filter: blur(4px);
             mix-blend-mode: overlay;
             pointer-events: none;
@@ -152,7 +159,7 @@
             left: 50%;
             width: 2px;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.15), rgba(0,0,0,0.05));
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.05));
             transform: translateX(-50%);
             z-index: 0;
         }
@@ -225,29 +232,37 @@
             stroke: #888;
         }
 
-        .timeline-item.left {
-            flex-direction: row;
-        }
-
-        .timeline-item.left .photo-card {
-            margin-right: auto;
-        }
-
-        .timeline-item.left .info-card {
-            margin-left: auto;
-        }
-
         .timeline-item.right {
             flex-direction: row-reverse;
         }
 
-        .timeline-item.right .photo-card {
-            margin-left: auto;
+        .info-card {
+            width: 40%;
+            padding: 0;
+            background: transparent;
+            text-align: center;
         }
 
-        .timeline-item.right .info-card {
-            margin-right: auto;
+        .info-date {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2c2c2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
         }
+
+        .info-location {
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
 
         .photo-viewer {
             display: none;
@@ -279,29 +294,37 @@
                 padding: 8px 16px;
                 border-radius: 28px;
             }
+
             .back-btn-inline,
             .home-btn {
                 width: 40px;
                 height: 40px;
             }
+
             .photo-card {
                 width: 42%;
             }
+
             .info-card {
                 width: 45%;
             }
+
             .info-date {
                 font-size: 0.85rem;
             }
+
             .info-location {
                 font-size: 0.75rem;
             }
+
             .timeline-item {
                 margin-bottom: 32px;
             }
+
             .header-title h1 {
                 font-size: 1.2rem;
             }
+
             .timeline-content {
                 padding: 16px 16px 32px 16px;
             }
@@ -310,10 +333,12 @@
         .timeline-content::-webkit-scrollbar {
             width: 4px;
         }
+
         .timeline-content::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
             border-radius: 4px;
         }
+
         .timeline-content::-webkit-scrollbar-thumb {
             background: #ffcc00;
             border-radius: 4px;
@@ -324,14 +349,18 @@
 <body>
     <div class="timeline-header" id="timelineHeader">
         <button class="back-btn-inline" onclick="history.back()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
         </button>
         <div class="header-title">
             <h1>年轮光影</h1>
             <span class="sub">老街坊 · 小弄堂</span>
         </div>
         <a href="index.html" class="home-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z" />
+            </svg>
         </a>
         <div class="displacement-layer"></div>
     </div>
@@ -345,46 +374,115 @@
     <script>
         // 照片基础 URL（使用默认域名，广州地域）
         const BASE_URL = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/timeline/';
-        
-        // 随机生成日期 (2020-2025)
-        function randomDate() {
-            const start = new Date(2020, 0, 1);
-            const end = new Date(2025, 11, 31);
-            const rand = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-            const year = rand.getFullYear();
-            const month = String(rand.getMonth() + 1).padStart(2, '0');
-            const day = String(rand.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-        
-        // 随机地点库
-        const locations = [
-            "北京 · 胡同", "上海 · 外滩", "广州 · 西关", "深圳 · 南头古城",
-            "杭州 · 西湖", "南京 · 夫子庙", "成都 · 宽窄巷子", "重庆 · 山城步道",
-            "武汉 · 江汉路", "西安 · 回民街", "苏州 · 平江路", "长沙 · 太平街",
-            "青岛 · 八大关", "厦门 · 鼓浪屿", "大理 · 古城", "丽江 · 四方街",
-            "绍兴 · 仓桥直街", "徽州 · 宏村", "凤凰 · 沱江", "平遥 · 南大街"
+
+        // 手动填写日期和地点（请按顺序从 99 到 1 修改）
+        const timelineData = [
+            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}99.JPEG`, alt: "老照片 99" },
+            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}98.JPEG`, alt: "老照片 98" },
+            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}97.JPEG`, alt: "老照片 97" },
+            { date: "2006-07", location: "江西 · 上高 · 易家", imageUrl: `${BASE_URL}96.JPEG`, alt: "老照片 96" },
+            { date: "2003-9", location: "江西 · 上高", imageUrl: `${BASE_URL}95.JPEG`, alt: "老照片 95" },
+            { date: "", location: "", imageUrl: `${BASE_URL}94.JPEG`, alt: "老照片 94" },
+            { date: "", location: "", imageUrl: `${BASE_URL}93.JPEG`, alt: "老照片 93" },
+            { date: "", location: "", imageUrl: `${BASE_URL}92.JPEG`, alt: "老照片 92" },
+            { date: "", location: "", imageUrl: `${BASE_URL}91.JPEG`, alt: "老照片 91" },
+            { date: "", location: "", imageUrl: `${BASE_URL}90.JPEG`, alt: "老照片 90" },
+            { date: "", location: "", imageUrl: `${BASE_URL}89.JPEG`, alt: "老照片 89" },
+            { date: "", location: "", imageUrl: `${BASE_URL}88.JPEG`, alt: "老照片 88" },
+            { date: "", location: "", imageUrl: `${BASE_URL}87.JPEG`, alt: "老照片 87" },
+            { date: "", location: "", imageUrl: `${BASE_URL}86.JPEG`, alt: "老照片 86" },
+            { date: "", location: "", imageUrl: `${BASE_URL}85.JPEG`, alt: "老照片 85" },
+            { date: "", location: "", imageUrl: `${BASE_URL}84.JPEG`, alt: "老照片 84" },
+            { date: "", location: "", imageUrl: `${BASE_URL}83.JPEG`, alt: "老照片 83" },
+            { date: "", location: "", imageUrl: `${BASE_URL}82.JPEG`, alt: "老照片 82" },
+            { date: "", location: "", imageUrl: `${BASE_URL}81.JPEG`, alt: "老照片 81" },
+            { date: "", location: "", imageUrl: `${BASE_URL}80.JPEG`, alt: "老照片 80" },
+            { date: "", location: "", imageUrl: `${BASE_URL}79.JPEG`, alt: "老照片 79" },
+            { date: "", location: "", imageUrl: `${BASE_URL}78.JPEG`, alt: "老照片 78" },
+            { date: "", location: "", imageUrl: `${BASE_URL}77.JPEG`, alt: "老照片 77" },
+            { date: "", location: "", imageUrl: `${BASE_URL}76.JPEG`, alt: "老照片 76" },
+            { date: "", location: "", imageUrl: `${BASE_URL}75.JPEG`, alt: "老照片 75" },
+            { date: "", location: "", imageUrl: `${BASE_URL}74.JPEG`, alt: "老照片 74" },
+            { date: "", location: "", imageUrl: `${BASE_URL}73.JPEG`, alt: "老照片 73" },
+            { date: "", location: "", imageUrl: `${BASE_URL}72.JPEG`, alt: "老照片 72" },
+            { date: "", location: "", imageUrl: `${BASE_URL}71.JPEG`, alt: "老照片 71" },
+            { date: "", location: "", imageUrl: `${BASE_URL}70.JPEG`, alt: "老照片 70" },
+            { date: "", location: "", imageUrl: `${BASE_URL}69.JPEG`, alt: "老照片 69" },
+            { date: "", location: "", imageUrl: `${BASE_URL}68.JPEG`, alt: "老照片 68" },
+            { date: "", location: "", imageUrl: `${BASE_URL}67.JPEG`, alt: "老照片 67" },
+            { date: "", location: "", imageUrl: `${BASE_URL}66.JPEG`, alt: "老照片 66" },
+            { date: "", location: "", imageUrl: `${BASE_URL}65.JPEG`, alt: "老照片 65" },
+            { date: "", location: "", imageUrl: `${BASE_URL}64.JPEG`, alt: "老照片 64" },
+            { date: "", location: "", imageUrl: `${BASE_URL}63.JPEG`, alt: "老照片 63" },
+            { date: "", location: "", imageUrl: `${BASE_URL}62.JPEG`, alt: "老照片 62" },
+            { date: "", location: "", imageUrl: `${BASE_URL}61.JPEG`, alt: "老照片 61" },
+            { date: "", location: "", imageUrl: `${BASE_URL}60.JPEG`, alt: "老照片 60" },
+            { date: "", location: "", imageUrl: `${BASE_URL}59.JPEG`, alt: "老照片 59" },
+            { date: "", location: "", imageUrl: `${BASE_URL}58.JPEG`, alt: "老照片 58" },
+            { date: "", location: "", imageUrl: `${BASE_URL}57.JPEG`, alt: "老照片 57" },
+            { date: "", location: "", imageUrl: `${BASE_URL}56.JPEG`, alt: "老照片 56" },
+            { date: "", location: "", imageUrl: `${BASE_URL}55.JPEG`, alt: "老照片 55" },
+            { date: "", location: "", imageUrl: `${BASE_URL}54.JPEG`, alt: "老照片 54" },
+            { date: "", location: "", imageUrl: `${BASE_URL}53.JPEG`, alt: "老照片 53" },
+            { date: "", location: "", imageUrl: `${BASE_URL}52.JPEG`, alt: "老照片 52" },
+            { date: "", location: "", imageUrl: `${BASE_URL}51.JPEG`, alt: "老照片 51" },
+            { date: "", location: "", imageUrl: `${BASE_URL}50.JPEG`, alt: "老照片 50" },
+            { date: "", location: "", imageUrl: `${BASE_URL}49.JPEG`, alt: "老照片 49" },
+            { date: "", location: "", imageUrl: `${BASE_URL}48.JPEG`, alt: "老照片 48" },
+            { date: "", location: "", imageUrl: `${BASE_URL}47.JPEG`, alt: "老照片 47" },
+            { date: "", location: "", imageUrl: `${BASE_URL}46.JPEG`, alt: "老照片 46" },
+            { date: "", location: "", imageUrl: `${BASE_URL}45.JPEG`, alt: "老照片 45" },
+            { date: "", location: "", imageUrl: `${BASE_URL}44.JPEG`, alt: "老照片 44" },
+            { date: "", location: "", imageUrl: `${BASE_URL}43.JPEG`, alt: "老照片 43" },
+            { date: "", location: "", imageUrl: `${BASE_URL}42.JPEG`, alt: "老照片 42" },
+            { date: "", location: "", imageUrl: `${BASE_URL}41.JPEG`, alt: "老照片 41" },
+            { date: "", location: "", imageUrl: `${BASE_URL}40.JPEG`, alt: "老照片 40" },
+            { date: "", location: "", imageUrl: `${BASE_URL}39.JPEG`, alt: "老照片 39" },
+            { date: "", location: "", imageUrl: `${BASE_URL}38.JPEG`, alt: "老照片 38" },
+            { date: "", location: "", imageUrl: `${BASE_URL}37.JPEG`, alt: "老照片 37" },
+            { date: "", location: "", imageUrl: `${BASE_URL}36.JPEG`, alt: "老照片 36" },
+            { date: "", location: "", imageUrl: `${BASE_URL}35.JPEG`, alt: "老照片 35" },
+            { date: "", location: "", imageUrl: `${BASE_URL}34.JPEG`, alt: "老照片 34" },
+            { date: "", location: "", imageUrl: `${BASE_URL}33.JPEG`, alt: "老照片 33" },
+            { date: "", location: "", imageUrl: `${BASE_URL}32.JPEG`, alt: "老照片 32" },
+            { date: "", location: "", imageUrl: `${BASE_URL}31.JPEG`, alt: "老照片 31" },
+            { date: "", location: "", imageUrl: `${BASE_URL}30.JPEG`, alt: "老照片 30" },
+            { date: "", location: "", imageUrl: `${BASE_URL}29.JPEG`, alt: "老照片 29" },
+            { date: "", location: "", imageUrl: `${BASE_URL}28.JPEG`, alt: "老照片 28" },
+            { date: "", location: "", imageUrl: `${BASE_URL}27.JPEG`, alt: "老照片 27" },
+            { date: "", location: "", imageUrl: `${BASE_URL}26.JPEG`, alt: "老照片 26" },
+            { date: "", location: "", imageUrl: `${BASE_URL}25.JPEG`, alt: "老照片 25" },
+            { date: "", location: "", imageUrl: `${BASE_URL}24.JPEG`, alt: "老照片 24" },
+            { date: "", location: "", imageUrl: `${BASE_URL}23.JPEG`, alt: "老照片 23" },
+            { date: "", location: "", imageUrl: `${BASE_URL}22.JPEG`, alt: "老照片 22" },
+            { date: "", location: "", imageUrl: `${BASE_URL}21.JPEG`, alt: "老照片 21" },
+            { date: "", location: "", imageUrl: `${BASE_URL}20.JPEG`, alt: "老照片 20" },
+            { date: "", location: "", imageUrl: `${BASE_URL}19.JPEG`, alt: "老照片 19" },
+            { date: "", location: "", imageUrl: `${BASE_URL}18.JPEG`, alt: "老照片 18" },
+            { date: "", location: "", imageUrl: `${BASE_URL}17.JPEG`, alt: "老照片 17" },
+            { date: "", location: "", imageUrl: `${BASE_URL}16.JPEG`, alt: "老照片 16" },
+            { date: "", location: "", imageUrl: `${BASE_URL}15.JPEG`, alt: "老照片 15" },
+            { date: "", location: "", imageUrl: `${BASE_URL}14.JPEG`, alt: "老照片 14" },
+            { date: "", location: "", imageUrl: `${BASE_URL}13.JPEG`, alt: "老照片 13" },
+            { date: "", location: "", imageUrl: `${BASE_URL}12.JPEG`, alt: "老照片 12" },
+            { date: "", location: "", imageUrl: `${BASE_URL}11.JPEG`, alt: "老照片 11" },
+            { date: "", location: "", imageUrl: `${BASE_URL}10.JPEG`, alt: "老照片 10" },
+            { date: "", location: "", imageUrl: `${BASE_URL}9.JPEG`, alt: "老照片 9" },
+            { date: "", location: "", imageUrl: `${BASE_URL}8.JPEG`, alt: "老照片 8" },
+            { date: "", location: "", imageUrl: `${BASE_URL}7.JPEG`, alt: "老照片 7" },
+            { date: "", location: "", imageUrl: `${BASE_URL}6.JPEG`, alt: "老照片 6" },
+            { date: "", location: "", imageUrl: `${BASE_URL}5.JPEG`, alt: "老照片 5" },
+            { date: "", location: "", imageUrl: `${BASE_URL}4.JPEG`, alt: "老照片 4" },
+            { date: "", location: "", imageUrl: `${BASE_URL}3.JPEG`, alt: "老照片 3" },
+            { date: "", location: "", imageUrl: `${BASE_URL}2.JPEG`, alt: "老照片 2" },
+            { date: "", location: "", imageUrl: `${BASE_URL}1.JPEG`, alt: "老照片 1" }
         ];
-        function randomLocation() {
-            return locations[Math.floor(Math.random() * locations.length)];
-        }
-        
-        // 生成 99 张照片的数据（倒序 99 → 1）
-        const timelineData = [];
-        for (let i = 99; i >= 1; i--) {
-            timelineData.push({
-                date: randomDate(),
-                location: randomLocation(),
-                imageUrl: `${BASE_URL}${i}.JPEG`,
-                alt: `老照片 ${i}`
-            });
-        }
-        
+
         function formatDate(dateStr) {
-            const [year, month, day] = dateStr.split('-');
-            return `${parseInt(month)}月${parseInt(day)}日 · ${year}`;
+            const [year, month] = dateStr.split('-');
+            return `${year}年${parseInt(month)}月`;
         }
-        
+
         function renderTimeline() {
             const container = document.getElementById('timelineContent');
             if (!container) return;
@@ -413,7 +511,7 @@
             });
             container.innerHTML = html;
         }
-        
+
         function openViewer(imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
@@ -421,13 +519,13 @@
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
-        
+
         function closeViewer() {
             const viewer = document.getElementById('photoViewer');
             viewer.style.display = 'none';
             document.body.style.overflow = '';
         }
-        
+
         // 动态导航栏阴影效果（不再覆盖 backdrop-filter）
         const header = document.getElementById('timelineHeader');
         let ticking = false;
@@ -451,7 +549,7 @@
         window.addEventListener('scroll', onScroll);
         window.addEventListener('resize', () => updateHeaderShadow());
         updateHeaderShadow();
-        
+
         function initEdgeDistortion() {
             const headerEl = document.querySelector('.timeline-header');
             const displacementLayer = document.querySelector('.displacement-layer');
@@ -473,7 +571,7 @@
             });
             updateDisplacement();
         }
-        
+
         window.onload = () => {
             renderTimeline();
             if (typeof lucide !== 'undefined') lucide.createIcons();
