@@ -249,31 +249,53 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 10001;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 50%;
-            width: 44px;
+            width: auto;
+            /* 自动宽度 */
             height: 44px;
+            /* 固定高度 */
+            padding: 0 20px;
+            /* 左右内边距 */
+            border-radius: 40px;
+            /* 椭圆效果 */
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 0.5px solid rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 10px;
+            /* 图标与文字间距 */
             cursor: pointer;
             color: white;
+            /* 文字和图标颜色 */
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: 500;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
+        @media (max-width: 480px) {
+            .photo-viewer .download-btn {
+                padding: 0 16px;
+                font-size: 12px;
+                white-space: normal;
+                /* 允许换行 */
+                text-align: center;
+                height: auto;
+                min-height: 44px;
+            }
+        }
+
         .photo-viewer .download-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
-            transform: scale(1.05);
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.02);
         }
 
         .photo-viewer .download-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             stroke: currentColor;
+            fill: none;
         }
 
         .photo-viewer {
@@ -299,6 +321,9 @@
             border-radius: 28px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
             animation: previewFadeIn 0.3s ease-out;
+            /* transition: transform 0.1s ease-out; */
+            /* transform-origin: center center; */
+            transform: scale(1);
         }
 
         @keyframes previewFadeIn {
@@ -441,7 +466,22 @@
 
     <div id="photoViewer" class="photo-viewer" onclick="closeViewer()">
         <button class="download-btn" id="downloadPhotoBtn" onclick="event.stopPropagation();">
-            <i data-lucide="download"></i>
+            <!-- 自定义 SVG 图标 -->
+            <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M11.6777 20.271C7.27476 21.3181 4 25.2766 4 30C4 35.5228 8.47715 40 14 40C14.9474 40 15.864 39.8683 16.7325 39.6221"
+                    stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                    d="M36.0547 20.271C40.4577 21.3181 43.7324 25.2766 43.7324 30C43.7324 35.5228 39.2553 40 33.7324 40C32.785 40 31.8684 39.8683 30.9999 39.6221"
+                    stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M36 20C36 13.3726 30.6274 8 24 8C17.3726 8 12 13.3726 12 20" stroke="currentColor"
+                    stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M17.0654 30.119L23.9999 37.0764L31.1318 30" stroke="currentColor" stroke-width="4"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M24 20V33.5382" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+            <span>长按图片保存至相册</span>
         </button>
         <img id="viewerImg" src="" alt="">
     </div>
@@ -452,9 +492,9 @@
 
         // 手动填写日期和地点（请按顺序从 99 到 1 修改）
         const timelineData = [
-            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}99.JPEG`, alt: "老照片 99" },
-            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}98.JPEG`, alt: "老照片 98" },
-            { date: "2007-01", location: "江西 · 上高 · 境山广场", imageUrl: `${BASE_URL}97.JPEG`, alt: "老照片 97" },
+            { date: "2007-01", location: "江西 · 上高 · 镜山广场", imageUrl: `${BASE_URL}99.JPEG`, alt: "老照片 99" },
+            { date: "2007-01", location: "江西 · 上高 · 镜山广场", imageUrl: `${BASE_URL}98.JPEG`, alt: "老照片 98" },
+            { date: "2007-01", location: "江西 · 上高 · 镜山广场", imageUrl: `${BASE_URL}97.JPEG`, alt: "老照片 97" },
             { date: "2006-07", location: "江西 · 上高 · 易家", imageUrl: `${BASE_URL}96.JPEG`, alt: "老照片 96" },
             { date: "2003-9", location: "江西 · 上高", imageUrl: `${BASE_URL}95.JPEG`, alt: "老照片 95" },
             { date: "", location: "", imageUrl: `${BASE_URL}94.JPEG`, alt: "老照片 94" },
@@ -554,6 +594,7 @@
         ];
 
         function formatDate(dateStr) {
+            if (!dateStr) return '';
             const [year, month] = dateStr.split('-');
             return `${year}年${parseInt(month)}月`;
         }
@@ -565,74 +606,154 @@
             timelineData.forEach((item, index) => {
                 const direction = index % 2 === 0 ? 'left' : 'right';
                 html += `
-                    <div class="timeline-item ${direction}">
-                        <div class="photo-card">
-                            <div class="photo-wrapper" onclick="openViewer('${item.imageUrl}')">
-                                <img class="photo" src="${item.imageUrl}" alt="${item.alt}" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-date">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                ${formatDate(item.date)}
-                            </div>
-                            <div class="info-location">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22c-2 0-8-5.5-8-11a8 8 0 0 1 16 0c0 5.5-6 11-8 11z"/><circle cx="12" cy="11" r="3"/></svg>
-                                ${item.location}
-                            </div>
+                <div class="timeline-item ${direction}">
+                    <div class="photo-card">
+                        <div class="photo-wrapper" onclick="openViewer('${item.imageUrl}')">
+                            <img class="photo" src="${item.imageUrl}" alt="${item.alt}" loading="lazy">
                         </div>
                     </div>
-                `;
+                    <div class="info-card">
+                        <div class="info-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            ${formatDate(item.date)}
+                        </div>
+                        <div class="info-location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22c-2 0-8-5.5-8-11a8 8 0 0 1 16 0c0 5.5-6 11-8 11z"/><circle cx="12" cy="11" r="3"/></svg>
+                            ${item.location}
+                        </div>
+                    </div>
+                </div>
+            `;
             });
             container.innerHTML = html;
         }
 
-        async function downloadCurrentPhoto() {
-            const img = document.getElementById('viewerImg');
-            const imageUrl = img.src;
-            if (!imageUrl) return;
+        // ========== 预览缩放与拖动（稳定版） ==========
+        let viewerImg = null;
+        let photoViewer = null;
+        let currentScale = 1;
+        let currentTranslateX = 0, currentTranslateY = 0;
+        let initialPinchDistance = 0;
+        let initialTranslateX = 0, initialTranslateY = 0;
+        let isZooming = false;
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
 
-            // 弹出确认框
-            const userConfirmed = confirm('是否保存此照片到相册？');
-            if (!userConfirmed) return;
+        function getDistance(touches) {
+            if (touches.length < 2) return 0;
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.hypot(dx, dy);
+        }
 
-            try {
-                // 获取图片数据（支持跨域）
-                const response = await fetch(imageUrl);
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
+        // 获取图片当前在屏幕上的实际边界（考虑 CSS 居中，但未应用 transform）
+        function getImageDefaultRect() {
+            if (!viewerImg) return { left: 0, top: 0, width: 0, height: 0 };
+            const rect = viewerImg.getBoundingClientRect();
+            // 注意：getBoundingClientRect 会反映当前 transform，但我们需要初始未缩放时的位置
+            // 由于图片默认 max-width:90vw; max-height:90vh; object-fit:contain; 并且通过 flex 居中，
+            // 我们可以通过 window 尺寸和图片原始尺寸比例来计算初始位置。
+            // 更可靠：临时移除 transform 获取位置再恢复？开销大。直接计算：
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            const imgW = rect.width / currentScale;  // 原始宽度
+            const imgH = rect.height / currentScale; // 原始高度
+            const left = (winW - imgW) / 2;
+            const top = (winH - imgH) / 2;
+            return { left, top, width: imgW, height: imgH };
+        }
 
-                // 创建隐藏链接触发下载
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                // 从原URL提取文件名，如果没有则用默认名
-                const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1) || 'photo.jpg';
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // 释放对象URL
-                URL.revokeObjectURL(blobUrl);
-            } catch (error) {
-                console.error('下载失败', error);
-                alert('下载失败，请长按图片保存');
+        function applyTransform() {
+            if (viewerImg) {
+                viewerImg.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentScale})`;
             }
         }
 
-        function openViewer(imageUrl) {
+        function onTouchStart(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                initialPinchDistance = getDistance(e.touches);
+                // 记录当前平移值
+                initialTranslateX = currentTranslateX;
+                initialTranslateY = currentTranslateY;
+                isZooming = true;
+                isDragging = false;
+            } else if (e.touches.length === 1 && currentScale > 1) {
+                isDragging = true;
+                dragStartX = e.touches[0].clientX - currentTranslateX;
+                dragStartY = e.touches[0].clientY - currentTranslateY;
+            }
+        }
+
+        function onTouchMove(e) {
+            if (isZooming && e.touches.length === 2) {
+                e.preventDefault();
+                const newDistance = getDistance(e.touches);
+                if (initialPinchDistance === 0) return;
+                let scaleChange = newDistance / initialPinchDistance;
+                let newScale = currentScale * scaleChange;
+                newScale = Math.min(3, Math.max(1, newScale));
+                if (newScale !== currentScale) {
+                    // 计算两指中心点（屏幕坐标）
+                    const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                    const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                    // 获取图片未缩放时的位置和尺寸
+                    const defaultRect = getImageDefaultRect();
+                    // 计算中心点相对于图片左上角（未缩放时）的偏移
+                    const offsetX = centerX - (defaultRect.left + currentTranslateX);
+                    const offsetY = centerY - (defaultRect.top + currentTranslateY);
+                    // 缩放后的新偏移
+                    const newOffsetX = offsetX * (newScale / currentScale);
+                    const newOffsetY = offsetY * (newScale / currentScale);
+                    // 新的平移值 = 新的图片左上角位置 - 默认位置
+                    const newLeft = centerX - newOffsetX;
+                    const newTop = centerY - newOffsetY;
+                    currentTranslateX = newLeft - defaultRect.left;
+                    currentTranslateY = newTop - defaultRect.top;
+                    currentScale = newScale;
+                    applyTransform();
+                }
+            } else if (isDragging && e.touches.length === 1) {
+                e.preventDefault();
+                currentTranslateX = e.touches[0].clientX - dragStartX;
+                currentTranslateY = e.touches[0].clientY - dragStartY;
+                applyTransform();
+            }
+        }
+
+        function onTouchEnd(e) {
+            if (isZooming) {
+                isZooming = false;
+                initialPinchDistance = 0;
+            }
+            isDragging = false;
+        }
+
+        function resetTransform() {
+            currentScale = 1;
+            currentTranslateX = 0;
+            currentTranslateY = 0;
+            if (viewerImg) {
+                viewerImg.style.transform = 'scale(1)';
+            }
+        }
+
+        // 覆盖 openViewer 和 closeViewer
+        window.openViewer = function (imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
             img.src = imageUrl;
+            resetTransform();
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-        }
+        };
 
-        function closeViewer() {
+        window.closeViewer = function () {
             const viewer = document.getElementById('photoViewer');
             viewer.style.display = 'none';
             document.body.style.overflow = '';
-        }
+            resetTransform();
+        };
 
         // 动态导航栏阴影效果
         const header = document.getElementById('timelineHeader');
@@ -684,30 +805,29 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
             initEdgeDistortion();
 
+            // 滚动按钮
             const scrollDownBtn = document.getElementById('scrollDownBtn');
             if (scrollDownBtn) {
-                scrollDownBtn.addEventListener('click', function () {
-                    window.scrollTo({
-                        top: document.documentElement.scrollHeight,
-                        behavior: 'smooth'
-                    });
+                scrollDownBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
                 });
             }
             const scrollUpBtn = document.getElementById('scrollUpBtn');
             if (scrollUpBtn) {
-                scrollUpBtn.addEventListener('click', function () {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
+                scrollUpBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             }
-            const downloadBtn = document.getElementById('downloadPhotoBtn');
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', downloadCurrentPhoto);
+
+            // 预览元素
+            viewerImg = document.getElementById('viewerImg');
+            photoViewer = document.getElementById('photoViewer');
+            if (photoViewer && viewerImg) {
+                photoViewer.addEventListener('touchstart', onTouchStart, { passive: false });
+                photoViewer.addEventListener('touchmove', onTouchMove, { passive: false });
+                photoViewer.addEventListener('touchend', onTouchEnd);
             }
         };
-
     </script>
 </body>
 
