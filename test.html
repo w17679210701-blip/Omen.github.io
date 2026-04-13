@@ -253,7 +253,7 @@
             /* 自动宽度 */
             height: 44px;
             /* 固定高度 */
-            padding: 0 16px;
+            padding: 0 20px;
             /* 左右内边距 */
             border-radius: 40px;
             /* 椭圆效果 */
@@ -262,15 +262,28 @@
             border: 0.5px solid rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             /* 图标与文字间距 */
             cursor: pointer;
             color: white;
             /* 文字和图标颜色 */
             font-size: 14px;
+            white-space: nowrap;
             font-weight: 500;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            .photo-viewer .download-btn {
+                padding: 0 16px;
+                font-size: 12px;
+                white-space: normal;
+                /* 允许换行 */
+                text-align: center;
+                height: auto;
+                min-height: 44px;
+            }
         }
 
         .photo-viewer .download-btn:hover {
@@ -308,7 +321,7 @@
             border-radius: 28px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
             animation: previewFadeIn 0.3s ease-out;
-            transition: transform 0.1s ease-out;
+            /* transition: transform 0.1s ease-out; */
             transform-origin: center center;
             transform: scale(1);
         }
@@ -468,7 +481,7 @@
                 <path d="M24 20V33.5382" stroke="currentColor" stroke-width="4" stroke-linecap="round"
                     stroke-linejoin="round" />
             </svg>
-            <span>下载原图</span>
+            <span>长按图片保存至相册</span>
         </button>
         <img id="viewerImg" src="" alt="">
     </div>
@@ -651,6 +664,8 @@
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
             img.src = imageUrl;
+            currentScale = 1;
+            img.style.transform = 'scale(1)';
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -728,10 +743,6 @@
                         behavior: 'smooth'
                     });
                 });
-            }
-            const downloadBtn = document.getElementById('downloadPhotoBtn');
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', downloadCurrentPhoto);
             }
             let initialDistance = 0;
             let currentScale = 1;
