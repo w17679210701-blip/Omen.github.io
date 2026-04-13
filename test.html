@@ -244,6 +244,47 @@
             gap: 8px;
         }
 
+        /* 下载按钮样式 */
+        .photo-viewer .download-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: auto;
+            /* 自动宽度 */
+            height: 44px;
+            /* 固定高度 */
+            padding: 0 16px;
+            /* 左右内边距 */
+            border-radius: 40px;
+            /* 椭圆效果 */
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 0.5px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* 图标与文字间距 */
+            cursor: pointer;
+            color: white;
+            /* 文字和图标颜色 */
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-viewer .download-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.02);
+        }
+
+        .photo-viewer .download-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+        }
+
         .photo-viewer {
             display: none;
             position: fixed;
@@ -251,12 +292,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             z-index: 10000;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            animation: previewFadeIn 0.3s ease-out;
         }
 
         .photo-viewer img {
@@ -264,7 +306,32 @@
             max-height: 90vh;
             object-fit: contain;
             border-radius: 28px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
+            animation: previewFadeIn 0.3s ease-out;
+        }
+
+        @keyframes previewFadeIn {
+            0% {
+                opacity: 0;
+                backdrop-filter: blur(0);
+            }
+
+            100% {
+                opacity: 1;
+                backdrop-filter: blur(20px);
+            }
+        }
+
+        @keyframes previewImageScale {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* ========= 手机端专属样式（只改对齐，其他不变） ========= */
@@ -382,6 +449,24 @@
     <div class="timeline-content" id="timelineContent"></div>
 
     <div id="photoViewer" class="photo-viewer" onclick="closeViewer()">
+        <button class="download-btn" id="downloadPhotoBtn" onclick="event.stopPropagation();">
+            <!-- 自定义 SVG 图标 -->
+            <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M11.6777 20.271C7.27476 21.3181 4 25.2766 4 30C4 35.5228 8.47715 40 14 40C14.9474 40 15.864 39.8683 16.7325 39.6221"
+                    stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                    d="M36.0547 20.271C40.4577 21.3181 43.7324 25.2766 43.7324 30C43.7324 35.5228 39.2553 40 33.7324 40C32.785 40 31.8684 39.8683 30.9999 39.6221"
+                    stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M36 20C36 13.3726 30.6274 8 24 8C17.3726 8 12 13.3726 12 20" stroke="currentColor"
+                    stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M17.0654 30.119L23.9999 37.0764L31.1318 30" stroke="currentColor" stroke-width="4"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M24 20V33.5382" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+            <span>下载原图</span>
+        </button>
         <img id="viewerImg" src="" alt="">
     </div>
 
@@ -526,6 +611,39 @@
             container.innerHTML = html;
         }
 
+        async function downloadCurrentPhoto() {
+            const img = document.getElementById('viewerImg');
+            const imageUrl = img.src;
+            if (!imageUrl) return;
+
+            // 弹出确认框
+            const userConfirmed = confirm('是否保存此照片到相册？');
+            if (!userConfirmed) return;
+
+            try {
+                // 获取图片数据（支持跨域）
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
+                // 创建隐藏链接触发下载
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                // 从原URL提取文件名，如果没有则用默认名
+                const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1) || 'photo.jpg';
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // 释放对象URL
+                URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.error('下载失败', error);
+                alert('下载失败，请长按图片保存');
+            }
+        }
+
         function openViewer(imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
@@ -607,6 +725,10 @@
                         behavior: 'smooth'
                     });
                 });
+            }
+            const downloadBtn = document.getElementById('downloadPhotoBtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', downloadCurrentPhoto);
             }
         };
 

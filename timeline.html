@@ -244,6 +244,38 @@
             gap: 8px;
         }
 
+        /* 下载按钮样式 */
+        .photo-viewer .download-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-viewer .download-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.05);
+        }
+
+        .photo-viewer .download-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+        }
+
         .photo-viewer {
             display: none;
             position: fixed;
@@ -251,12 +283,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             z-index: 10000;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            animation: previewFadeIn 0.3s ease-out;
         }
 
         .photo-viewer img {
@@ -264,7 +297,32 @@
             max-height: 90vh;
             object-fit: contain;
             border-radius: 28px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
+            animation: previewFadeIn 0.3s ease-out;
+        }
+
+        @keyframes previewFadeIn {
+            0% {
+                opacity: 0;
+                backdrop-filter: blur(0);
+            }
+
+            100% {
+                opacity: 1;
+                backdrop-filter: blur(20px);
+            }
+        }
+
+        @keyframes previewImageScale {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* ========= 手机端专属样式（只改对齐，其他不变） ========= */
@@ -382,6 +440,9 @@
     <div class="timeline-content" id="timelineContent"></div>
 
     <div id="photoViewer" class="photo-viewer" onclick="closeViewer()">
+        <button class="download-btn" id="downloadPhotoBtn" onclick="event.stopPropagation();">
+            <i data-lucide="download"></i>
+        </button>
         <img id="viewerImg" src="" alt="">
     </div>
 
@@ -526,6 +587,39 @@
             container.innerHTML = html;
         }
 
+        async function downloadCurrentPhoto() {
+            const img = document.getElementById('viewerImg');
+            const imageUrl = img.src;
+            if (!imageUrl) return;
+
+            // 弹出确认框
+            const userConfirmed = confirm('是否保存此照片到相册？');
+            if (!userConfirmed) return;
+
+            try {
+                // 获取图片数据（支持跨域）
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
+                // 创建隐藏链接触发下载
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                // 从原URL提取文件名，如果没有则用默认名
+                const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1) || 'photo.jpg';
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // 释放对象URL
+                URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.error('下载失败', error);
+                alert('下载失败，请长按图片保存');
+            }
+        }
+
         function openViewer(imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
@@ -607,6 +701,10 @@
                         behavior: 'smooth'
                     });
                 });
+            }
+            const downloadBtn = document.getElementById('downloadPhotoBtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', downloadCurrentPhoto);
             }
         };
 
