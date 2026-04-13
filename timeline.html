@@ -90,7 +90,9 @@
         }
 
         .back-btn-inline,
-        .home-btn {
+        .home-btn,
+        .scroll-down-btn,
+        .scroll-up-btn {
             background: rgba(120, 120, 128, 0.2);
             backdrop-filter: blur(15px);
             border: 0.5px solid rgba(255, 255, 255, 0.8);
@@ -108,14 +110,18 @@
         }
 
         .back-btn-inline:hover,
-        .home-btn:hover {
+        .home-btn:hover,
+        .scroll-up-btn,
+        .scroll-down-btn:hover {
             background: rgba(120, 120, 128, 0.35);
             transform: scale(0.96);
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
         .back-btn-inline svg,
-        .home-btn svg {
+        .home-btn svg,
+        .scroll-up-btn,
+        .scroll-down-btn svg {
             stroke: currentColor;
             width: 22px;
             height: 22px;
@@ -271,7 +277,9 @@
             }
 
             .back-btn-inline,
-            .home-btn {
+            .home-btn,
+            .scroll-up-btn,
+            .scroll-down-btn {
                 width: 40px;
                 height: 40px;
             }
@@ -309,14 +317,18 @@
             /* 所有行整体居中，图标通过 flex-direction 靠近中轴线 */
             .timeline-item.left .info-date,
             .timeline-item.left .info-location {
-                flex-direction: row-reverse;  /* 图标移到右边（靠近中轴线） */
-                justify-content: center;      /* 整体居中 */
+                flex-direction: row-reverse;
+                /* 图标移到右边（靠近中轴线） */
+                justify-content: center;
+                /* 整体居中 */
             }
 
             .timeline-item.right .info-date,
             .timeline-item.right .info-location {
-                flex-direction: row;          /* 图标在左边（靠近中轴线） */
-                justify-content: center;      /* 整体居中 */
+                flex-direction: row;
+                /* 图标在左边（靠近中轴线） */
+                justify-content: center;
+                /* 整体居中 */
             }
 
             /* 确保卡片内容也居中（无左右偏移） */
@@ -349,10 +361,16 @@
                 <path d="M15 18l-6-6 6-6" />
             </svg>
         </button>
+        <button class="scroll-down-btn" id="scrollDownBtn">
+            <i data-lucide="chevron-down"></i>
+        </button>
         <div class="header-title">
             <h1>年轮光影</h1>
             <span class="sub">老街坊 · 小弄堂</span>
         </div>
+        <button class="scroll-up-btn" id="scrollUpBtn">
+            <i data-lucide="chevron-up"></i>
+        </button>
         <a href="index.html" class="home-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z" />
@@ -571,7 +589,27 @@
             renderTimeline();
             if (typeof lucide !== 'undefined') lucide.createIcons();
             initEdgeDistortion();
+
+            const scrollDownBtn = document.getElementById('scrollDownBtn');
+            if (scrollDownBtn) {
+                scrollDownBtn.addEventListener('click', function () {
+                    window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+            const scrollUpBtn = document.getElementById('scrollUpBtn');
+            if (scrollUpBtn) {
+                scrollUpBtn.addEventListener('click', function () {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
         };
+
     </script>
 </body>
 
