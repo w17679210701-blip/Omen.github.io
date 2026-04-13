@@ -308,6 +308,9 @@
             border-radius: 28px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
             animation: previewFadeIn 0.3s ease-out;
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
+            transform: scale(1);
         }
 
         @keyframes previewFadeIn {
@@ -730,6 +733,59 @@
             if (downloadBtn) {
                 downloadBtn.addEventListener('click', downloadCurrentPhoto);
             }
+            let initialDistance = 0;
+            let currentScale = 1;
+            let isZooming = false;
+            const viewerImg = document.getElementById('viewerImg');
+            const photoViewer = document.getElementById('photoViewer');
+
+            function getDistance(touches) {
+                if (touches.length < 2) return 0;
+                const dx = touches[0].clientX - touches[1].clientX;
+                const dy = touches[0].clientY - touches[1].clientY;
+                return Math.hypot(dx, dy);
+            }
+
+            function onTouchStart(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault(); // 阻止页面滚动
+                    initialDistance = getDistance(e.touches);
+                    isZooming = true;
+                }
+            }
+            function onTouchMove(e) {
+                if (!isZooming || e.touches.length !== 2) return;
+                e.preventDefault();
+                const newDistance = getDistance(e.touches);
+                if (initialDistance === 0) return;
+                let scaleChange = newDistance / initialDistance;
+                let newScale = currentScale * scaleChange;
+                // 限制最小为1（原始大小），最大为3（可自定义）
+                newScale = Math.min(3, Math.max(1, newScale));
+                if (newScale !== currentScale) {
+                    viewerImg.style.transform = `scale(${newScale})`;
+                }
+            }
+            function onTouchEnd(e) {
+                if (isZooming) {
+                    // 更新当前缩放值，以便下次继续缩放
+                    const computedScale = parseFloat(viewerImg.style.transform.replace(/[^0-9.]/g, '')) || 1;
+                    currentScale = Math.min(3, Math.max(1, computedScale));
+                    isZooming = false;
+                    initialDistance = 0;
+                }
+            }
+            function openViewer(imageUrl) {
+                // ... 原有代码 ...
+                viewerImg.src = imageUrl;
+                // 重置缩放
+                currentScale = 1;
+                viewerImg.style.transform = 'scale(1)';
+                // ... 原有代码 ...
+            }
+            photoViewer.addEventListener('touchstart', onTouchStart, { passive: false });
+            photoViewer.addEventListener('touchmove', onTouchMove, { passive: false });
+            photoViewer.addEventListener('touchend', onTouchEnd);
         };
 
     </script>
