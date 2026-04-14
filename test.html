@@ -312,6 +312,7 @@
             justify-content: center;
             cursor: pointer;
             animation: previewFadeIn 0.3s ease-out;
+            touch-action: none;
         }
 
         .photo-viewer img {
@@ -774,7 +775,7 @@
 
         function switchPhoto(direction) {
             if (isEnlarged) return;
-            
+
             const img = document.getElementById('viewerImg');
             img.style.filter = '';
 
