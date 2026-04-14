@@ -324,6 +324,40 @@
             /* transition: transform 0.1s ease-out; */
             /* transform-origin: center center; */
             transform: scale(1);
+            transition: filter 0.08s ease-out, opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        /* 底部放大/恢复按钮 */
+        .photo-viewer .zoom-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 0.5px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10001;
+        }
+
+        .photo-viewer .zoom-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .photo-viewer .zoom-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
         }
 
         @keyframes previewFadeIn {
@@ -484,11 +518,26 @@
             <span>长按图片保存至相册</span>
         </button>
         <img id="viewerImg" src="" alt="">
+        <button class="zoom-toggle-btn" id="zoomToggleBtn" onclick="event.stopPropagation();">
+            <i data-lucide="maximize"></i>
+        </button>
     </div>
 
     <script>
         // 照片基础 URL（使用默认域名，广州地域）
         const BASE_URL = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/timeline/';
+
+        // 放大/拖动相关状态
+        let isEnlarged = false;           // 是否处于放大模式
+        let zoomToggleBtn = null;
+        let dragEnabled = false;          // 放大模式下允许拖动
+        let dragStartX = 0, dragStartY = 0;
+        let dragTranslateX = 0, dragTranslateY = 0;
+        let isDragging = false;
+        let touchStartX = 0;      // 触摸起始 X 坐标
+        let currentPhotoIndex = 0; // 当前预览照片在 timelineData 中的索引
+        let lastTouchX = 0;
+        let lastTouchTime = 0;
 
         // 手动填写日期和地点（请按顺序从 99 到 1 修改）
         const timelineData = [
@@ -628,131 +677,37 @@
             container.innerHTML = html;
         }
 
-        // ========== 预览缩放与拖动（稳定版） ==========
-        let viewerImg = null;
-        let photoViewer = null;
-        let currentScale = 1;
-        let currentTranslateX = 0, currentTranslateY = 0;
-        let initialPinchDistance = 0;
-        let initialTranslateX = 0, initialTranslateY = 0;
-        let isZooming = false;
-        let isDragging = false;
-        let dragStartX = 0, dragStartY = 0;
-
-        function getDistance(touches) {
-            if (touches.length < 2) return 0;
-            const dx = touches[0].clientX - touches[1].clientX;
-            const dy = touches[0].clientY - touches[1].clientY;
-            return Math.hypot(dx, dy);
-        }
-
-        // 获取图片当前在屏幕上的实际边界（考虑 CSS 居中，但未应用 transform）
-        function getImageDefaultRect() {
-            if (!viewerImg) return { left: 0, top: 0, width: 0, height: 0 };
-            const rect = viewerImg.getBoundingClientRect();
-            // 注意：getBoundingClientRect 会反映当前 transform，但我们需要初始未缩放时的位置
-            // 由于图片默认 max-width:90vw; max-height:90vh; object-fit:contain; 并且通过 flex 居中，
-            // 我们可以通过 window 尺寸和图片原始尺寸比例来计算初始位置。
-            // 更可靠：临时移除 transform 获取位置再恢复？开销大。直接计算：
-            const winW = window.innerWidth;
-            const winH = window.innerHeight;
-            const imgW = rect.width / currentScale;  // 原始宽度
-            const imgH = rect.height / currentScale; // 原始高度
-            const left = (winW - imgW) / 2;
-            const top = (winH - imgH) / 2;
-            return { left, top, width: imgW, height: imgH };
-        }
-
-        function applyTransform() {
-            if (viewerImg) {
-                viewerImg.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentScale})`;
-            }
-        }
-
-        function onTouchStart(e) {
-            if (e.touches.length === 2) {
-                e.preventDefault();
-                initialPinchDistance = getDistance(e.touches);
-                // 记录当前平移值
-                initialTranslateX = currentTranslateX;
-                initialTranslateY = currentTranslateY;
-                isZooming = true;
-                isDragging = false;
-            } else if (e.touches.length === 1 && currentScale > 1) {
-                isDragging = true;
-                dragStartX = e.touches[0].clientX - currentTranslateX;
-                dragStartY = e.touches[0].clientY - currentTranslateY;
-            }
-        }
-
-        function onTouchMove(e) {
-            if (isZooming && e.touches.length === 2) {
-                e.preventDefault();
-                const newDistance = getDistance(e.touches);
-                if (initialPinchDistance === 0) return;
-                let scaleChange = newDistance / initialPinchDistance;
-                let newScale = currentScale * scaleChange;
-                newScale = Math.min(3, Math.max(1, newScale));
-                if (newScale !== currentScale) {
-                    // 计算两指中心点（屏幕坐标）
-                    const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-                    const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                    // 获取图片未缩放时的位置和尺寸
-                    const defaultRect = getImageDefaultRect();
-                    // 计算中心点相对于图片左上角（未缩放时）的偏移
-                    const offsetX = centerX - (defaultRect.left + currentTranslateX);
-                    const offsetY = centerY - (defaultRect.top + currentTranslateY);
-                    // 缩放后的新偏移
-                    const newOffsetX = offsetX * (newScale / currentScale);
-                    const newOffsetY = offsetY * (newScale / currentScale);
-                    // 新的平移值 = 新的图片左上角位置 - 默认位置
-                    const newLeft = centerX - newOffsetX;
-                    const newTop = centerY - newOffsetY;
-                    currentTranslateX = newLeft - defaultRect.left;
-                    currentTranslateY = newTop - defaultRect.top;
-                    currentScale = newScale;
-                    applyTransform();
-                }
-            } else if (isDragging && e.touches.length === 1) {
-                e.preventDefault();
-                currentTranslateX = e.touches[0].clientX - dragStartX;
-                currentTranslateY = e.touches[0].clientY - dragStartY;
-                applyTransform();
-            }
-        }
-
-        function onTouchEnd(e) {
-            if (isZooming) {
-                isZooming = false;
-                initialPinchDistance = 0;
-            }
-            isDragging = false;
-        }
-
-        function resetTransform() {
-            currentScale = 1;
-            currentTranslateX = 0;
-            currentTranslateY = 0;
-            if (viewerImg) {
-                viewerImg.style.transform = 'scale(1)';
-            }
-        }
-
-        // 覆盖 openViewer 和 closeViewer
         window.openViewer = function (imageUrl) {
             const viewer = document.getElementById('photoViewer');
             const img = document.getElementById('viewerImg');
             img.src = imageUrl;
-            resetTransform();
+            // 查找当前图片索引
+            currentPhotoIndex = timelineData.findIndex(item => item.imageUrl === imageUrl);
+            if (currentPhotoIndex === -1) currentPhotoIndex = 0;
+            // 重置放大状态
+            if (isEnlarged) {
+                // 强制恢复
+                img.style.maxWidth = '90vw';
+                img.style.maxHeight = '90vh';
+                img.style.width = 'auto';
+                img.style.height = 'auto';
+                img.style.transform = '';
+                dragEnabled = false;
+                isEnlarged = false;
+                const icon = zoomToggleBtn.querySelector('i');
+                if (icon) icon.setAttribute('data-lucide', 'maximize');
+                if (zoomToggleBtn) zoomToggleBtn.style.display = 'flex';
+            }
             viewer.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            lucide.createIcons(); // 刷新图标
+            touchStartX = 0;
         };
 
         window.closeViewer = function () {
             const viewer = document.getElementById('photoViewer');
             viewer.style.display = 'none';
             document.body.style.overflow = '';
-            resetTransform();
         };
 
         // 动态导航栏阴影效果
@@ -800,6 +755,194 @@
             updateDisplacement();
         }
 
+        function clampDrag(translateX, translateY, img) {
+            const w = img.clientWidth;
+            const maxX = w * 0.5;
+            return {
+                x: Math.min(maxX, Math.max(-maxX, translateX)),
+                y: 0   // 禁止上下移动
+            };
+        }
+        function applyTransformWithClamp() {
+            const img = document.getElementById('viewerImg');
+            if (!img) return;
+            const clamped = clampDrag(dragTranslateX, dragTranslateY, img);
+            dragTranslateX = clamped.x;
+            dragTranslateY = clamped.y;
+            img.style.transform = `translate(${dragTranslateX}px, ${dragTranslateY}px)`;
+        }
+
+        function switchPhoto(direction) {
+            if (isEnlarged) return;
+            
+            const img = document.getElementById('viewerImg');
+            img.style.filter = '';
+
+            let newIndex = currentPhotoIndex;
+            if (direction === 'next') {
+                newIndex++;
+                if (newIndex >= timelineData.length) newIndex = 0;
+            } else {
+                newIndex--;
+                if (newIndex < 0) newIndex = timelineData.length - 1;
+            }
+            if (newIndex === currentPhotoIndex) return;
+
+            const newPhoto = timelineData[newIndex];
+
+            // 修正方向：向左滑动(next)当前图片向左移出，新图片从右进入
+            const currentExitTransform = direction === 'next' ? '-20px' : '20px';
+            const newEntryTransform = direction === 'next' ? '20px' : '-20px';
+
+            img.style.opacity = '0';
+            img.style.transform = `translateX(${currentExitTransform})`;
+
+            setTimeout(() => {
+                img.src = newPhoto.imageUrl;
+                currentPhotoIndex = newIndex;
+                img.getBoundingClientRect(); // 强制重绘
+                img.style.transform = `translateX(${newEntryTransform})`;
+                img.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    img.style.transform = 'translateX(0)';
+                    img.style.opacity = '1';
+                });
+
+                if (isEnlarged) {
+                    img.style.maxWidth = '90vw';
+                    img.style.maxHeight = '90vh';
+                    img.style.width = 'auto';
+                    img.style.height = 'auto';
+                    dragEnabled = false;
+                    isEnlarged = false;
+                    if (zoomToggleBtn) {
+                        const icon = zoomToggleBtn.querySelector('i');
+                        if (icon) icon.setAttribute('data-lucide', 'maximize');
+                        lucide.createIcons();
+                    }
+                }
+                dragTranslateX = 0;
+                dragTranslateY = 0;
+            }, 150);
+        }
+
+        function toggleZoom() {
+            const img = document.getElementById('viewerImg');
+            if (!isEnlarged) {
+                // 放大：高度等于屏幕高度，宽度自适应
+                const screenHeight = window.innerHeight;
+                const imgNaturalHeight = img.naturalHeight;
+                const imgNaturalWidth = img.naturalWidth;
+                const scale = screenHeight / imgNaturalHeight;
+                const newWidth = imgNaturalWidth * scale;
+                // 覆盖原有样式
+                img.style.maxWidth = 'none';
+                img.style.maxHeight = 'none';
+                img.style.width = `${newWidth}px`;
+                img.style.height = `${screenHeight}px`;
+                img.style.objectFit = 'contain';
+                // 启用拖动模式
+                dragEnabled = true;
+                // 重置偏移量
+                dragTranslateX = 0;
+                dragTranslateY = 0;
+                img.style.transform = `translate(0px, 0px)`;
+                isEnlarged = true;
+                // 更改按钮图标
+                const icon = zoomToggleBtn.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-lucide', 'minimize');
+                    lucide.createIcons();
+                }
+            } else {
+                // 恢复原始大小
+                img.style.maxWidth = '90vw';
+                img.style.maxHeight = '90vh';
+                img.style.width = 'auto';
+                img.style.height = 'auto';
+                img.style.transform = '';
+                dragEnabled = false;
+                isEnlarged = false;
+                // 重置图标
+                const icon = zoomToggleBtn.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-lucide', 'maximize');
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        function onTouchStartZoom(e) {
+            if (!dragEnabled) {
+                // 未放大模式：记录触摸起始位置
+                if (e.touches.length === 1) {
+                    touchStartX = e.touches[0].clientX;
+                    lastTouchX = touchStartX;
+                    lastTouchTime = Date.now();
+                }
+                return;
+            }
+            // 放大模式：原有逻辑
+            e.preventDefault();
+            const touch = e.touches[0];
+            dragStartX = touch.clientX - dragTranslateX;
+            dragStartY = touch.clientY - dragTranslateY;
+            isDragging = true;
+        }
+
+        function onTouchMoveZoom(e) {
+            if (!dragEnabled) {
+                // 未放大模式：实时更新模糊效果（根据速度）
+                if (e.touches.length === 1 && touchStartX !== 0) {
+                    const currentX = e.touches[0].clientX;
+                    const now = Date.now();
+                    const deltaX = Math.abs(currentX - lastTouchX);
+                    const deltaTime = now - lastTouchTime;
+                    if (deltaTime > 0) {
+                        let speed = deltaX / deltaTime; // 像素/毫秒
+                        let blur = Math.min(12, speed * 3);
+                        if (blur > 0.3) {
+                            document.getElementById('viewerImg').style.filter = `blur(${blur}px)`;
+                        }
+                    }
+                    lastTouchX = currentX;
+                    lastTouchTime = now;
+                }
+                return;
+            }
+            // 放大模式：拖动逻辑
+            if (!isDragging) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            let newX = touch.clientX - dragStartX;
+            dragTranslateX = newX;
+            dragTranslateY = 0;
+            applyTransformWithClamp();
+        }
+
+        function onTouchEndZoom(e) {
+            if (!dragEnabled) {
+                // 未放大模式：清除模糊并判断是否切换照片
+                const img = document.getElementById('viewerImg');
+                img.style.filter = '';
+
+                if (touchStartX !== 0) {
+                    const endX = e.changedTouches[0].clientX;
+                    const diffX = endX - touchStartX;
+                    if (Math.abs(diffX) > 50) {
+                        if (diffX > 0) {
+                            switchPhoto('prev');
+                        } else {
+                            switchPhoto('next');
+                        }
+                    }
+                    touchStartX = 0;
+                }
+                return;
+            }
+            // 放大模式原有逻辑
+            isDragging = false;
+        }
         window.onload = () => {
             renderTimeline();
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -819,13 +962,25 @@
                 });
             }
 
-            // 预览元素
-            viewerImg = document.getElementById('viewerImg');
-            photoViewer = document.getElementById('photoViewer');
-            if (photoViewer && viewerImg) {
-                photoViewer.addEventListener('touchstart', onTouchStart, { passive: false });
-                photoViewer.addEventListener('touchmove', onTouchMove, { passive: false });
-                photoViewer.addEventListener('touchend', onTouchEnd);
+            zoomToggleBtn = document.getElementById('zoomToggleBtn');
+            if (zoomToggleBtn) {
+                // 桌面端使用 click
+                zoomToggleBtn.addEventListener('click', toggleZoom);
+                // 移动端使用 touchstart 确保立即响应
+                zoomToggleBtn.addEventListener('touchstart', function (e) {
+                    e.preventDefault();      // 防止触发 click 两次
+                    e.stopPropagation();     // 避免冒泡到父级
+                    toggleZoom();
+                }, { passive: false });
+            }
+
+            // 为预览层添加拖动事件（仅在放大模式下生效）
+            const viewerImg = document.getElementById('viewerImg');
+            const photoViewer = document.getElementById('photoViewer');
+            if (photoViewer) {
+                photoViewer.addEventListener('touchstart', onTouchStartZoom, { passive: false });
+                photoViewer.addEventListener('touchmove', onTouchMoveZoom, { passive: false });
+                photoViewer.addEventListener('touchend', onTouchEndZoom);
             }
         };
     </script>
