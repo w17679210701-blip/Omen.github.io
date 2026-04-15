@@ -17,7 +17,6 @@
             margin: 0;
             min-height: 100vh;
             background: #f5f5f5;
-            /* 微信内置浏览器常见底色 */
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
             display: flex;
             justify-content: center;
@@ -67,7 +66,6 @@
             flex-wrap: wrap;
             order: 2;
             flex: 1;
-            /* 占据剩余空间 */
             min-width: 0;
         }
 
@@ -80,16 +78,12 @@
             color: transparent;
             letter-spacing: -0.3px;
             white-space: nowrap;
-            /* 强制大标题不换行 */
             font-size: clamp(1.1rem, 5vw, 1.6rem);
-            /* 动态缩放 */
         }
 
         .sub {
             white-space: normal;
-            /* 允许副标题换行 */
             word-break: keep-all;
-            /* 避免单词内断行 */
             font-size: 0.65rem;
             color: #6c6c6c;
         }
@@ -122,23 +116,27 @@
             stroke-width: 1.8;
         }
 
-        /* 配置栏 — 两个下拉框紧凑排列 */
+        /* 配置栏 — 三个下拉框紧凑排列 */
         .config-bar {
             padding: 8px 24px;
             background: rgba(0, 0, 0, 0.02);
             border-top: 1px solid rgba(0, 0, 0, 0.05);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            /* 强制不换行 */
             gap: 12px;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
+            /* 让三个下拉框均匀分布 */
+            /* 移除 overflow-x 相关属性 */
         }
 
         .custom-select {
             position: relative;
-            display: inline-block;
-            min-width: 130px;
+            display: block;
+            flex: 1;
+            min-width: 0;
         }
 
         .custom-select-trigger {
@@ -390,7 +388,7 @@
             }
 
             .custom-select {
-                min-width: 110px;
+                min-width: 100px;
             }
 
             .custom-select-trigger {
@@ -458,7 +456,7 @@
             </div>
         </div>
 
-        <!-- 配置栏：两个下拉框 -->
+        <!-- 配置栏：三个下拉框（目标语言、翻译风格、模型选择） -->
         <div class="config-bar">
             <!-- 目标语言下拉 -->
             <div class="custom-select" data-select-id="targetLangSelect">
@@ -483,7 +481,7 @@
 
             <!-- 翻译风格下拉 -->
             <div class="custom-select" data-select-id="styleSelect">
-                <div class="custom-select-trigger">口语/日常风格</div>
+                <div class="custom-select-trigger">日常风格</div>
                 <div class="custom-select-dropdown">
                     <div class="custom-select-option" data-value="标准">标准风格</div>
                     <div class="custom-select-option" data-value="口语">口语/日常风格</div>
@@ -496,12 +494,25 @@
             </div>
             <select id="styleSelect" class="hidden-native">
                 <option value="标准">标准风格</option>
-                <option value="口语" selected>口语/日常风格</option>
+                <option value="口语" selected>日常风格</option>
                 <option value="正式">正式/商务风格</option>
                 <option value="学术">学术风格</option>
                 <option value="文学">文学/文艺风格</option>
                 <option value="幽默">幽默风格</option>
                 <option value="简洁">简洁风格</option>
+            </select>
+
+            <!-- 模型选择（新增） -->
+            <div class="custom-select" data-select-id="modelSelect">
+                <div class="custom-select-trigger">chat</div>
+                <div class="custom-select-dropdown">
+                    <div class="custom-select-option" data-value="deepseek-chat">chat</div>
+                    <div class="custom-select-option" data-value="deepseek-reasoner">reasoner</div>
+                </div>
+            </div>
+            <select id="modelSelect" class="hidden-native">
+                <option value="deepseek-chat" selected>chat</option>
+                <option value="deepseek-reasoner">reasoner</option>
             </select>
         </div>
 
@@ -536,6 +547,7 @@
         const sendBtn = document.getElementById('sendBtn');
         const targetLangSelect = document.getElementById('targetLangSelect');
         const styleSelect = document.getElementById('styleSelect');
+        const modelSelect = document.getElementById('modelSelect');   // 新增模型选择
 
         function addMessage(role, content) {
             const messageDiv = document.createElement('div');
@@ -582,7 +594,7 @@
             if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
         }
 
-        async function translateWithDeepSeek(text, targetLang, style) {
+        async function translateWithDeepSeek(text, targetLang, style, model) {
             const styleMap = {
                 '标准': '自然的、标准的翻译',
                 '口语': '口语化的、日常交流的风格，使用轻松的表达方式',
@@ -602,7 +614,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
                 body: JSON.stringify({
-                    model: 'deepseek-chat',
+                    model: model,   // 使用传入的 model 参数
                     messages: [
                         { role: 'system', content: systemPrompt },
                         { role: 'user', content: userMessage }
@@ -624,9 +636,10 @@
             userInput.value = '';
             const targetLang = targetLangSelect.value;
             const style = styleSelect.value;
+            const model = modelSelect.value;   // 获取当前选择的模型
             showThinking();
             try {
-                const translated = await translateWithDeepSeek(text, targetLang, style);
+                const translated = await translateWithDeepSeek(text, targetLang, style, model);
                 hideThinking();
                 addMessage('assistant', translated);
             } catch (err) {
@@ -653,7 +666,7 @@
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // 自定义下拉菜单初始化
+        // 自定义下拉菜单初始化（支持三个下拉框）
         function initCustomSelects() {
             document.querySelectorAll('.custom-select').forEach(customSelect => {
                 const trigger = customSelect.querySelector('.custom-select-trigger');

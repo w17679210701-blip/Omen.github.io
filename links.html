@@ -9,140 +9,239 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 与主页一致的深色流沙背景 */
+        /* --- 全局基础样式（与 moments 一致的浅色背景）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
-        @keyframes flowSand {
-            0% {
-                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
-            }
-
-            100% {
-                background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%;
-            }
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(20, 8, 12, 0.9), rgba(5, 2, 4, 1)),
-                radial-gradient(ellipse at 70% 40%, rgba(200, 150, 80, 0.25), transparent 60%),
-                radial-gradient(ellipse at 30% 80%, rgba(180, 110, 60, 0.2), transparent 70%),
-                radial-gradient(circle at 85% 15%, rgba(180, 50, 60, 0.2), transparent 50%),
-                radial-gradient(circle at 10% 90%, rgba(210, 70, 90, 0.15), transparent 60%),
-                repeating-linear-gradient(45deg,
-                    rgba(210, 170, 100, 0.08) 0px,
-                    rgba(210, 170, 100, 0.08) 2px,
-                    transparent 2px,
-                    transparent 8px),
-                repeating-linear-gradient(135deg,
-                    rgba(160, 100, 50, 0.06) 0px,
-                    rgba(160, 100, 50, 0.06) 3px,
-                    transparent 3px,
-                    transparent 12px),
-                linear-gradient(135deg,
-                    #2a181c 0%,
-                    #3e2a2a 20%,
-                    #5e3a2c 40%,
-                    #7f4e2e 60%,
-                    #5e3a2c 80%,
-                    #2a181c 100%),
-                repeating-linear-gradient(120deg,
-                    rgba(255, 215, 120, 0.25) 0px,
-                    rgba(255, 215, 120, 0.25) 40px,
-                    transparent 40px,
-                    transparent 100px);
-            background-size: 400% 400%, auto, auto, auto, auto, auto, auto, auto, 300% auto;
-            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
-            background-blend-mode: overlay, normal, normal, normal, normal, normal, normal, normal, normal;
-            background-attachment: fixed;
-            animation: flowSand 28s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
-            z-index: -1;
-            pointer-events: none;
-        }
-
         body {
             margin: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: system-ui, -apple-system, sans-serif;
-            padding: 70px 20px 50px 20px;
-            color: #ffffff;
-            background: transparent;
-            position: relative;
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            padding: 0 16px 50px 16px;
         }
 
-        /* 悬浮返回按钮 */
-        .floating-btn {
-            position: fixed;
-            top: 25px;
-            left: 20px;
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.1);
+        /* --- 导航栏（与 moments 完全一致）--- */
+        .timeline-header {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin: 0 0 24px 0;
+            background: transparent;
+            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
+            border-radius: 34px;
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            overflow: hidden;
+        }
+
+        .displacement-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
+            pointer-events: none;
+            transition: transform 0.05s linear;
+            z-index: 2;
+            border-radius: 0 0 34px 34px;
+        }
+
+        .displacement-layer::before,
+        .displacement-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
+            pointer-events: none;
+        }
+
+        .displacement-layer::before {
+            left: 0;
+            border-radius: 34px 0 0 0;
+        }
+
+        .displacement-layer::after {
+            right: 0;
+            border-radius: 0 34px 0 0;
+        }
+
+        .timeline-header:hover {
+            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
+        }
+
+        .timeline-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            filter: blur(4px);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            transform: translateZ(-1px) scale(1.02);
+        }
+
+        .back-btn-inline,
+        .nav-btn {
+            background: rgba(120, 120, 128, 0.2);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
             cursor: pointer;
-            color: inherit;
-            transition: 0.3s;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            flex-shrink: 0;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-        .floating-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.02);
+        .back-btn-inline:hover,
+        .nav-btn:hover {
+            background: rgba(120, 120, 128, 0.35);
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* 头部标题区 */
-        .header-section {
+        .back-btn-inline svg,
+        .nav-btn svg {
+            stroke: currentColor;
+            width: 22px;
+            height: 22px;
+        }
+
+        .header-title {
+            flex: 1;
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .main-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: 2px;
+        .header-title h1 {
             margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
         }
 
-        .sub-title {
-            font-size: 0.9rem;
-            color: rgba(150, 150, 150, 0.6);
-            margin-top: 8px;
-            letter-spacing: 4px;
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 4px;
+            color: #666;
         }
 
-        /* 卡片网格 */
+        /* 关键修改：让右侧空白区域与左侧按钮组等宽，实现标题全局居中 */
+        .nav-group {
+            min-width: 88px;
+            /* 左侧两个按钮（44px + 16px gap + 44px）的总宽度 */
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .timeline-header {
+                top: 12px;
+                margin-bottom: 16px;
+                padding: 8px 16px;
+                border-radius: 28px;
+            }
+
+            .back-btn-inline,
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .header-title h1 {
+                font-size: 1.2rem;
+            }
+
+            /* 手机端左侧两个按钮宽度为 40+12+40 = 92px */
+            .nav-group {
+                min-width: 92px;
+            }
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 20px) + 80px);
+            left: calc(env(safe-area-inset-left, 20px) + 20px);
+            width: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            transform: scale(0.4) translate(-30px, -30px);
+            opacity: 0;
+            transform-origin: top left;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            transform: scale(1) translate(0, 0);
+            opacity: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 15px;
+            border-radius: 16px;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(128, 128, 128, 0.1);
+        }
+
+        /* 卡片网格（与原来一致） */
         .links-grid {
             width: 100%;
             max-width: 800px;
+            margin: 20px auto 0 auto;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            /* 强制一行两个 */
             gap: 16px;
-            margin-top: 20px;
         }
 
-        /* 毛玻璃卡片 */
         .link-card {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 28px;
             padding: 16px;
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
@@ -150,13 +249,13 @@
             color: inherit;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
         .link-card:hover {
             transform: translateY(-6px);
             border-color: #ffcc00;
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.85);
         }
 
         .card-header {
@@ -188,61 +287,86 @@
             margin: 8px 0 0;
         }
 
-        @media (max-width: 480px) {
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 640px) {
             .links-grid {
+                grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
             }
 
+            .link-card {
+                padding: 12px;
+            }
+
             .card-title {
-                font-size: 1rem;
+                font-size: 0.9rem;
             }
 
             .card-desc {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
             }
         }
 
-        /* 页脚 */
         .footer-note {
             margin-top: 50px;
             font-size: 12px;
             opacity: 0.5;
             text-align: center;
-        }
-
-        @media (max-width: 640px) {
-            body {
-                padding: 70px 16px 40px;
-            }
-
-            .links-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-        }
-
-        /* 让素材来源卡片独占一行（两列网格） */
-        .links-grid .full-width {
-            grid-column: 1 / -1;
-            /* 从第一列开始，跨越到最后一列 */
+            color: #1a1a1a;
         }
     </style>
 </head>
 
 <body>
-    <a href="index.html" class="floating-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="none"
-            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5.79889 24H41.7989" />
-            <path d="M17.7988 36L5.79883 24L17.7988 12" />
-        </svg>
-    </a>
-
-    <div class="header-section">
-        <h1 class="main-title">友情链接</h1>
-        <div class="sub-title">致谢 · 技术支持与素材来源</div>
+    <!-- 导航栏 -->
+    <div class="timeline-header" id="timelineHeader">
+        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
+        <button class="back-btn-inline" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <div class="header-title">
+            <h1>友情链接</h1>
+            <span class="sub">技术支持与素材来源</span>
+        </div>
+        <div class="nav-group" style="display: flex; gap: 12px;">
+            <!-- 右侧留白占位，无实际按钮 -->
+        </div>
+        <div class="displacement-layer"></div>
     </div>
 
+    <!-- 下拉菜单 -->
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
+        <a href="moments.html" class="menu-item">
+            <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
+                <path
+                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" />
+                <path d="M16.6357 6.63599L30.7779 20.7781" />
+                <path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" />
+                <path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" />
+                <path d="M24 31L42 31" />
+                <path d="M42.3643 16.636L28.2221 30.7781" />
+                <path
+                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+            </svg>
+            朋友圈
+        </a>
+        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
+        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
+        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
+    </div>
+
+    <!-- 友情链接卡片列表 -->
     <div class="links-grid">
         <!-- Google Gemini -->
         <a href="https://ai.google/" target="_blank" rel="noopener noreferrer" class="link-card">
@@ -252,9 +376,9 @@
                     <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z" />
                     <path d="M12 6v6l4 2" />
                 </svg>
-                <h3 class="card-title">Google Gemini</h3>
+                <h3 class="card-title">Gemini</h3>
             </div>
-            <p class="card-desc">下一代多模态大语言模型，赋能创意与对话。</p>
+            <p class="card-desc">多模态大语言模型</p>
         </a>
 
         <!-- DeepSeek -->
@@ -266,9 +390,9 @@
                     <polyline points="2 17 12 22 22 17" />
                     <polyline points="2 12 12 17 22 12" />
                 </svg>
-                <h3 class="card-title">DeepSeek | 深度求索</h3>
+                <h3 class="card-title">DeepSeek</h3>
             </div>
-            <p class="card-desc">高性能、开源推理模型，推动AI技术普惠。</p>
+            <p class="card-desc">高性能开源推理模型</p>
         </a>
 
         <!-- 腾讯云 -->
@@ -283,7 +407,7 @@
                 </svg>
                 <h3 class="card-title">腾讯云</h3>
             </div>
-            <p class="card-desc">稳定可靠的云服务器、对象存储、CDN等服务。</p>
+            <p class="card-desc">对象存储、CDN等服务</p>
         </a>
 
         <!-- GitHub -->
@@ -296,7 +420,7 @@
                 </svg>
                 <h3 class="card-title">GitHub</h3>
             </div>
-            <p class="card-desc">代码托管、版本控制与开源协作平台。</p>
+            <p class="card-desc">代码托管与开源协作平台</p>
         </a>
 
         <!-- Supabase -->
@@ -309,7 +433,7 @@
                 </svg>
                 <h3 class="card-title">Supabase</h3>
             </div>
-            <p class="card-desc">开源的 Firebase 替代方案，提供数据库、认证和存储。</p>
+            <p class="card-desc">数据库、认证和存储</p>
         </a>
 
         <!-- Iconpark -->
@@ -324,7 +448,7 @@
                 </svg>
                 <h3 class="card-title">Iconpark</h3>
             </div>
-            <p class="card-desc">字节跳动出品的高质量图标库，丰富且免费。</p>
+            <p class="card-desc">高质量图标库</p>
         </a>
 
         <!-- Lucide -->
@@ -339,8 +463,9 @@
                 </svg>
                 <h3 class="card-title">Lucide</h3>
             </div>
-            <p class="card-desc">优美、一致的 Feather 图标衍生库，支持动态加载。</p>
+            <p class="card-desc">Feather图标衍生库</p>
         </a>
+
         <!-- DeepSeek 开放平台 -->
         <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer" class="link-card">
             <div class="card-header">
@@ -350,9 +475,9 @@
                     <polyline points="2 17 12 22 22 17"></polyline>
                     <polyline points="2 12 12 17 22 12"></polyline>
                 </svg>
-                <h3 class="card-title">DeepSeek 开放平台</h3>
+                <h3 class="card-title">DeepSeek</h3>
             </div>
-            <p class="card-desc">API 用量与模型管理，探索前沿 AI 能力。</p>
+            <p class="card-desc">API与模型管理</p>
         </a>
 
         <!-- CherryStudio -->
@@ -364,9 +489,9 @@
                         d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
                     <circle cx="12" cy="12" r="4" />
                 </svg>
-                <h3 class="card-title">CherryStudio</h3>
+                <h3 class="card-title">cherry-ai</h3>
             </div>
-            <p class="card-desc">强大易用的桌面 AI 应用，支持多模型接入与高效工作流。</p>
+            <p class="card-desc">桌面多模型AI应用</p>
         </a>
 
         <!-- FFmpeg -->
@@ -380,7 +505,7 @@
                 </svg>
                 <h3 class="card-title">FFmpeg</h3>
             </div>
-            <p class="card-desc">跨平台多媒体框架，处理音视频转换、流媒体与滤镜。</p>
+            <p class="card-desc">跨平台多媒体框架</p>
         </a>
 
         <!-- HandBrake -->
@@ -393,8 +518,9 @@
                 </svg>
                 <h3 class="card-title">HandBrake</h3>
             </div>
-            <p class="card-desc">开源视频转码器，轻松转换几乎所有格式，支持硬件加速。</p>
+            <p class="card-desc">开源视频转码器</p>
         </a>
+
         <!-- OpenClaw -->
         <a href="https://docs.openclaw.ai/zh-CN" target="_blank" rel="noopener noreferrer" class="link-card">
             <div class="card-header">
@@ -407,10 +533,10 @@
                 </svg>
                 <h3 class="card-title">OpenClaw</h3>
             </div>
-            <p class="card-desc">AI 智能体网关，支持 WhatsApp、Telegram、Discord 等渠道，提供 Web 控制界面与插件扩展。</p>
+            <p class="card-desc">AI智能体网关</p>
         </a>
 
-
+        <!-- 素材来源卡片 -->
         <div class="link-card full-width" style="margin-top: 30px;">
             <div class="card-header">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -422,25 +548,65 @@
             </div>
             <p class="card-desc" style="margin: 8px 0 0;">
                 火星logo水印：<br>呆小东（小红书：Daidaimrrplayboy）<br>小小风车（小红书：1167574573）
-                <br>主页背景音乐：<br>
-                寒汐Music（抖音：1859763507）
+                <br>主页背景音乐：<br>寒汐Music（抖音：1859763507）
             </p>
         </div>
     </div>
-
-
 
     <div class="footer-note">
         感谢为本站提供的技术支持与素材 ❤️
     </div>
 
     <script>
+        // 导航栏动态阴影（与 moments 相同）
+        const header = document.getElementById('timelineHeader');
+        let ticking = false;
+        function updateHeaderShadow() {
+            if (!header) return;
+            const scrollY = window.scrollY;
+            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+            const blur = 12 + wave * 16;
+            const yOffset = 4 + wave * 8;
+            const highlight = 0.7 + wave * 0.3;
+            header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
+            ticking = false;
+        }
+        window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
+        updateHeaderShadow();
+
+        function initEdgeDistortion() {
+            const headerEl = document.querySelector('.timeline-header');
+            const layer = document.querySelector('.displacement-layer');
+            if (!headerEl || !layer) return;
+            let tick = false;
+            window.addEventListener('scroll', () => {
+                if (!tick) {
+                    requestAnimationFrame(() => {
+                        const i = (Math.sin(window.scrollY * 0.03) + 1) / 2;
+                        layer.style.transform = `translateY(${2 + i * 3}px)`;
+                        tick = false;
+                    });
+                    tick = true;
+                }
+            });
+        }
+        initEdgeDistortion();
+
+        // 菜单切换
+        function toggleMenu(e) {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('active');
+        }
+        window.onclick = (e) => {
+            const menu = document.getElementById('dropdown-menu');
+            const trigger = document.getElementById('menu-trigger');
+            if (menu && trigger && !trigger.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        };
+
         // 初始化 Lucide 图标
         lucide.createIcons();
-
-        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
-        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 </body>
 

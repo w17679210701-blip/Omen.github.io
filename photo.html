@@ -11,172 +11,224 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* --- 1. 基础重置 --- */
+        /* --- 全局基础样式（浅色背景，与 moments 一致）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(20, 8, 12, 0.9), rgba(5, 2, 4, 1)),
-                radial-gradient(ellipse at 70% 40%, rgba(200, 150, 80, 0.25), transparent 60%),
-                radial-gradient(ellipse at 30% 80%, rgba(180, 110, 60, 0.2), transparent 70%),
-                radial-gradient(circle at 85% 15%, rgba(180, 50, 60, 0.2), transparent 50%),
-                radial-gradient(circle at 10% 90%, rgba(210, 70, 90, 0.15), transparent 60%),
-                repeating-linear-gradient(45deg,
-                    rgba(210, 170, 100, 0.08) 0px,
-                    rgba(210, 170, 100, 0.08) 2px,
-                    transparent 2px,
-                    transparent 8px),
-                repeating-linear-gradient(135deg,
-                    rgba(160, 100, 50, 0.06) 0px,
-                    rgba(160, 100, 50, 0.06) 3px,
-                    transparent 3px,
-                    transparent 12px),
-                linear-gradient(135deg,
-                    #2a181c 0%,
-                    #3e2a2a 20%,
-                    #5e3a2c 40%,
-                    #7f4e2e 60%,
-                    #5e3a2c 80%,
-                    #2a181c 100%),
-                repeating-linear-gradient(120deg,
-                    rgba(255, 215, 120, 0.25) 0px,
-                    rgba(255, 215, 120, 0.25) 40px,
-                    transparent 40px,
-                    transparent 100px);
-            background-size: 400% 400%, auto, auto, auto, auto, auto, auto, auto, 300% auto;
-            background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
-            background-blend-mode: overlay, normal, normal, normal, normal, normal, normal, normal, normal;
-            background-attachment: fixed;
-            animation: flowSand 28s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        @keyframes flowSand {
-            0% {
-                background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, -100% 0%;
-            }
-
-            100% {
-                background-position: 100% 100%, 20% 30%, -10% 20%, 15% 25%, 5% 10%, 100% 100%, 100% 100%, 100% 100%, 200% 0%;
-            }
-        }
-
         body {
             margin: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
-            padding: 70px 20px 50px 20px;
-            transition: background 0.8s ease, color 0.5s ease;
-            color: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            padding: 0 16px 50px 16px;
+        }
+
+        /* --- 导航栏（与 moments 完全一致）--- */
+        .timeline-header {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin: 0 0 24px 0;
             background: transparent;
-        }
-
-        /* --- 2. 标题区 --- */
-        .main-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .main-header h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: 2px;
-        }
-
-        .main-header p {
-            font-size: 0.9rem;
-            color: rgba(150, 150, 150, 0.6);
-            margin-top: 8px;
-            letter-spacing: 4px;
-        }
-
-        /* --- 3. 公告栏 (修复边框) --- */
-        .notice-bar {
-            width: 100%;
-            max-width: 440px;
-            height: 42px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 14px;
-            margin-bottom: 25px;
-            margin-top: 20px;
+            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
+            border-radius: 34px;
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+            padding: 10px 20px;
             display: flex;
             align-items: center;
-            padding: 0 15px;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            /* 深色下显眼的边框 */
-            position: relative;
-            z-index: 10;
         }
 
-        .notice-content {
-            white-space: nowrap;
-            display: inline-block;
-            animation: marquee 35s linear infinite;
-            font-size: 13px;
-            color: #f5bc00;
-            font-weight: 500;
+        .displacement-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
+            pointer-events: none;
+            transition: transform 0.05s linear;
+            z-index: 2;
+            border-radius: 0 0 34px 34px;
         }
 
-        @keyframes marquee {
-            0% {
-                transform: translateX(25%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
+        .displacement-layer::before,
+        .displacement-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
+            pointer-events: none;
         }
 
-        /* --- 4. 悬浮按钮 --- */
-        .floating-btn {
-            position: fixed;
-            top: 25px;
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.1);
+        .displacement-layer::before {
+            left: 0;
+            border-radius: 34px 0 0 0;
+        }
+
+        .displacement-layer::after {
+            right: 0;
+            border-radius: 0 34px 0 0;
+        }
+
+        .timeline-header:hover {
+            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
+        }
+
+        .timeline-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            filter: blur(4px);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            transform: translateZ(-1px) scale(1.02);
+        }
+
+        .back-btn-inline,
+        .nav-btn {
+            background: rgba(120, 120, 128, 0.2);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px;
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
             cursor: pointer;
-            color: inherit;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            flex-shrink: 0;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-        .btn-left {
-            left: 20px;
+        .back-btn-inline:hover,
+        .nav-btn:hover {
+            background: rgba(120, 120, 128, 0.35);
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-right {
-            right: 20px;
+        .back-btn-inline svg,
+        .nav-btn svg {
+            stroke: currentColor;
+            width: 22px;
+            height: 22px;
         }
 
-        /* --- 5. 容器与卡片 --- */
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 4px;
+            color: #666;
+        }
+
+        /* 右侧按钮组（与左侧保持对称） */
+        .nav-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .timeline-header {
+                top: 12px;
+                margin-bottom: 16px;
+                padding: 8px 16px;
+                border-radius: 28px;
+            }
+
+            .back-btn-inline,
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .header-title h1 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 20px) + 80px);
+            left: calc(env(safe-area-inset-left, 20px) + 20px);
+            width: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            transform: scale(0.4) translate(-30px, -30px);
+            opacity: 0;
+            transform-origin: top left;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            transform: scale(1) translate(0, 0);
+            opacity: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 15px;
+            border-radius: 16px;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(128, 128, 128, 0.1);
+        }
+
+        /* 主内容容器 */
         .container {
             width: 100%;
             max-width: 440px;
-            margin: 0 auto;
+             margin: 24px auto 0 auto;
         }
 
         .album-grid {
@@ -187,15 +239,15 @@
         }
 
         .album-card {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 28px;
             padding: 1.8rem 1rem;
             text-align: center;
             transition: 0.4s;
             cursor: pointer;
+            color: #1a1a1a;
         }
 
         .album-card:hover {
@@ -203,10 +255,8 @@
             border-color: #ffcc00;
         }
 
-        .album-card .icon {
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
+        .album-card .icon i {
+            color: #ffcc00;
         }
 
         .album-card .name {
@@ -216,11 +266,10 @@
 
         .album-card .count {
             font-size: 10px;
-            opacity: 0.4;
+            opacity: 0.5;
             margin-top: 6px;
         }
 
-        /* --- 6. 瀑布流 --- */
         .photo-list {
             column-count: 2;
             column-gap: 12px;
@@ -230,18 +279,18 @@
         .photo-item {
             break-inside: avoid;
             margin-bottom: 12px;
+            cursor: pointer;
         }
 
         .photo-item img {
             width: 100%;
             border-radius: 18px;
             display: block;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             transition: 0.3s;
-            cursor: pointer;
         }
 
-        /* 密码弹窗 */
+        /* 密码弹窗（适配浅色背景） */
         #password-modal {
             display: none;
             position: fixed;
@@ -252,92 +301,30 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(15px);
         }
-
+        #password-modal.flex { display: flex; }
         .modal-content {
-            background: rgba(20, 20, 25, 0.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 2.5rem;
+            padding: 2rem;
             border: 1px solid #ffcc00;
             border-radius: 28px;
             width: 90%;
             max-width: 320px;
             text-align: center;
+            color: #1a1a1a;
         }
-
         #password-input {
             width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             padding: 12px;
-            color: white;
             font-size: 1.5rem;
             text-align: center;
             margin: 20px 0;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        .flex {
-            display: flex !important;
-        }
-
-        /* --- 7. 全屏预览层 --- */
-        .photo-viewer {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            touch-action: none;
-            cursor: zoom-out;
-        }
-
-        .photo-viewer.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        #main-viewer-img {
-            max-width: 95vw;
-            max-height: 90vh;
-            object-fit: contain;
-            transition: 0.3s cubic-bezier(0.2, 0, 0.2, 1);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .close-viewer {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            color: #ffcc00;
-            font-size: 40px;
-            cursor: pointer;
-            z-index: 100001;
-            display: none;
-        }
-
-        @keyframes glowRotate {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            100% {
-                background-position: 100% 50%;
-            }
-        }
-
-        /* 模态框通用样式（若未定义） */
+        /* 上传模态框 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -348,162 +335,166 @@
             align-items: center;
             justify-content: center;
         }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
+        .modal-overlay.active { display: flex; }
         .modal-content {
-            width: 88%;
-            max-width: 350px;
-            background: rgba(20, 20, 25, 0.85);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 24px;
             padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            color: #ffffff;
+            color: #1a1a1a;
         }
-
         .action-btn {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 204, 0, 0.4);
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 204, 0, 0.6);
             border-radius: 40px;
             padding: 12px 0;
-            font-size: 16px;
             font-weight: 600;
             color: #ffcc00;
             width: 100%;
             cursor: pointer;
-            transition: all 0.2s;
             text-align: center;
         }
-
-        .action-btn:hover {
-            background: rgba(255, 204, 0, 0.2);
-            border-color: #ffcc00;
-            transform: translateY(-1px);
-        }
-
-        .action-btn:active {
-            transform: translateY(1px);
-        }
-
-        textarea,
-        select,
-        input {
+        textarea, select, input {
             width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
             padding: 12px;
-            color: #ffffff;
             font-size: 14px;
-            box-sizing: border-box;
+            margin-bottom: 16px;
             outline: none;
+            color: #1a1a1a;
         }
 
-        /* 删除模式样式 */
-        body.delete-mode .album-card {
+        /* 全屏预览层 */
+        .photo-viewer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(25px);
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .photo-viewer.active { display: flex; }
+        #main-viewer-img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* 删除模式 */
+        body.delete-mode .album-card,
+        body.delete-mode .photo-item {
             cursor: pointer;
             filter: grayscale(0.5);
             opacity: 0.8;
         }
-
-        .album-card.selected {
+        .album-card.selected,
+        .photo-item.selected {
             outline: 3px solid #ff4d4d !important;
             filter: grayscale(0) !important;
             opacity: 1 !important;
             transform: scale(0.98);
         }
-
         #delete-mode-btn.active {
             background: #ff4d4d;
             color: white;
         }
-
-        .photo-item.selected {
-            outline: 3px solid #ff4d4d;
-            filter: grayscale(0) !important;
-            opacity: 1 !important;
-            transform: scale(0.98);
-        }
-
-        /* 底部删除按钮组 */
         #delete-controls {
             position: fixed;
-            bottom: calc(30px + env(safe-area-inset-bottom));
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            flex-direction: row;
             gap: 15px;
             z-index: 9999;
-            display: none;
-            /* 初始隐藏 */
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 60px;
         }
-
-        #delete-bar,
-        #cancel-delete {
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
         #delete-bar {
             background: #ff4d4d;
             color: white;
-            box-shadow: 0 10px 30px rgba(255, 77, 77, 0.4);
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
         }
-
         #cancel-delete {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.2);
             color: white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
         }
+        .hidden { display: none !important; }
     </style>
 </head>
 
 <body>
-    <div class="floating-btn btn-left" id="back-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="none"
-            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5.79889 24H41.7989" />
-            <path d="M17.7988 36L5.79883 24L17.7988 12" />
-        </svg>
-    </div>
-    <div class="floating-btn btn-right" style="right: 75px;" onclick="openUploadModal()">
-        <i data-lucide="plus" size="20"></i>
-    </div>
-    <div class="floating-btn btn-right" onclick="toggleDeleteMode()" id="delete-mode-btn">
-        <i data-lucide="trash-2" size="20"></i>
-    </div>
-    <header class="main-header">
-        <h1>相册</h1>
-        <p>思想是作品的灵魂，尊重是它应得的回响</p>
-    </header>
-
-    <div class="notice-bar">
-        <div class="notice-content" id="notice-content">📢 欢迎来到我的摄影小站！本站正在持续建设中，不定期更新生活碎片。本站由GitHub、腾讯云提供云服务。</div>
+    <!-- 导航栏 -->
+    <div class="timeline-header" id="timelineHeader">
+        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
+        <button class="back-btn-inline" id="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <div class="header-title">
+            <h1>相册</h1>
+            <span class="sub" id="photo-subtitle">Cloud Photo Album</span>
+        </div>
+        <div class="nav-group">
+            <button class="nav-btn" id="upload-btn" onclick="openUploadModal()"><i data-lucide="plus"></i></button>
+            <button class="nav-btn" id="delete-mode-btn" onclick="toggleDeleteMode()"><i data-lucide="trash-2"></i></button>
+        </div>
+        <div class="displacement-layer"></div>
     </div>
 
+    <!-- 下拉菜单 -->
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
+        <a href="moments.html" class="menu-item">
+            <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" />
+                <path d="M16.6357 6.63599L30.7779 20.7781" />
+                <path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" />
+                <path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" />
+                <path d="M24 31L42 31" />
+                <path d="M42.3643 16.636L28.2221 30.7781" />
+                <path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+            </svg>
+            朋友圈
+        </a>
+        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
+        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
+        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
+    </div>
+
+    <!-- 相册分类视图 -->
     <div id="category-view" class="container">
         <div id="album-grid" class="album-grid"></div>
     </div>
 
+    <!-- 密码弹窗 -->
     <div id="password-modal">
         <div class="modal-content">
             <h3 style="color:#ffcc00; margin-top:0;">请输入访问密码</h3>
             <input type="password" id="password-input" placeholder="******" maxlength="6">
             <div style="display:flex; gap:10px;">
-                <button onclick="closeModal()"
-                    style="flex:1; padding:10px; border-radius:10px; border:none; background:#333; color:white;">取消</button>
-                <button onclick="submitPassword()"
-                    style="flex:1; padding:10px; border-radius:10px; border:none; background:#ffcc00; color:black; font-weight:bold;">确认</button>
+                <button onclick="closeModal()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#333; color:white;">取消</button>
+                <button onclick="submitPassword()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#ffcc00; color:black; font-weight:bold;">确认</button>
             </div>
         </div>
     </div>
@@ -512,233 +503,103 @@
     <div class="modal-overlay" id="upload-modal">
         <div class="modal-content">
             <h2 style="margin-top:0; font-size: 20px; text-align:center">上传图片</h2>
-            <select id="upload-folder"
-                style="width:100%; margin-bottom:15px; background: rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px; color:white;">
+            <select id="upload-folder">
                 <option value="日常">日常</option>
                 <option value="猫">猫</option>
                 <option value="加密相册">加密相册</option>
             </select>
-            <input type="file" id="upload-file" accept="image/*"
-                style="margin-bottom:15px; width:100%; background: rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:8px; color:white;">
-            <textarea id="upload-description" rows="3" placeholder="描述（可选）" style="margin-bottom:15px;"></textarea>
+            <input type="file" id="upload-file" accept="image/*">
+            <textarea id="upload-description" rows="3" placeholder="描述（可选）"></textarea>
             <button class="action-btn" onclick="handleUpload()">上传</button>
-            <div onclick="closeUploadModal()"
-                style="background: rgba(255,255,255,0.12); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 10px 0; margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.8);">
-                取消
-            </div>
+            <div onclick="closeUploadModal()" style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.15); border-radius: 40px; padding: 10px 0; margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer;">取消</div>
         </div>
     </div>
 
+    <!-- 相册内照片列表视图 -->
     <div id="photo-viewer-container" class="container hidden">
-        <h2 id="current-album-title" style="color:#f5bc00; text-align:center; margin-bottom:1.5rem; font-size: 1.4rem;">
-        </h2>
+        <h2 id="current-album-title" style="color:#ffcc00; text-align:center; margin-bottom:1.5rem; font-size: 1.4rem;"></h2>
         <div id="photo-list" class="photo-list"></div>
     </div>
 
+    <!-- 全屏预览 -->
     <div id="global-photo-viewer" class="photo-viewer" onclick="closeViewer()">
-        <div class="viewer-img-container"
-            style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-            <img id="main-viewer-img" src="">
-        </div>
+        <img id="main-viewer-img" src="">
     </div>
-    <div id="delete-controls">
+
+    <!-- 删除控制栏 -->
+    <div id="delete-controls" style="display: none;">
         <div id="delete-bar" onclick="executeDelete()">确认删除 (<span id="delete-count">0</span>)</div>
         <div id="cancel-delete" onclick="cancelDeleteMode()">取消</div>
     </div>
+
     <script>
         const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
         const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        function openUploadModal() {
-            document.getElementById('upload-modal').classList.add('active');
+        // 导航栏动态阴影
+        const header = document.getElementById('timelineHeader');
+        let ticking = false;
+        function updateHeaderShadow() {
+            if (!header) return;
+            const scrollY = window.scrollY;
+            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+            const blur = 12 + wave * 16;
+            const yOffset = 4 + wave * 8;
+            const highlight = 0.7 + wave * 0.3;
+            header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
+            ticking = false;
         }
-        function closeUploadModal() {
-            document.getElementById('upload-modal').classList.remove('active');
-        }
-        async function handleUpload() {
-            const folder = document.getElementById('upload-folder').value;
-            const file = document.getElementById('upload-file').files[0];
-            const description = document.getElementById('upload-description').value;
-            if (!file) {
-                alert('请选择图片');
-                return;
-            }
-            // 如果是加密相册，验证密码
-            if (folder === '加密相册') {
-                const pw = prompt('请输入加密相册密码：');
-                if (!pw) return;
-                const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
-                if (!isCorrect) {
-                    alert('密码错误');
-                    return;
-                }
-            }
-            // 生成文件名：文件夹/时间戳_原始文件名
-            const timestamp = Date.now();
-            const ext = file.name.split('.').pop();
-            const key = `${folder}/${timestamp}.${ext}`;
-            // 上传到 COS
-            cos.uploadFile({
-                Bucket: CONFIG.Bucket,
-                Region: CONFIG.Region,
-                Key: key,
-                Body: file,
-                onProgress: (info) => {
-                    // 可显示进度条（可选）
-                    console.log('上传进度', info.percent);
-                }
-            }, async (err, data) => {
-                if (err) {
-                    alert('上传失败：' + err.message);
-                    return;
-                }
-                const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${key}`;
-                // 保存到 Supabase
-                const { error } = await supabaseClient.from('photos').insert({
-                    folder: folder,
-                    key: key,
-                    url: url,
-                    description: description
-                });
-                if (error) {
-                    alert('保存记录失败：' + error.message);
-                    return;
-                }
-                alert('上传成功！');
-                closeUploadModal();
-                loadAlbums(); // 重新加载相册列表
-            });
-        }
+        window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
+        updateHeaderShadow();
 
-        let isDeleteMode = false;
-        let selectedKeys = new Set(); // 存储选中的图片 Key
-
-        function toggleDeleteMode() {
-            isDeleteMode = !isDeleteMode;
-            const btn = document.getElementById('delete-mode-btn');
-            const controls = document.getElementById('delete-controls');
-            if (isDeleteMode) {
-                document.body.classList.add('delete-mode');
-                btn.classList.add('active');
-                selectedKeys.clear();
-                updateDeleteBar();
-                controls.style.display = 'flex';   // 显示按钮组
-            } else {
-                document.body.classList.remove('delete-mode');
-                btn.classList.remove('active');
-                controls.style.display = 'none';    // 隐藏按钮组
-                document.querySelectorAll('.photo-item').forEach(el => el.classList.remove('selected'));
-            }
-        }
-
-        function cancelDeleteMode() {
-            toggleDeleteMode();
-        }
-
-        // 在 renderAlbumCards 中，为每个卡片添加 onclick 和 data-key 属性
-        // 修改 renderAlbumCards 函数，在卡片 div 中添加 data-key 属性，并绑定点击事件
-        function renderAlbumCards(folders) {
-            const grid = document.getElementById('album-grid');
-            const iconMap = { '日常': 'aperture', '猫': 'cat', '加密相册': 'shield-check' };
-            let html = folders.map(name => {
-                const iconName = iconMap[name] || 'folder-open';
-                return `<div onclick="handleEntry('${name}')" class="album-card" data-folder="${name}">
-            <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#f5bc00;"></i></div>
-            <div class="name">${name}</div>
-            <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} FILE</div>
-        </div>`;
-            }).join('');
-            grid.innerHTML = html;
-            lucide.createIcons();
-        }
-
-        // 注意：删除功能需要作用于单个图片，而不是相册分类。我们需要在照片瀑布流中实现选中删除。
-        // 因此，删除模式的逻辑应该在进入相册内部（showPhotos 渲染的图片列表）中实现。
-        // 我们需要为每张图片添加可点击的选中功能。
-
-        function showPhotos(folderName) {
-            document.querySelector('.main-header').classList.add('hidden');
-            document.getElementById('category-view').classList.add('hidden');
-            document.getElementById('photo-viewer-container').classList.remove('hidden');
-            document.getElementById('current-album-title').innerText = folderName;
-            const list = document.getElementById('photo-list');
-            const photos = OMEN_STATE.allPhotos[folderName] || [];
-            list.innerHTML = photos.map((url, idx) => {
-                const key = url.split('.myqcloud.com/')[1];
-                return `<div class="photo-item" data-key="${key}" data-index="${idx}" onclick="handlePhotoClick(this, '${key}', ${idx})">
-            <img src="${url}" loading="lazy">
-        </div>`;
-            }).join('');
-            window.scrollTo(0, 0);
-            updateBackButton();
-        }
-
-        // 图片点击处理（删除模式）
-        function handlePhotoClick(element, key, idx) {
-            if (!isDeleteMode) {
-                openViewer(idx);
-            } else {
-                if (selectedKeys.has(key)) {
-                    selectedKeys.delete(key);
-                    element.classList.remove('selected');
-                } else {
-                    selectedKeys.add(key);
-                    element.classList.add('selected');
-                }
-                updateDeleteBar();
-            }
-        }
-
-        function updateDeleteBar() {
-            const countEl = document.getElementById('delete-count');
-            if (countEl) countEl.innerText = selectedKeys.size;
-        }
-
-        // 执行删除
-        async function executeDelete() {
-            const pw = prompt(`确定要删除选中的 ${selectedKeys.size} 张图片吗？请输入管理密码：`);
-            if (!pw) return;
-            const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
-            if (!isCorrect) {
-                alert('密码错误');
-                return;
-            }
-            // 删除 COS 文件
-            const keysToDelete = Array.from(selectedKeys);
-            const deletePromises = keysToDelete.map(key => {
-                return new Promise((resolve, reject) => {
-                    cos.deleteObject({
-                        Bucket: CONFIG.Bucket,
-                        Region: CONFIG.Region,
-                        Key: key
-                    }, (err, data) => {
-                        if (err) reject(err);
-                        else resolve(data);
+        function initEdgeDistortion() {
+            const headerEl = document.querySelector('.timeline-header');
+            const layer = document.querySelector('.displacement-layer');
+            if (!headerEl || !layer) return;
+            let tick = false;
+            window.addEventListener('scroll', () => {
+                if (!tick) {
+                    requestAnimationFrame(() => {
+                        const i = (Math.sin(window.scrollY * 0.03) + 1) / 2;
+                        layer.style.transform = `translateY(${2 + i * 3}px)`;
+                        tick = false;
                     });
-                });
+                    tick = true;
+                }
             });
-            try {
-                await Promise.all(deletePromises);
-                // 删除 Supabase 记录
-                const { error } = await supabaseClient.from('photos').delete().in('key', keysToDelete);
-                if (error) throw error;
-                alert('删除成功');
-                // 重新加载数据，并停留在当前相册内
-                await loadAlbums();
-                if (OMEN_STATE.currentFolder) {
-                    showPhotos(OMEN_STATE.currentFolder);
-                }
-                // 清除选中状态并退出删除模式
-                selectedKeys.clear();
-                if (isDeleteMode) {
-                    toggleDeleteMode();
-                }
-            } catch (err) {
-                alert('删除失败：' + err.message);
+        }
+        initEdgeDistortion();
+
+        // 菜单切换
+        function toggleMenu(e) {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('active');
+        }
+        window.onclick = (e) => {
+            const menu = document.getElementById('dropdown-menu');
+            const trigger = document.getElementById('menu-trigger');
+            if (menu && trigger && !trigger.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        };
+
+        // 返回按钮逻辑（相册列表 / 上一页）
+        const backBtn = document.getElementById('back-btn');
+        function updateBackButton() {
+            const isInAlbum = document.getElementById('photo-viewer-container') && 
+                !document.getElementById('photo-viewer-container').classList.contains('hidden') &&
+                document.getElementById('category-view').classList.contains('hidden');
+            if (isInAlbum) {
+                backBtn.onclick = () => showCategories();
+            } else {
+                backBtn.onclick = () => history.back();
             }
         }
+        backBtn.onclick = () => history.back();
 
+        // 加载相册数据
+        let OMEN_STATE = { currentFolder: "", allPhotos: {}, currentIndex: 0 };
         const CONFIG = {
             SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi',
             SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS',
@@ -748,44 +609,13 @@
             albumList: ['日常', '猫', '加密相册'],
             lockFolders: ['加密相册', 'hidden', 'private']
         };
-
         const cos = new COS({ SecretId: CONFIG.SecretId, SecretKey: CONFIG.SecretKey });
-        let OMEN_STATE = { currentFolder: "", allPhotos: {}, currentIndex: 0 };
-        let startX = 0;
-
-        window.onload = () => {
-            loadSiteConfig();
-            // 初始绑定返回按钮（默认返回上一页）
-            const backBtn = document.getElementById('back-btn');
-            if (backBtn) {
-                backBtn.onclick = () => history.back();
-            }
-            loadAlbums();
-            initViewerSwipe();
-        };
-
-        function updateBackButton() {
-            const backBtn = document.getElementById('back-btn');
-            if (!backBtn) return;
-            // 如果相册内部视图显示（photo-viewer-container 可见且 category-view 隐藏）
-            const isInAlbum = document.getElementById('photo-viewer-container') &&
-                !document.getElementById('photo-viewer-container').classList.contains('hidden') &&
-                document.getElementById('category-view').classList.contains('hidden');
-            if (isInAlbum) {
-                backBtn.onclick = () => showCategories(); // 返回相册列表
-            } else {
-                backBtn.onclick = () => history.back();   // 返回上一页
-            }
-        }
 
         async function loadAlbums() {
             const grid = document.getElementById('album-grid');
             grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.3; padding:5rem 0;">LOADING GALLERY...</p>`;
-
-            // 先从 Supabase 获取照片记录
             const { data: photos, error } = await supabaseClient.from('photos').select('*');
             if (!error && photos && photos.length > 0) {
-                // 按文件夹分组
                 const albumMap = {};
                 photos.forEach(photo => {
                     const folder = photo.folder;
@@ -795,7 +625,7 @@
                 OMEN_STATE.allPhotos = albumMap;
                 renderAlbumCards(Object.keys(albumMap));
             } else {
-                // 后备：从 COS 读取（原有逻辑，用于首次运行）
+                // 后备：从 COS 读取（兼容旧数据）
                 cos.getBucket({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '' }, function (err, data) {
                     if (err) return;
                     const albumMap = {};
@@ -815,25 +645,32 @@
             }
         }
 
+        function renderAlbumCards(folders) {
+            const grid = document.getElementById('album-grid');
+            const iconMap = { '日常': 'aperture', '猫': 'cat', '加密相册': 'shield-check' };
+            let html = folders.map(name => {
+                const iconName = iconMap[name] || 'folder-open';
+                return `<div onclick="handleEntry('${name}')" class="album-card" data-folder="${name}">
+                    <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#f5bc00;"></i></div>
+                    <div class="name">${name}</div>
+                    <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} FILE</div>
+                </div>`;
+            }).join('');
+            grid.innerHTML = html;
+            lucide.createIcons();
+        }
+
         function handleEntry(name) {
             OMEN_STATE.currentFolder = name;
             if (CONFIG.lockFolders.includes(name)) {
                 document.getElementById('password-modal').classList.add('flex');
                 document.getElementById('password-input').focus();
-            } else { showPhotos(name); }
+            } else {
+                showPhotos(name);
+            }
         }
-
-        function submitPassword() {
-            if (window.btoa(document.getElementById('password-input').value) === CONFIG.s) {
-                closeModal();
-                showPhotos(OMEN_STATE.currentFolder);
-            } else { alert("密码错误"); }
-        }
-
-        function closeModal() { document.getElementById('password-modal').classList.remove('flex'); }
 
         function showPhotos(folderName) {
-            document.querySelector('.main-header').classList.add('hidden');
             document.getElementById('category-view').classList.add('hidden');
             document.getElementById('photo-viewer-container').classList.remove('hidden');
             document.getElementById('current-album-title').innerText = folderName;
@@ -842,21 +679,120 @@
             list.innerHTML = photos.map((url, idx) => {
                 const key = url.split('.myqcloud.com/')[1];
                 return `<div class="photo-item" data-key="${key}" data-index="${idx}" onclick="handlePhotoClick(this, '${key}', ${idx})">
-            <img src="${url}" loading="lazy">
-        </div>`;
+                    <img src="${url}" loading="lazy">
+                </div>`;
             }).join('');
             window.scrollTo(0, 0);
             updateBackButton();
         }
 
         function showCategories() {
-            // 修正：恢复显示 header
-            document.querySelector('.main-header').classList.remove('hidden');
-            document.getElementById('photo-viewer-container').classList.add('hidden');
             document.getElementById('category-view').classList.remove('hidden');
+            document.getElementById('photo-viewer-container').classList.add('hidden');
             updateBackButton();
         }
 
+        function submitPassword() {
+            if (window.btoa(document.getElementById('password-input').value) === CONFIG.s) {
+                closeModal();
+                showPhotos(OMEN_STATE.currentFolder);
+            } else { alert("密码错误"); }
+        }
+        function closeModal() { document.getElementById('password-modal').classList.remove('flex'); }
+
+        // 上传功能
+        function openUploadModal() { document.getElementById('upload-modal').classList.add('active'); }
+        function closeUploadModal() { document.getElementById('upload-modal').classList.remove('active'); }
+        async function handleUpload() {
+            const folder = document.getElementById('upload-folder').value;
+            const file = document.getElementById('upload-file').files[0];
+            const description = document.getElementById('upload-description').value;
+            if (!file) { alert('请选择图片'); return; }
+            if (folder === '加密相册') {
+                const pw = prompt('请输入加密相册密码：');
+                if (!pw) return;
+                const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
+                if (!isCorrect) { alert('密码错误'); return; }
+            }
+            const timestamp = Date.now();
+            const ext = file.name.split('.').pop();
+            const key = `${folder}/${timestamp}.${ext}`;
+            cos.uploadFile({
+                Bucket: CONFIG.Bucket, Region: CONFIG.Region, Key: key, Body: file,
+                onProgress: (info) => console.log('上传进度', info.percent)
+            }, async (err, data) => {
+                if (err) { alert('上传失败：' + err.message); return; }
+                const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${key}`;
+                const { error } = await supabaseClient.from('photos').insert({ folder, key, url, description });
+                if (error) { alert('保存失败：' + error.message); return; }
+                alert('上传成功！');
+                closeUploadModal();
+                loadAlbums();
+            });
+        }
+
+        // 删除模式
+        let isDeleteMode = false;
+        let selectedKeys = new Set();
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            const btn = document.getElementById('delete-mode-btn');
+            const controls = document.getElementById('delete-controls');
+            if (isDeleteMode) {
+                document.body.classList.add('delete-mode');
+                btn.classList.add('active');
+                selectedKeys.clear();
+                updateDeleteBar();
+                controls.style.display = 'flex';
+            } else {
+                document.body.classList.remove('delete-mode');
+                btn.classList.remove('active');
+                controls.style.display = 'none';
+                document.querySelectorAll('.photo-item').forEach(el => el.classList.remove('selected'));
+            }
+        }
+        function cancelDeleteMode() { toggleDeleteMode(); }
+        function updateDeleteBar() { document.getElementById('delete-count').innerText = selectedKeys.size; }
+        function handlePhotoClick(element, key, idx) {
+            if (!isDeleteMode) {
+                openViewer(idx);
+            } else {
+                if (selectedKeys.has(key)) {
+                    selectedKeys.delete(key);
+                    element.classList.remove('selected');
+                } else {
+                    selectedKeys.add(key);
+                    element.classList.add('selected');
+                }
+                updateDeleteBar();
+            }
+        }
+        async function executeDelete() {
+            const pw = prompt(`确定删除 ${selectedKeys.size} 张图片？请输入管理密码：`);
+            if (!pw) return;
+            const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
+            if (!isCorrect) { alert('密码错误'); return; }
+            const keysToDelete = Array.from(selectedKeys);
+            const deletePromises = keysToDelete.map(key => {
+                return new Promise((resolve, reject) => {
+                    cos.deleteObject({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Key: key }, (err, data) => {
+                        if (err) reject(err); else resolve(data);
+                    });
+                });
+            });
+            try {
+                await Promise.all(deletePromises);
+                const { error } = await supabaseClient.from('photos').delete().in('key', keysToDelete);
+                if (error) throw error;
+                alert('删除成功');
+                await loadAlbums();
+                if (OMEN_STATE.currentFolder) showPhotos(OMEN_STATE.currentFolder);
+                selectedKeys.clear();
+                if (isDeleteMode) toggleDeleteMode();
+            } catch (err) { alert('删除失败：' + err.message); }
+        }
+
+        // 全屏预览与滑动切换
         function openViewer(index) {
             const viewer = document.getElementById('global-photo-viewer');
             const img = document.getElementById('main-viewer-img');
@@ -867,7 +803,6 @@
             setTimeout(() => viewer.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
         }
-
         function closeViewer() {
             const viewer = document.getElementById('global-photo-viewer');
             viewer.classList.remove('active');
@@ -876,7 +811,15 @@
                 document.body.style.overflow = '';
             }, 300);
         }
-
+        let startX = 0;
+        function initViewerSwipe() {
+            const viewer = document.getElementById('global-photo-viewer');
+            viewer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+            viewer.addEventListener('touchend', (e) => {
+                const diff = e.changedTouches[0].clientX - startX;
+                if (Math.abs(diff) > 50) { diff > 0 ? switchPhoto(-1) : switchPhoto(1); }
+            }, { passive: true });
+        }
         function switchPhoto(step) {
             const photos = OMEN_STATE.allPhotos[OMEN_STATE.currentFolder];
             let newIndex = OMEN_STATE.currentIndex + step;
@@ -895,29 +838,23 @@
             }
         }
 
-        function initViewerSwipe() {
-            const viewer = document.getElementById('global-photo-viewer');
-            viewer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-            viewer.addEventListener('touchend', (e) => {
-                const diff = e.changedTouches[0].clientX - startX;
-                if (Math.abs(diff) > 50) { diff > 0 ? switchPhoto(-1) : switchPhoto(1); }
-            }, { passive: true });
-        }
-
+        // 加载站点配置（副标题和公告）
         async function loadSiteConfig() {
             const { data, error } = await supabaseClient.from('site_config').select('key, value');
             if (error) return;
             const config = {};
             data.forEach(item => config[item.key] = item.value);
-
-            const subtitleEl = document.querySelector('.main-header p');
-            if (subtitleEl) subtitleEl.innerText = config.photo_subtitle || '一人 丨 一猫 丨 一首歌';
-
-            const noticeEl = document.getElementById('notice-content');
-            if (noticeEl) noticeEl.innerText = config.photo_notice || '📢 欢迎来到我的摄影小站！...';
+            const subtitleEl = document.getElementById('photo-subtitle');
+            if (subtitleEl) subtitleEl.innerText = config.photo_subtitle || '思想是作品的灵魂，尊重是它应得的回响';
         }
-    </script>
 
+        window.onload = () => {
+            loadSiteConfig();
+            loadAlbums();
+            initViewerSwipe();
+            lucide.createIcons();
+        };
+    </script>
 </body>
 
 </html>
