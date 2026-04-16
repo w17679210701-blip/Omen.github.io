@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>二筒 · 对话式翻译机器人</title>
+    <title>二筒 · AI 对话助手</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* --- 全局基础样式（浅色背景，与其他页面一致）--- */
@@ -17,7 +17,6 @@
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            /* 禁用页面滚动 */
             background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
             color: #1a1a1a;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
@@ -25,7 +24,7 @@
             flex-direction: column;
         }
 
-        /* --- 导航栏（改为普通块级，不再sticky）--- */
+        /* --- 导航栏（普通块级）--- */
         .timeline-header {
             flex-shrink: 0;
             margin: 16px 16px 0 16px;
@@ -111,8 +110,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-
-
         .back-btn-inline:hover,
         .nav-btn:hover {
             background: rgba(120, 120, 128, 0.35);
@@ -132,32 +129,7 @@
             text-align: center;
         }
 
-        .header-title h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        .header-title .sub {
-            font-size: 0.75rem;
-            opacity: 0.6;
-            display: block;
-            margin-top: 4px;
-            color: #666;
-        }
-
-        /* 右侧按钮组（与左侧保持对称） */
-        .nav-group {
-            min-width: 88px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
+        /* 带文字的导航按钮（更宽） */
         .nav-btn-text {
             background: rgba(120, 120, 128, 0.2);
             backdrop-filter: blur(15px);
@@ -185,10 +157,29 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .nav-btn-text svg {
-            stroke: currentColor;
-            width: 22px;
-            height: 22px;
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 4px;
+            color: #666;
+        }
+
+        .nav-group {
+            min-width: 88px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
         }
 
         @media (max-width: 768px) {
@@ -219,7 +210,7 @@
             }
         }
 
-        /* 下拉菜单（与之前相同） */
+        /* 下拉菜单 */
         .dropdown-menu {
             display: none;
             position: fixed;
@@ -261,39 +252,18 @@
             background: rgba(128, 128, 128, 0.1);
         }
 
-        /* 主容器 — 占据剩余高度，内部 flex 列 */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            margin: 16px 16px 16px 16px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-
-        /* 配置栏 — 三个下拉框 */
-        .config-bar {
+        /* 模型选择栏（毛玻璃自定义下拉框） */
+        .model-bar {
             flex-shrink: 0;
-            padding: 8px 24px;
-            background: rgba(0, 0, 0, 0.02);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            margin: 12px 16px 0 16px;
             display: flex;
-            flex-wrap: nowrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
+            justify-content: center;
         }
 
         .custom-select {
             position: relative;
-            display: block;
-            flex: 1;
-            min-width: 0;
+            display: inline-block;
+            min-width: 200px;
         }
 
         .custom-select-trigger {
@@ -356,6 +326,31 @@
             display: none;
         }
 
+        @media (max-width: 640px) {
+            .custom-select {
+                min-width: 160px;
+            }
+
+            .custom-select-trigger {
+                font-size: 0.75rem;
+                padding: 4px 24px 4px 12px;
+            }
+        }
+
+        /* 主容器 — 占据剩余高度，内部 flex 列 */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin: 12px 16px 16px 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
         /* 消息区域 — 可滚动 */
         .messages-area {
             flex: 1;
@@ -367,7 +362,7 @@
             scroll-behavior: smooth;
         }
 
-        /* 气泡样式保持不变 */
+        /* 气泡样式 */
         .message {
             display: flex;
             gap: 12px;
@@ -457,7 +452,7 @@
             stroke: #e6a017;
         }
 
-        /* 输入区域 — 固定在底部 */
+        /* 输入区域 */
         .input-area {
             flex-shrink: 0;
             padding: 16px 24px 24px 24px;
@@ -517,7 +512,6 @@
             transform: scale(0.96);
         }
 
-        /* 滚动条浅色 */
         .messages-area::-webkit-scrollbar {
             width: 4px;
         }
@@ -532,21 +526,11 @@
 
         @media (max-width: 640px) {
             .chat-container {
-                margin: 12px 12px 12px 12px;
+                margin: 8px 12px 12px 12px;
             }
 
             .message {
                 max-width: 95%;
-            }
-
-            .config-bar {
-                padding: 8px 16px;
-                gap: 8px;
-            }
-
-            .custom-select-trigger {
-                font-size: 0.75rem;
-                padding: 4px 24px 4px 12px;
             }
 
             .input-area {
@@ -570,16 +554,37 @@
             </svg>
         </button>
         <div class="header-title">
-            <h1>二筒翻译官</h1>
-            <span class="sub">AI 对话式翻译</span>
+            <h1>AiBot</h1>
+            <span class="sub">多模型切换</span>
         </div>
         <div class="nav-group">
-            <button class="nav-btn-text" onclick="window.location.href='AIBot.html'">
-                <i data-lucide="message-circle"></i>
-                <span>聊天模式</span>
+            <button class="nav-btn-text" onclick="window.location.href='translate.html'">
+                <i data-lucide="languages"></i>
+                <span>翻译模式</span>
             </button>
         </div>
         <div class="displacement-layer"></div>
+    </div>
+
+    <!-- 模型选择栏（毛玻璃自定义下拉框） -->
+    <div class="model-bar">
+        <div class="custom-select" data-select-id="modelSelect">
+            <div class="custom-select-trigger">DeepSeek-V3.2</div>
+            <div class="custom-select-dropdown">
+                <div class="custom-select-option" data-value="deepseek-ai/DeepSeek-V3.2">DeepSeek-V3.2</div>
+                <div class="custom-select-option" data-value="Qwen/Qwen3.5-397B-A17B">Qwen3.5-397B-A17B</div>
+                <div class="custom-select-option" data-value="Pro/MiniMaxAI/MiniMax-M2.5">MiniMax-M2.5</div>
+                <div class="custom-select-option" data-value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</div>
+                <div class="custom-select-option" data-value="openai/gpt-oss-120b">GPT-OSS-120b</div>
+            </div>
+        </div>
+        <select id="modelSelect" class="hidden-native">
+            <option value="deepseek-ai/DeepSeek-V3.2" selected>DeepSeek-V3.2</option>
+            <option value="Qwen/Qwen3.5-397B-A17B">Qwen3.5-397B-A17B</option>
+            <option value="Pro/MiniMaxAI/MiniMax-M2.5">MiniMax-M2.5</option>
+            <option value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</option>
+            <option value="openai/gpt-oss-120b">GPT-OSS-120b</option>
+        </select>
     </div>
 
     <!-- 下拉菜单 -->
@@ -609,66 +614,8 @@
         <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
     </div>
 
-    <!-- 翻译对话主容器 -->
+    <!-- 对话主容器 -->
     <div class="chat-container">
-        <!-- 配置栏：三个下拉框 -->
-        <div class="config-bar">
-            <div class="custom-select" data-select-id="targetLangSelect">
-                <div class="custom-select-trigger">英语（美式）</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="简体中文">简体中文</div>
-                    <div class="custom-select-option" data-value="繁体中文">繁体中文</div>
-                    <div class="custom-select-option" data-value="英语">英语</div>
-                    <div class="custom-select-option" data-value="英语（美式）">英语（美式）</div>
-                    <div class="custom-select-option" data-value="菲律宾语">菲律宾语</div>
-                    <div class="custom-select-option" data-value="文言文">文言文</div>
-                </div>
-            </div>
-            <select id="targetLangSelect" class="hidden-native">
-                <option value="简体中文">简体中文</option>
-                <option value="繁体中文">繁体中文</option>
-                <option value="英语">英语</option>
-                <option value="英语（美式）" selected>英语（美式）</option>
-                <option value="菲律宾语">菲律宾语</option>
-                <option value="文言文">文言文</option>
-            </select>
-
-            <div class="custom-select" data-select-id="styleSelect">
-                <div class="custom-select-trigger">日常风格</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="标准">标准风格</div>
-                    <div class="custom-select-option" data-value="口语">日常风格</div>
-                    <div class="custom-select-option" data-value="正式">商务风格</div>
-                    <div class="custom-select-option" data-value="学术">学术风格</div>
-                    <div class="custom-select-option" data-value="文学">文艺风格</div>
-                    <div class="custom-select-option" data-value="幽默">幽默风格</div>
-                    <div class="custom-select-option" data-value="简洁">简洁风格</div>
-                </div>
-            </div>
-            <select id="styleSelect" class="hidden-native">
-                <option value="标准">标准风格</option>
-                <option value="口语" selected>日常风格</option>
-                <option value="正式">正式/商务风格</option>
-                <option value="学术">学术风格</option>
-                <option value="文学">文学/文艺风格</option>
-                <option value="幽默">幽默风格</option>
-                <option value="简洁">简洁风格</option>
-            </select>
-
-            <div class="custom-select" data-select-id="modelSelect">
-                <div class="custom-select-trigger">chat</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="deepseek-chat">chat</div>
-                    <div class="custom-select-option" data-value="deepseek-reasoner">reasoner</div>
-                </div>
-            </div>
-            <select id="modelSelect" class="hidden-native">
-                <option value="deepseek-chat" selected>chat</option>
-                <option value="deepseek-reasoner">reasoner</option>
-            </select>
-        </div>
-
-        <!-- 消息列表（可滚动区域） -->
         <div class="messages-area" id="messagesArea">
             <div class="message assistant">
                 <div class="avatar">
@@ -678,11 +625,9 @@
                 <div class="bubble">你好！我是 AiBot，支持 DeepSeek、Qwen、MiniMax、豆包和 GPT-OSS 模型。在顶部选择模型后，即可开始对话～</div>
             </div>
         </div>
-
-        <!-- 底部输入区（固定） -->
         <div class="input-area">
             <div class="input-wrapper">
-                <textarea id="userInput" rows="1" placeholder="输入要翻译的文本..."></textarea>
+                <textarea id="userInput" rows="1" placeholder="输入你的问题..."></textarea>
                 <button id="sendBtn" class="send-btn">发送</button>
             </div>
         </div>
@@ -693,7 +638,7 @@
         已复制</div>
 
     <script>
-        // 导航栏动态阴影（保留但无需滚动，可以保留）
+        // 导航栏动态阴影
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -740,161 +685,23 @@
             }
         };
 
-        // ====================== 配置 DeepSeek API ======================
-        const DEEPSEEK_API_KEY = 'sk-bae263238eea441280e3370fb896a9a9';
-        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+        // ====================== 多 API 配置 ======================
+        // 硅基流动配置
+        const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
+        const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+        // 火山引擎（豆包）配置
+        const VOLC_ACCESS_KEY = 'ark-9e858f30-24eb-4bd2-a47b-96e89b29628b-d8fa4';
+        const VOLC_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+        // OpenAI（GPT-OSS）配置
+        const OPENAI_API_KEY = 'sk-hydatekprncyuofqalkianywtcxpdburwypswtensmvslkrn';
+        const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
         const messagesArea = document.getElementById('messagesArea');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
-        const targetLangSelect = document.getElementById('targetLangSelect');
-        const styleSelect = document.getElementById('styleSelect');
-        const modelSelect = document.getElementById('modelSelect');
+        const hiddenModelSelect = document.getElementById('modelSelect');
 
-        function addMessage(role, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            const avatar = document.createElement('div');
-            avatar.className = 'avatar';
-            const img = document.createElement('img');
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
-            img.src = role === 'user'
-                ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg'
-                : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
-            avatar.appendChild(img);
-            messageDiv.appendChild(avatar);
-
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            const textSpan = document.createElement('div');
-            textSpan.className = 'bubble-text';
-            textSpan.innerHTML = content.replace(/\n/g, '<br>');
-            bubble.appendChild(textSpan);
-
-            if (role === 'assistant') {
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.title = '复制翻译结果';
-                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    copyToClipboard(content);
-                });
-                bubble.appendChild(copyBtn);
-            }
-            messageDiv.appendChild(bubble);
-            messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        let thinkingMsg = null;
-        function showThinking() {
-            if (thinkingMsg) thinkingMsg.remove();
-            const tempDiv = document.createElement('div');
-            tempDiv.className = 'message assistant';
-
-            // 创建头像（图片）
-            const avatarDiv = document.createElement('div');
-            avatarDiv.className = 'avatar';
-            const img = document.createElement('img');
-            img.src = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
-            avatarDiv.appendChild(img);
-
-            // 创建气泡
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'bubble';
-            bubbleDiv.style.opacity = '0.7';
-            bubbleDiv.innerText = '⏳ AI 思考中...';
-
-            tempDiv.appendChild(avatarDiv);
-            tempDiv.appendChild(bubbleDiv);
-            messagesArea.appendChild(tempDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            thinkingMsg = tempDiv;
-        }
-        function hideThinking() {
-            if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
-        }
-
-        async function translateWithDeepSeek(text, targetLang, style, model) {
-            const styleMap = {
-                '标准': '自然的、标准的翻译',
-                '口语': '口语化的、日常交流的风格，使用轻松的表达方式',
-                '正式': '正式的、商务场合的风格，用词严谨礼貌',
-                '学术': '学术论文风格，用词专业、结构清晰',
-                '文学': '文学性的、富有文采的风格，可以适当使用修辞',
-                '幽默': '幽默诙谐的风格，翻译时加入一点趣味性',
-                '简洁': '简洁明了、通俗易懂的风格，避免复杂词汇'
-            };
-            const styleInstruction = styleMap[style] || styleMap['标准'];
-            let targetLangDisplay = targetLang;
-            if (targetLang === '英语（美式）') targetLangDisplay = '美式英语';
-            const systemPrompt = `你是一个专业的翻译助手。请将用户提供的文本翻译成${targetLangDisplay}。翻译要求：${styleInstruction}。只输出翻译结果，不要添加额外解释、不要输出原文、不要输出任何标记。`;
-            const userMessage = `请翻译：${text}`;
-
-            const response = await fetch(DEEPSEEK_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userMessage }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 2000
-                })
-            });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            if (!data.choices?.[0]?.message) throw new Error('API 返回异常');
-            return data.choices[0].message.content.trim();
-        }
-
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text) return;
-            addMessage('user', text);
-            userInput.value = '';
-            const targetLang = targetLangSelect.value;
-            const style = styleSelect.value;
-            const model = modelSelect.value;
-            showThinking();
-            try {
-                const translated = await translateWithDeepSeek(text, targetLang, style, model);
-                hideThinking();
-                addMessage('assistant', translated);
-            } catch (err) {
-                hideThinking();
-                console.error(err);
-                let errorMsg = '翻译失败：';
-                if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
-                else if (err.message.includes('402')) errorMsg += '账户余额不足';
-                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查 CORS 或代理';
-                else errorMsg += err.message;
-                addMessage('assistant', errorMsg);
-            }
-        }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
-        userInput.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-
+        // 自定义下拉框初始化
         function initCustomSelects() {
             document.querySelectorAll('.custom-select').forEach(customSelect => {
                 const trigger = customSelect.querySelector('.custom-select-trigger');
@@ -934,6 +741,205 @@
             document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
         });
         initCustomSelects();
+
+        function addMessage(role, content, isStreamingPlaceholder = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            const img = document.createElement('img');
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '50%';
+            img.src = role === 'user'
+                ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg'
+                : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
+            avatar.appendChild(img);
+            messageDiv.appendChild(avatar);
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const textSpan = document.createElement('div');
+            textSpan.className = 'bubble-text';
+            textSpan.innerHTML = content.replace(/\n/g, '<br>');
+            bubble.appendChild(textSpan);
+
+            if (role === 'assistant' && !isStreamingPlaceholder) {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.title = '复制回答';
+                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    copyToClipboard(content);
+                });
+                bubble.appendChild(copyBtn);
+            }
+            messageDiv.appendChild(bubble);
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            return { messageDiv, textSpan, bubble };
+        }
+
+        // 统一的流式调用，根据模型选择不同的 API
+        async function callModelStream(userPrompt, modelValue) {
+            let apiUrl, apiKey, requestBody;
+
+            // 判断模型来源
+            const isVolcanic = modelValue === 'doubao-seed-2-0-pro-260215';
+            const isOpenAI = modelValue === 'openai/gpt-oss-120b';
+
+            if (isVolcanic) {
+                apiUrl = VOLC_API_URL;
+                apiKey = VOLC_ACCESS_KEY;
+                requestBody = {
+                    model: modelValue,
+                    messages: [{ role: 'user', content: userPrompt }],
+                    temperature: 0.7,
+                    max_tokens: 4096,
+                    stream: true
+                };
+            } else if (isOpenAI) {
+                apiUrl = OPENAI_API_URL;
+                apiKey = OPENAI_API_KEY;
+                requestBody = {
+                    model: 'gpt-oss-120b',  // 实际模型 ID，可能不同于显示名称
+                    messages: [{ role: 'user', content: userPrompt }],
+                    temperature: 0.7,
+                    max_tokens: 4096,
+                    stream: true
+                };
+            } else {
+                // 硅基流动模型
+                apiUrl = SILICONFLOW_API_URL;
+                apiKey = SILICONFLOW_API_KEY;
+                requestBody = {
+                    model: modelValue,
+                    messages: [{ role: 'user', content: userPrompt }],
+                    temperature: 0.7,
+                    max_tokens: 4096,
+                    stream: true
+                };
+            }
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API 请求失败 (${response.status}): ${errorText}`);
+            }
+            if (!response.body) throw new Error('当前浏览器不支持流式响应');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let fullContent = '';
+            const { textSpan, messageDiv } = addMessage('assistant', '⏳ 生成中...', true);
+            if (thinkingMsg) {
+                thinkingMsg.remove();
+                thinkingMsg = null;
+            }
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') continue;
+                        try {
+                            const parsed = JSON.parse(data);
+                            const delta = parsed.choices[0]?.delta?.content;
+                            if (delta) {
+                                fullContent += delta;
+                                textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
+                                messagesArea.scrollTop = messagesArea.scrollHeight;
+                            }
+                        } catch (e) {
+                            // 忽略解析错误
+                        }
+                    }
+                }
+            }
+            if (fullContent) {
+                messageDiv.remove();
+                addMessage('assistant', fullContent, false);
+            } else {
+                messageDiv.remove();
+                addMessage('assistant', '抱歉，没有收到有效回复。', false);
+            }
+        }
+
+        let thinkingMsg = null;
+        function showThinking() {
+            if (thinkingMsg) thinkingMsg.remove();
+            const tempDiv = document.createElement('div');
+            tempDiv.className = 'message assistant';
+            // 创建头像容器和图片
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            const img = document.createElement('img');
+            img.src = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '50%';
+            avatarDiv.appendChild(img);
+            // 创建气泡
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
+            bubbleDiv.style.opacity = '0.7';
+            bubbleDiv.innerText = '⏳ AI 思考中...';
+            tempDiv.appendChild(avatarDiv);
+            tempDiv.appendChild(bubbleDiv);
+            messagesArea.appendChild(tempDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            thinkingMsg = tempDiv;
+        }
+        function hideThinking() {
+            if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
+        }
+
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            addMessage('user', text);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            const selectedModel = hiddenModelSelect.value;
+            showThinking();
+            try {
+                await callModelStream(text, selectedModel);
+                hideThinking();
+            } catch (err) {
+                hideThinking();
+                console.error(err);
+                let errorMsg = '对话失败：';
+                if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
+                else if (err.message.includes('429')) errorMsg += '请求过于频繁，请稍后再试';
+                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查网络';
+                else errorMsg += err.message;
+                addMessage('assistant', errorMsg);
+            }
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+        userInput.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
