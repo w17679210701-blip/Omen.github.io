@@ -524,6 +524,39 @@
             background: #e6a017;
         }
 
+        /* 滚动控制按钮 — 水平居中，位于输入框上方 */
+        .scroll-control-btn {
+            position: fixed;
+            bottom: 120px;          /* 输入框顶部位置，可微调 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            color: #e6a017;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scroll-control-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .scroll-control-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateX(-50%) scale(1.05);
+        }
+
         @media (max-width: 640px) {
             .chat-container {
                 margin: 8px 12px 12px 12px;
@@ -539,6 +572,12 @@
 
             .bubble {
                 font-size: 0.85rem;
+            }
+
+            .scroll-control-btn {
+                bottom: 120px;      /* 手机端输入框上方位置 */
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -632,6 +671,11 @@
                 <button id="sendBtn" class="send-btn">发送</button>
             </div>
         </div>
+    </div>
+
+    <!-- 滚动控制按钮（水平居中，位于输入框上方） -->
+    <div id="scrollControlBtn" class="scroll-control-btn">
+        <i data-lucide="arrow-down"></i>
     </div>
 
     <div id="copyToast"
@@ -743,6 +787,40 @@
         });
         initCustomSelects();
 
+        // ====================== 自动滚动控制 ======================
+        let autoScrollEnabled = true;
+        const scrollControlBtn = document.getElementById('scrollControlBtn');
+
+        function scrollToBottom() {
+            if (autoScrollEnabled) {
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+        }
+
+        // 监听用户滚动
+        messagesArea.addEventListener('scroll', () => {
+            const isNearBottom = messagesArea.scrollHeight - messagesArea.scrollTop - messagesArea.clientHeight < 50;
+            if (isNearBottom) {
+                // 用户滚到底部，恢复自动滚动
+                autoScrollEnabled = true;
+                scrollControlBtn.classList.remove('show');
+            } else {
+                // 用户离开底部，禁用自动滚动
+                if (autoScrollEnabled) {
+                    autoScrollEnabled = false;
+                    scrollControlBtn.classList.add('show');
+                }
+            }
+        });
+
+        // 点击按钮滚动到底部并恢复自动滚动
+        scrollControlBtn.addEventListener('click', () => {
+            messagesArea.scrollTo({ top: messagesArea.scrollHeight, behavior: 'smooth' });
+            autoScrollEnabled = true;
+            scrollControlBtn.classList.remove('show');
+        });
+
+        // ====================== 原有消息与流式函数（修改滚动调用） ======================
         function addMessage(role, content, isStreamingPlaceholder = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
@@ -779,7 +857,7 @@
             }
             messageDiv.appendChild(bubble);
             messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+            scrollToBottom(); // 替换原来的直接赋值
             return { messageDiv, textSpan, bubble };
         }
 
@@ -860,7 +938,7 @@
                             if (delta) {
                                 fullContent += delta;
                                 textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
-                                messagesArea.scrollTop = messagesArea.scrollHeight;
+                                scrollToBottom(); // 替换原来的直接赋值
                             }
                         } catch (e) {
                             // 忽略解析错误
@@ -900,7 +978,7 @@
             tempDiv.appendChild(avatarDiv);
             tempDiv.appendChild(bubbleDiv);
             messagesArea.appendChild(tempDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+            scrollToBottom(); // 替换原来的直接赋值
             thinkingMsg = tempDiv;
         }
         function hideThinking() {
