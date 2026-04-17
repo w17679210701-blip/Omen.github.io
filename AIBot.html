@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>二筒 · AI 对话助手</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- 全局基础样式（浅色背景，与其他页面一致）--- */
         * {
@@ -529,7 +530,6 @@
         .scroll-control-btn {
             position: fixed;
             bottom: 120px;
-            /* 输入框顶部位置，可微调 */
             left: 50%;
             transform: translateX(-50%);
             width: 44px;
@@ -578,7 +578,6 @@
 
             .scroll-control-btn {
                 bottom: 120px;
-                /* 手机端输入框上方位置 */
                 width: 40px;
                 height: 40px;
             }
@@ -783,9 +782,51 @@
         style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(230,160,23,0.4); color: #e6a017; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
         已复制</div>
 
-    <script>
+    <!-- Tokens 说明弹窗 -->
+    <div id="tokensInfoModal" class="tokens-modal" style="display: none;">
+        <div class="tokens-modal-content">
+            <span class="tokens-modal-close">&times;</span>
+            <h3>Tokens 消耗说明</h3>
+            <div class="tokens-modal-section">
+                <h4>📏 换算参考</h4>
+                <ul>
+                    <li>1 token ≈ 0.75 个英文单词</li>
+                    <li>1 token ≈ 0.6 个汉字</li>
+                    <li>1 token ≈ 1 个数字/标点符号</li>
+                    <li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li>
+                </ul>
+            </div>
+            <div class="tokens-modal-section">
+                <h4>⚙️ 哪些内容会消耗 Tokens？</h4>
+                <ul>
+                    <li>📤 你发送的消息（用户输入）</li>
+                    <li>🤖 AI 返回的回答（模型输出）</li>
+                    <li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li>
+                </ul>
+                <p class="note">※ 每次对话/翻译请求都会包含系统提示词，因此即使只发两个字，也会消耗约 100+ tokens。</p>
+            </div>
+            <div class="tokens-modal-section">
+                <h4>📊 统计范围</h4>
+                <ul>
+                    <li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li>
+                    <li>✅ AI
+                        对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong>
+                    </li>
+                    <li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li>
+                </ul>
+            </div>
+            <button class="tokens-modal-close-btn">关闭</button>
+        </div>
+    </div>
 
-        // ====================== Tokens 统计系统 (IndexedDB) ======================
+    <script>
+        // ====================== 初始化 Supabase 客户端 ======================
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        window.db = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = window.db;
+
+        // ====================== Tokens 统计系统 (IndexedDB 本地明细) ======================
         let db = null;
         const DB_NAME = 'TokenStatsDB';
         const STORE_NAME = 'requests';
@@ -809,6 +850,7 @@
             });
         }
 
+        // 添加一条记录到 IndexedDB（本地明细）
         async function addRequestRecord(entry) {
             try {
                 const db = await openDB();
@@ -819,12 +861,12 @@
                     timestamp: Date.now()
                 });
                 await tx.complete;
-                await updateTotalTokensDisplay();
             } catch (err) {
-                console.error('保存记录失败', err);
+                console.error('保存明细失败', err);
             }
         }
 
+        // 获取所有记录（本地明细）
         async function getAllRecords() {
             const db = await openDB();
             return new Promise((resolve) => {
@@ -836,18 +878,14 @@
             });
         }
 
-        async function updateTotalTokensDisplay() {
-            const records = await getAllRecords();
-            const total = records.reduce((sum, r) => sum + (r.total_tokens || 0), 0);
-            const span = document.getElementById('totalTokensDisplaySub');
-            if (span) span.innerText = `累计消耗Tokens: ${total}`;
-            return total;
+        // 数字缩写格式化（可选，当前未使用，保留备用）
+        function formatNumber(num) {
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'k';
+            return num.toString();
         }
 
-        // 初始化数据库并显示已有总数
-        openDB().catch(console.error);
-        updateTotalTokensDisplay();
-        // 导航栏动态阴影
+        // ====================== 导航栏动态阴影等原有代码 ======================
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -1021,11 +1059,11 @@
             }
             messageDiv.appendChild(bubble);
             messagesArea.appendChild(messageDiv);
-            scrollToBottom(); // 替换原来的直接赋值
+            scrollToBottom();
             return { messageDiv, textSpan, bubble };
         }
 
-        // 统一的流式调用，根据模型选择不同的 API
+        // 统一的流式调用，根据模型选择不同的 API（仅硅基流动统计 tokens）
         async function callModelStream(userPrompt, modelValue) {
             let apiUrl, apiKey, requestBody;
 
@@ -1047,15 +1085,14 @@
                 apiUrl = OPENAI_API_URL;
                 apiKey = OPENAI_API_KEY;
                 requestBody = {
-                    model: 'gpt-oss-120b',  // 实际模型 ID，可能不同于显示名称
+                    model: 'gpt-oss-120b',
                     messages: [{ role: 'user', content: userPrompt }],
                     temperature: 0.7,
                     max_tokens: 4096,
-                    stream: true,
-                    stream_options: { include_usage: true }
+                    stream: true
                 };
             } else {
-                // 硅基流动模型
+                // 硅基流动模型（支持 tokens 统计）
                 apiUrl = SILICONFLOW_API_URL;
                 apiKey = SILICONFLOW_API_KEY;
                 requestBody = {
@@ -1063,7 +1100,8 @@
                     messages: [{ role: 'user', content: userPrompt }],
                     temperature: 0.7,
                     max_tokens: 4096,
-                    stream: true
+                    stream: true,
+                    stream_options: { include_usage: true }
                 };
             }
 
@@ -1080,6 +1118,7 @@
                 throw new Error(`API 请求失败 (${response.status}): ${errorText}`);
             }
             if (!response.body) throw new Error('当前浏览器不支持流式响应');
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let fullContent = '';
@@ -1106,21 +1145,30 @@
                                 textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
                                 scrollToBottom();
                             }
-                            // 检查 usage 字段（仅硅基流动分支）
+                            // 仅硅基流动分支有 usage（且仅记录一次）
                             if (parsed.usage && !usageRecorded) {
                                 usageRecorded = true;
                                 const usage = parsed.usage;
+                                // 累加全局统计并获取新总数
+                                const newTotal = await addGlobalTokens(usage.total_tokens);
+                                if (newTotal !== null) {
+                                    const span = document.getElementById('totalTokensDisplaySub');
+                                    if (span) span.innerText = `累计消耗Tokens: ${newTotal}`;
+                                }
+                                // 保存本地明细
                                 await addRequestRecord({
-                                    type: '对话',
-                                    model: modelValue,
-                                    input: userPrompt,
+                                    type: '翻译',
+                                    model: modelId,
+                                    input: text,
                                     output: fullContent,
                                     input_tokens: usage.prompt_tokens || 0,
                                     output_tokens: usage.completion_tokens || 0,
                                     total_tokens: usage.total_tokens || 0
                                 });
                             }
-                        } catch (e) { }
+                        } catch (e) {
+                            // 忽略解析错误
+                        }
                     }
                 }
             }
@@ -1156,7 +1204,7 @@
             tempDiv.appendChild(avatarDiv);
             tempDiv.appendChild(bubbleDiv);
             messagesArea.appendChild(tempDiv);
-            scrollToBottom(); // 替换原来的直接赋值
+            scrollToBottom();
             thinkingMsg = tempDiv;
         }
         function hideThinking() {
@@ -1206,8 +1254,36 @@
             }).catch(() => alert('复制失败，请手动复制'));
         }
 
-        // 初始化 Lucide 图标
-        lucide.createIcons();
+        // ====================== 全局 Tokens 统计（Supabase） ======================
+        async function getGlobalTokens() {
+            const { data, error } = await supabaseClient
+                .from('global_token_stats')
+                .select('total_tokens')
+                .eq('id', 1)
+                .single();
+            if (error) {
+                console.error('读取全局 tokens 失败', error);
+                return 0;
+            }
+            return data?.total_tokens || 0;
+        }
+
+        async function addGlobalTokens(inc) {
+            const { data, error } = await supabaseClient.rpc('increment_global_tokens', { inc });
+            if (error) {
+                console.error('累加全局 tokens 失败', error);
+                return null;
+            }
+            return data;
+        }
+
+        async function updateTotalTokensDisplay() {
+            const total = await getGlobalTokens();
+            const span = document.getElementById('totalTokensDisplaySub');
+            if (span) {
+                span.innerText = `累计消耗Tokens: ${total}`;
+            }
+        }
 
         function showTokensInfo() {
             const modal = document.getElementById('tokensInfoModal');
@@ -1217,7 +1293,11 @@
             const modal = document.getElementById('tokensInfoModal');
             if (modal) modal.style.display = 'none';
         }
-        // 绑定关闭事件
+
+        // 初始化 Lucide 图标
+        lucide.createIcons();
+
+        // 绑定弹窗关闭事件
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('tokensInfoModal');
             if (modal) {
@@ -1228,44 +1308,14 @@
                 modal.onclick = (e) => { if (e.target === modal) closeTokensInfo(); };
             }
         });
-    </script>
 
-    <!-- Tokens 说明弹窗 -->
-    <div id="tokensInfoModal" class="tokens-modal" style="display: none;">
-        <div class="tokens-modal-content">
-            <span class="tokens-modal-close">&times;</span>
-            <h3>Tokens 消耗说明</h3>
-            <div class="tokens-modal-section">
-                <h4>📏 换算参考</h4>
-                <ul>
-                    <li>1 token ≈ 0.75 个英文单词</li>
-                    <li>1 token ≈ 0.6 个汉字</li>
-                    <li>1 token ≈ 1 个数字/标点符号</li>
-                    <li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li>
-                </ul>
-            </div>
-            <div class="tokens-modal-section">
-                <h4>⚙️ 哪些内容会消耗 Tokens？</h4>
-                <ul>
-                    <li>📤 你发送的消息（用户输入）</li>
-                    <li>🤖 AI 返回的回答（模型输出）</li>
-                    <li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li>
-                </ul>
-                <p class="note">※ 每次对话/翻译请求都会包含系统提示词，因此即使只发两个字，也会消耗约 100+ tokens。</p>
-            </div>
-            <div class="tokens-modal-section">
-                <h4>📊 统计范围</h4>
-                <ul>
-                    <li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li>
-                    <li>✅ AI
-                        对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong>
-                    </li>
-                    <li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li>
-                </ul>
-            </div>
-            <button class="tokens-modal-close-btn">关闭</button>
-        </div>
-    </div>
+        // 确保 Supabase 初始化后显示累计 tokens
+        if (supabaseClient) {
+            updateTotalTokensDisplay();
+        } else {
+            console.warn('Supabase 未初始化，无法读取全局 tokens');
+        }
+    </script>
 </body>
 
 </html>
