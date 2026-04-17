@@ -111,8 +111,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-
-
         .back-btn-inline:hover,
         .nav-btn:hover {
             background: rgba(120, 120, 128, 0.35);
@@ -572,7 +570,7 @@
         <div class="header-title">
             <h1>二筒翻译官</h1>
             <!-- AI 对话式翻译 -->
-            <span class="sub">已停用</span>
+            <span class="sub">测试</span>
         </div>
         <div class="nav-group">
             <button class="nav-btn-text" onclick="window.location.href='AIBot.html'">
@@ -694,7 +692,7 @@
         已复制</div>
 
     <script>
-        // 导航栏动态阴影（保留但无需滚动，可以保留）
+        // 导航栏动态阴影
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -741,9 +739,17 @@
             }
         };
 
-        // ====================== 配置 DeepSeek API ======================
-        const DEEPSEEK_API_KEY = 'sk-bae263238eea441280e3370fb896a9a9';
-        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+        // ====================== 配置硅基流动 API ======================
+        const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
+        const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+
+        // 模型名称映射：将前端选择的 deepseek-chat/reasoner 转换为硅基流动支持的模型 ID
+        function getModelId(selectedModel) {
+            if (selectedModel === 'deepseek-reasoner') {
+                return 'deepseek-ai/DeepSeek-R1';  // 如果硅基流动支持 R1，否则可改为 V3.2
+            }
+            return 'deepseek-ai/DeepSeek-V3.2';    // 默认使用 V3.2
+        }
 
         const messagesArea = document.getElementById('messagesArea');
         const userInput = document.getElementById('userInput');
@@ -824,7 +830,7 @@
             if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
         }
 
-        async function translateWithDeepSeek(text, targetLang, style, model) {
+        async function translateWithSiliconFlow(text, targetLang, style, modelValue) {
             const styleMap = {
                 '标准': '自然的、标准的翻译',
                 '口语': '口语化的、日常交流的风格，使用轻松的表达方式',
@@ -840,11 +846,15 @@
             const systemPrompt = `你是一个专业的翻译助手。请将用户提供的文本翻译成${targetLangDisplay}。翻译要求：${styleInstruction}。只输出翻译结果，不要添加额外解释、不要输出原文、不要输出任何标记。`;
             const userMessage = `请翻译：${text}`;
 
-            const response = await fetch(DEEPSEEK_API_URL, {
+            const modelId = getModelId(modelValue);
+            const response = await fetch(SILICONFLOW_API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SILICONFLOW_API_KEY}`
+                },
                 body: JSON.stringify({
-                    model: model,
+                    model: modelId,
                     messages: [
                         { role: 'system', content: systemPrompt },
                         { role: 'user', content: userMessage }
@@ -853,6 +863,10 @@
                     max_tokens: 2000
                 })
             });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API 请求失败 (${response.status}): ${errorText}`);
+            }
             const data = await response.json();
             if (data.error) throw new Error(data.error.message);
             if (!data.choices?.[0]?.message) throw new Error('API 返回异常');
@@ -869,7 +883,7 @@
             const model = modelSelect.value;
             showThinking();
             try {
-                const translated = await translateWithDeepSeek(text, targetLang, style, model);
+                const translated = await translateWithSiliconFlow(text, targetLang, style, model);
                 hideThinking();
                 addMessage('assistant', translated);
             } catch (err) {
@@ -877,8 +891,8 @@
                 console.error(err);
                 let errorMsg = '翻译失败：';
                 if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
-                else if (err.message.includes('402')) errorMsg += '账户余额不足';
-                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查 CORS 或代理';
+                else if (err.message.includes('429')) errorMsg += '请求过于频繁，请稍后再试';
+                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查网络';
                 else errorMsg += err.message;
                 addMessage('assistant', errorMsg);
             }
