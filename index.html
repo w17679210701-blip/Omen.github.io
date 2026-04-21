@@ -1269,26 +1269,41 @@
         async function askAndRecordName(event) {
             event.preventDefault();
             const name = prompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
-            if (name === null) return;  // 用户取消
-            if (name.trim() === "") {
+            if (!name || name.trim() === "") {
                 alert("请输入你的名字～");
                 return;
             }
-            // 记录到 Supabase（使用已存在的 window.db 或新建客户端）
+
+            // 确保 Supabase 客户端可用
+            if (!window.supabase) {
+                alert("系统初始化中，请稍后重试");
+                return;
+            }
+
+            const supabase = window.supabase.createClient(
+                'https://hmsovwceyinvwgplgywr.supabase.co',
+                'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS'
+            );
+
             try {
-                const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
-                const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-                const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
-                if (supabase) {
-                    const { error } = await supabase.from('timeline_visitors').insert([
-                        { name: name.trim(), visited_at: new Date().toISOString() }
-                    ]);
-                    if (error) console.error('记录失败', error);
+                const { error } = await supabase
+                    .from('timeline_visitors')
+                    .insert([{ name: name.trim(), visited_at: new Date().toISOString() }]);
+
+                if (error) {
+                    console.error('Supabase 插入错误:', error);
+                    alert(`记录失败: ${error.message}\n您仍可进入相册，但管理员可能看不到您的记录。`);
+                } else {
+                    console.log('访客记录成功:', name);
+                    // 可选：给个小提示，但不强制等待
+                    // alert("记录成功，欢迎进入时光照相馆！");
                 }
             } catch (err) {
-                console.error(err);
+                console.error('网络或其他错误:', err);
+                alert("网络错误，记录失败，但您仍可进入相册");
             }
-            // 无论记录是否成功，都允许进入页面
+
+            // 无论成功与否，最后都跳转
             window.location.href = "timeline.html";
         }
 
@@ -1326,8 +1341,13 @@
             data.forEach(item => config[item.key] = item.value);
             const titleEl = document.querySelector('.main-title');
             if (titleEl) titleEl.innerText = config.home_title || '个人博客';
-            const subtitleEl = document.querySelector('.sub-title');
-            if (subtitleEl) subtitleEl.innerText = config.home_subtitle || '一人 丨 一猫 丨 一首歌';
+            // 个人名片下方的副标题保持固定内容，不再从 home_subtitle 读取
+            const cardSubtitleEl = document.querySelector('.sub-title');
+            if (cardSubtitleEl) cardSubtitleEl.innerText = '一人 丨 一猫 丨 一首歌';  // 固定
+            // 导航栏副标题从 home_subtitle 读取
+            const navSubtitleEl = document.querySelector('.timeline-header .header-title .sub');
+            if (navSubtitleEl) navSubtitleEl.innerText = config.home_subtitle || '想骑摩托想到发疯';
+
             const noticeEl = document.getElementById('notice-content');
             if (noticeEl) noticeEl.innerText = config.home_notice || '📢 欢迎来到 OMEN 的空间！';
             const avatarEl = document.querySelector('.avatar-box img');
