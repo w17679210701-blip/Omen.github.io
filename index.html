@@ -1111,7 +1111,7 @@
         </div>
         <a href="javascript:void(0);" class="glass-card"
             style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: inherit; margin-top: 15px; margin-bottom: -15px; margin-top: 0;"
-            onclick="checkTimelinePassword(event)">
+            onclick="askAndRecordName(event)">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
                 stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -1265,15 +1265,31 @@
             } catch (err) { console.error('动态加载失败', err); }
         }
         // 时光照相馆密码验证
-        function checkTimelinePassword(event) {
-            // 阻止默认跳转（针对 href）
+        // 时光照相馆：记录访客姓名并跳转
+        async function askAndRecordName(event) {
             event.preventDefault();
-            const pw = prompt("请输入访问密码：");
-            if (pw === "2535012") {
-                window.location.href = "timeline.html";
-            } else if (pw !== null) {
-                alert("密码错误，无法进入时光照相馆。");
+            const name = prompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
+            if (name === null) return;  // 用户取消
+            if (name.trim() === "") {
+                alert("请输入你的名字～");
+                return;
             }
+            // 记录到 Supabase（使用已存在的 window.db 或新建客户端）
+            try {
+                const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+                const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+                const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+                if (supabase) {
+                    const { error } = await supabase.from('timeline_visitors').insert([
+                        { name: name.trim(), visited_at: new Date().toISOString() }
+                    ]);
+                    if (error) console.error('记录失败', error);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+            // 无论记录是否成功，都允许进入页面
+            window.location.href = "timeline.html";
         }
 
         const loadingColors = ['#ff69b4', '#ff4d4d'];
