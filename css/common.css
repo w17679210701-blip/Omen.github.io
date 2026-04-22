@@ -1,0 +1,143 @@
+/* ========== 统一弹窗组件样式 ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.custom-modal {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    max-width: 80vw;
+    padding: 24px 20px 20px;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay.active .custom-modal {
+    transform: scale(1);
+}
+
+.custom-modal p {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+    line-height: 1.4;
+}
+
+.custom-modal input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 40px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.custom-modal input:focus {
+    border-color: #ffcc00;
+    background: white;
+}
+
+.custom-modal .button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.custom-modal button {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+    flex: 1;
+}
+
+.custom-modal .btn-primary {
+    background: #ffcc00;
+    color: #1a1a1a;
+}
+
+.custom-modal .btn-primary:hover {
+    background: #e6b800;
+    transform: translateY(-1px);
+}
+
+.custom-modal .btn-secondary {
+    background: rgba(0, 0, 0, 0.08);
+    color: #1a1a1a;
+}
+
+.custom-modal .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* Toast 通知（已有，统一增强） */
+.toast-message {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 40px;
+    padding: 12px 24px;
+    color: white;
+    font-size: 14px;
+    z-index: 20001;
+    white-space: nowrap;
+    animation: toastFadeInOut 2s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes toastFadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.9);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    85% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.9);
+        visibility: hidden;
+    }
+}

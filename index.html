@@ -56,7 +56,7 @@
         .notice-bar,
         .main-container {
             width: 100%;
-            max-width: 440px;
+            max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -934,7 +934,7 @@
         </a>
         <!-- <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a> -->
         <!-- <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a> -->
-        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
+        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台</a>
         <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
         <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>log</a>
         <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
@@ -1268,9 +1268,9 @@
         // 时光照相馆：记录访客姓名并跳转
         async function askAndRecordName(event) {
             event.preventDefault();
-            const name = prompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
+            const name = await customPrompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
             if (!name || name.trim() === "") {
-                alert("请输入你的名字～");
+                await customAlert("请输入你的名字～");
                 return;
             }
 
@@ -1450,6 +1450,7 @@
             }
         };
     </script>
+    <script src="js/modal.js"></script>
 </body>
 
 </html>
