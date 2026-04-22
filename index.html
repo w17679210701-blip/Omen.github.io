@@ -1264,21 +1264,29 @@
                 }
             } catch (err) { console.error('动态加载失败', err); }
         }
+
+        // 自定义弹窗的 fallback 实现（如果 modal.js 缺失则使用原生）
+        window.customPrompt = window.customPrompt || function (message) {
+            return Promise.resolve(prompt(message));
+        };
+        window.customAlert = window.customAlert || function (message) {
+            alert(message);
+            return Promise.resolve();
+        };
         // 时光照相馆密码验证
         // 时光照相馆：记录访客姓名并跳转
         async function askAndRecordName(event) {
             event.preventDefault();
-            const name = await customPrompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
-            if (!name || name.trim() === "") {
-                await customAlert("请输入你的名字～");
+            const name = prompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
+            if (name === null) {
+                // 用户点击了取消，直接返回，不弹任何提示
                 return;
             }
-
-            // 确保 Supabase 客户端可用
-            if (!window.supabase) {
-                alert("系统初始化中，请稍后重试");
-                return;
+            if (name.trim() === "") {
+                alert("名字不能为空，请重新输入～");
+                return;  // 或者可以选择再次调用 askAndRecordName(event)，但简单退出即可
             }
+            // 后续记录和跳转...
 
             const supabase = window.supabase.createClient(
                 'https://hmsovwceyinvwgplgywr.supabase.co',
@@ -1450,7 +1458,6 @@
             }
         };
     </script>
-    <script src="js/modal.js"></script>
 </body>
 
 </html>

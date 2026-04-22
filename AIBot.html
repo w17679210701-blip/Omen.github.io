@@ -39,8 +39,9 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            flex-wrap: wrap;
-            overflow: hidden;
+            flex-wrap: nowrap;
+            overflow: visible;
+            /* overflow: hidden; */
         }
 
         .displacement-layer {
@@ -127,7 +128,10 @@
 
         .header-title {
             flex: 1;
+            min-width: 0;
             text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         /* 带文字的导航按钮（更宽） */
@@ -700,7 +704,6 @@
         </div>
         <div class="nav-group">
             <button class="nav-btn-text" onclick="window.location.href='translate.html'">
-                <i data-lucide="languages"></i>
                 <span>翻译模式</span>
             </button>
         </div>
