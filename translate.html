@@ -18,7 +18,6 @@
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            /* 禁用页面滚动 */
             background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
             color: #1a1a1a;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
@@ -26,7 +25,6 @@
             flex-direction: column;
         }
 
-        /* --- 导航栏（改为普通块级，不再sticky）--- */
         .timeline-header {
             flex-shrink: 0;
             margin: 16px 16px 0 16px;
@@ -77,10 +75,6 @@
             right: 0;
             border-radius: 0 34px 0 0;
         }
-
-        /* .timeline-header:hover {
-            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
-        } */
 
         .timeline-header::before {
             content: '';
@@ -141,7 +135,6 @@
             color: transparent;
         }
 
-        /* 副标题样式（用于显示累计 Tokens） */
         .header-title .sub {
             font-size: 0.75rem;
             opacity: 0.8;
@@ -151,7 +144,6 @@
             white-space: nowrap;
         }
 
-        /* 右侧按钮组（与左侧保持对称） */
         .nav-group {
             min-width: 88px;
             display: flex;
@@ -227,7 +219,6 @@
             }
         }
 
-        /* 下拉菜单（与之前相同） */
         .dropdown-menu {
             display: none;
             position: fixed;
@@ -269,7 +260,6 @@
             background: rgba(128, 128, 128, 0.1);
         }
 
-        /* 主容器 — 占据剩余高度，内部 flex 列 */
         .chat-container {
             flex: 1;
             display: flex;
@@ -283,7 +273,6 @@
             overflow: hidden;
         }
 
-        /* 配置栏 — 三个下拉框 */
         .config-bar {
             flex-shrink: 0;
             padding: 8px 24px;
@@ -364,7 +353,6 @@
             display: none;
         }
 
-        /* 消息区域 — 可滚动 */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -375,7 +363,6 @@
             scroll-behavior: smooth;
         }
 
-        /* 气泡样式保持不变 */
         .message {
             display: flex;
             gap: 12px;
@@ -465,7 +452,6 @@
             stroke: #e6a017;
         }
 
-        /* 输入区域 — 固定在底部 */
         .input-area {
             flex-shrink: 0;
             padding: 16px 24px 24px 24px;
@@ -525,7 +511,6 @@
             transform: scale(0.96);
         }
 
-        /* 滚动条浅色 */
         .messages-area::-webkit-scrollbar {
             width: 4px;
         }
@@ -566,7 +551,6 @@
             }
         }
 
-        /* Tokens 说明弹窗 */
         .tokens-modal {
             position: fixed;
             top: 0;
@@ -667,7 +651,6 @@
 </head>
 
 <body>
-    <!-- 导航栏 -->
     <div class="timeline-header" id="timelineHeader">
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
         <button class="back-btn-inline" onclick="history.back()">
@@ -677,7 +660,6 @@
         </button>
         <div class="header-title">
             <h1>二筒翻译官</h1>
-            <!-- 副标题位置用于显示累计 Tokens -->
             <span id="totalTokensDisplaySub" class="sub" style="cursor: pointer;" onclick="showTokensInfo()">累计消耗Tokens:
                 0</span>
         </div>
@@ -690,7 +672,6 @@
         <div class="displacement-layer"></div>
     </div>
 
-    <!-- 下拉菜单 -->
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
         <a href="moments.html" class="menu-item">
@@ -717,21 +698,19 @@
         <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
     </div>
 
-    <!-- 翻译对话主容器 -->
     <div class="chat-container">
-        <!-- 配置栏：三个下拉框 -->
         <div class="config-bar">
             <div class="custom-select" data-select-id="translateModeSelect">
                 <div class="custom-select-trigger">中-英</div>
                 <div class="custom-select-dropdown">
                     <div class="custom-select-option" data-value="zh-en">中-英</div>
-                    <div class="custom-select-option" data-value="zh-fil">中-菲</div>
+                    <div class="custom-select-option" data-value="zh-ca">中-加</div>
                     <div class="custom-select-option" data-value="zh-lw">中-言</div>
                 </div>
             </div>
             <select id="translateModeSelect" class="hidden-native">
                 <option value="zh-en" selected>中-英</option>
-                <option value="zh-fil">中-菲</option>
+                <option value="zh-ca">中-加</option>
                 <option value="zh-lw">中-言</option>
             </select>
 
@@ -770,7 +749,6 @@
             </select>
         </div>
 
-        <!-- 消息列表（可滚动区域） -->
         <div class="messages-area" id="messagesArea">
             <div class="message assistant">
                 <div class="avatar">
@@ -781,7 +759,6 @@
             </div>
         </div>
 
-        <!-- 底部输入区（固定） -->
         <div class="input-area">
             <div class="input-wrapper">
                 <textarea id="userInput" rows="1" placeholder="输入要翻译的文本..."></textarea>
@@ -794,7 +771,6 @@
         style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(230,160,23,0.4); color: #e6a017; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
         已复制</div>
 
-    <!-- Tokens 说明弹窗 -->
     <div id="tokensInfoModal" class="tokens-modal" style="display: none;">
         <div class="tokens-modal-content">
             <span class="tokens-modal-close">&times;</span>
@@ -832,13 +808,11 @@
     </div>
 
     <script>
-        // ====================== 初始化 Supabase 客户端 ======================
         const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
         const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
         window.db = supabase.createClient(supabaseUrl, supabaseKey);
         const supabaseClient = window.db;
 
-        // ====================== Tokens 统计系统 (IndexedDB 本地明细) ======================
         let db = null;
         const DB_NAME = 'TokenStatsDB';
         const STORE_NAME = 'requests';
@@ -849,10 +823,7 @@
                 if (db) return resolve(db);
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
                 request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
+                request.onsuccess = () => { db = request.result; resolve(db); };
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -862,42 +833,16 @@
             });
         }
 
-        // 添加一条记录到 IndexedDB（本地明细）
         async function addRequestRecord(entry) {
             try {
                 const db = await openDB();
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
-                store.add({
-                    ...entry,
-                    timestamp: Date.now()
-                });
+                store.add({ ...entry, timestamp: Date.now() });
                 await tx.complete;
-            } catch (err) {
-                console.error('保存明细失败', err);
-            }
+            } catch (err) { console.error('保存明细失败', err); }
         }
 
-        // 获取所有记录（本地明细）
-        async function getAllRecords() {
-            const db = await openDB();
-            return new Promise((resolve) => {
-                const tx = db.transaction(STORE_NAME, 'readonly');
-                const store = tx.objectStore(STORE_NAME);
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => resolve([]);
-            });
-        }
-
-        // 数字缩写格式化（可选，当前未使用，保留备用）
-        function formatNumber(num) {
-            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'k';
-            return num.toString();
-        }
-
-        // ====================== 导航栏动态阴影等原有代码 ======================
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -931,27 +876,18 @@
         }
         initEdgeDistortion();
 
-        function toggleMenu(e) {
-            e.stopPropagation();
-            document.getElementById('dropdown-menu').classList.toggle('active');
-        }
+        function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('active'); }
         window.onclick = (e) => {
             const menu = document.getElementById('dropdown-menu');
             const trigger = document.getElementById('menu-trigger');
-            if (menu && trigger && !trigger.contains(e.target)) {
-                menu.classList.remove('active');
-            }
+            if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
         };
 
-        // ====================== 配置硅基流动 API ======================
         const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
         const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 
         function getModelId(selectedModel) {
-            if (selectedModel === 'deepseek-reasoner') {
-                return 'deepseek-ai/DeepSeek-R1';
-            }
-            return 'deepseek-ai/DeepSeek-V2.5';
+            return selectedModel === 'deepseek-reasoner' ? 'deepseek-ai/DeepSeek-R1' : 'deepseek-ai/DeepSeek-V2.5';
         }
 
         const messagesArea = document.getElementById('messagesArea');
@@ -967,32 +903,22 @@
             const avatar = document.createElement('div');
             avatar.className = 'avatar';
             const img = document.createElement('img');
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
-            img.src = role === 'user'
-                ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg'
-                : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
+            img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '50%';
+            img.src = role === 'user' ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg' : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
             avatar.appendChild(img);
             messageDiv.appendChild(avatar);
-
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
             const textSpan = document.createElement('div');
             textSpan.className = 'bubble-text';
             textSpan.innerHTML = content.replace(/\n/g, '<br>');
             bubble.appendChild(textSpan);
-
             if (role === 'assistant') {
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
                 copyBtn.title = '复制翻译结果';
                 copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    copyToClipboard(content);
-                });
+                copyBtn.addEventListener('click', (e) => { e.stopPropagation(); copyToClipboard(content); });
                 bubble.appendChild(copyBtn);
             }
             messageDiv.appendChild(bubble);
@@ -1000,7 +926,6 @@
             messagesArea.scrollTop = messagesArea.scrollHeight;
         }
 
-        // 流式翻译函数（增加 tokens 统计）
         async function translateWithSiliconFlowStream(text, mode, style, modelValue) {
             const styleMap = {
                 '标准': '自然的、标准的翻译',
@@ -1012,43 +937,31 @@
             };
             const styleInstruction = styleMap[style] || styleMap['标准'];
 
-            function isChinese(str) {
-                return /[\u4e00-\u9fa5]/.test(str);
-            }
+            function isChinese(str) { return /[\u4e00-\u9fa5]/.test(str); }
 
             let sourceLang, targetLang;
             switch (mode) {
                 case 'zh-en':
-                    if (isChinese(text)) {
-                        sourceLang = '中文';
-                        targetLang = '英文';
-                    } else {
-                        sourceLang = '英文';
-                        targetLang = '中文';
-                    }
+                    if (isChinese(text)) { sourceLang = '中文'; targetLang = '英文'; }
+                    else { sourceLang = '英文'; targetLang = '中文'; }
                     break;
-                case 'zh-fil':
+                case 'zh-ca':   // 中-加：Tagalog (菲律宾语)
                     if (isChinese(text)) {
                         sourceLang = '中文';
-                        targetLang = '菲律宾语';
+                        targetLang = 'Tagalog';       // 使用模型熟悉的英文名称
                     } else {
-                        sourceLang = '菲律宾语';
+                        sourceLang = 'Tagalog';
                         targetLang = '中文';
                     }
                     break;
                 case 'zh-lw':
-                    if (isChinese(text)) {
-                        sourceLang = '中文';
-                        targetLang = '文言文';
-                    } else {
-                        sourceLang = '文言文';
-                        targetLang = '中文';
-                    }
+                    if (isChinese(text)) { sourceLang = '中文'; targetLang = '文言文'; }
+                    else { sourceLang = '文言文'; targetLang = '中文'; }
                     break;
                 default:
-                    sourceLang = '中文';
-                    targetLang = '英文';
+                    sourceLang = '中文'; targetLang = '英文';
             }
+
             const systemPrompt = `你是一个专业且自然的翻译器。用户输入的就是要翻译的文本。请将用户提供的${sourceLang}文本翻译成${targetLang}，翻译要求：${styleInstruction}。
 
 【语气要求】请仔细识别用户原文中的语气（疑问、感叹、反问、幽默、讽刺、认真、温柔、愤怒等），并在翻译结果中完整保留这种语气。对于“能…吗”这类句式，请优先使用“Can you…?”表示能力或允许，而不是“Will you…?”或“Are you going to…?”。使用目标语言中最自然的表达方式，不要直译，不要添加任何解释。
@@ -1059,46 +972,28 @@
             const modelId = getModelId(modelValue);
             const response = await fetch(SILICONFLOW_API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SILICONFLOW_API_KEY}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SILICONFLOW_API_KEY}` },
                 body: JSON.stringify({
                     model: modelId,
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userMessage }
-                    ],
-                    temperature: 0,
-                    max_tokens: 500,
-                    stream: true,
-                    stream_options: { include_usage: true }   // 请求返回 usage
+                    messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }],
+                    temperature: 0, max_tokens: 500, stream: true, stream_options: { include_usage: true }
                 })
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API 请求失败 (${response.status}): ${errorText}`);
-            }
+            if (!response.ok) throw new Error(`API 请求失败 (${response.status}): ${await response.text()}`);
             if (!response.body) throw new Error('当前浏览器不支持流式响应');
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
-            let fullContent = '';
-            let buffer = '';
-            let usageRecorded = false;
+            let fullContent = '', buffer = '', usageRecorded = false;
 
-            // 创建占位消息（不带复制按钮）
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message assistant';
             const avatar = document.createElement('div');
             avatar.className = 'avatar';
             const img = document.createElement('img');
             img.src = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
+            img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '50%';
             avatar.appendChild(img);
             messageDiv.appendChild(avatar);
             const bubble = document.createElement('div');
@@ -1117,7 +1012,6 @@
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
                 buffer = lines.pop() || '';
-
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const data = line.slice(6);
@@ -1125,85 +1019,37 @@
                         try {
                             const parsed = JSON.parse(data);
                             const delta = parsed.choices[0]?.delta?.content;
-                            if (delta) {
-                                fullContent += delta;
-                                textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
-                                messagesArea.scrollTop = messagesArea.scrollHeight;
-                            }
-                            // 检查 usage 字段（通常在最后一个数据块中）
+                            if (delta) { fullContent += delta; textSpan.innerHTML = fullContent.replace(/\n/g, '<br>'); messagesArea.scrollTop = messagesArea.scrollHeight; }
                             if (parsed.usage && !usageRecorded) {
                                 usageRecorded = true;
                                 const usage = parsed.usage;
-                                // 累加全局统计并获取新总数
                                 const newTotal = await addGlobalTokens(usage.total_tokens);
-                                if (newTotal !== null) {
-                                    const span = document.getElementById('totalTokensDisplaySub');
-                                    if (span) span.innerText = `累计消耗Tokens: ${newTotal}`;
-                                }
-                                // 保存本地明细
-                                await addRequestRecord({
-                                    type: '翻译',
-                                    model: modelId,
-                                    input: text,
-                                    output: fullContent,
-                                    input_tokens: usage.prompt_tokens || 0,
-                                    output_tokens: usage.completion_tokens || 0,
-                                    total_tokens: usage.total_tokens || 0
-                                });
+                                if (newTotal !== null) document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${newTotal}`;
+                                await addRequestRecord({ type: '翻译', model: modelId, input: text, output: fullContent, input_tokens: usage.prompt_tokens || 0, output_tokens: usage.completion_tokens || 0, total_tokens: usage.total_tokens || 0 });
                             }
-                        } catch (e) {
-                            // 忽略解析错误
-                        }
+                        } catch (e) { }
                     }
                 }
             }
 
-            // 后处理：移除常见翻译前缀
             let finalResult = fullContent.trim();
-            finalResult = finalResult.replace(/^(翻译|请翻译|把这段话翻译成|翻译一下)[：:]\s*/i, '');
-            finalResult = finalResult.replace(/^Please translate[：:]\s*/i, '');
-            finalResult = finalResult.replace(/^“翻译[：:]”\s*/, '');
-            if (!finalResult) {
-                messageDiv.remove();
-                addMessage('assistant', '抱歉，没有收到有效回复。');
-            } else {
-                messageDiv.remove();
-                addMessage('assistant', finalResult);
-            }
-        }
-
-        let thinkingMsg = null;
-        function showThinking() { }
-        function hideThinking() {
-            if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
+            finalResult = finalResult.replace(/^(翻译|请翻译|把这段话翻译成|翻译一下)[：:]\s*/i, '').replace(/^Please translate[：:]\s*/i, '').replace(/^“翻译[：:]”\s*/, '');
+            messageDiv.remove();
+            addMessage('assistant', finalResult || '抱歉，没有收到有效回复。');
         }
 
         async function handleSend() {
             let text = userInput.value.trim();
             if (!text) return;
-
-            const prefixes = [
-                /^把这段话翻译成\S+\s*/,
-                /^请翻译[：:]\s*/,
-                /^翻译一下[：:]\s*/,
-                /^翻译[：:]\s*/,
-                /^将以下内容翻译成\S+\s*/,
-                /^Please translate[：:]\s*/i
-            ];
+            const prefixes = [/^把这段话翻译成\S+\s*/, /^请翻译[：:]\s*/, /^翻译一下[：:]\s*/, /^翻译[：:]\s*/, /^将以下内容翻译成\S+\s*/, /^Please translate[：:]\s*/i];
             let cleanText = text;
-            for (const prefix of prefixes) {
-                cleanText = cleanText.replace(prefix, '');
-            }
+            for (const prefix of prefixes) cleanText = cleanText.replace(prefix, '');
             const finalText = cleanText.trim() || text;
-
             addMessage('user', text);
             userInput.value = '';
             userInput.style.height = '';
-            const mode = translateModeSelect.value;
-            const style = styleSelect.value;
-            const model = modelSelect.value;
             try {
-                await translateWithSiliconFlowStream(finalText, mode, style, model);
+                await translateWithSiliconFlowStream(finalText, translateModeSelect.value, styleSelect.value, modelSelect.value);
             } catch (err) {
                 console.error(err);
                 let errorMsg = '翻译失败：';
@@ -1216,16 +1062,8 @@
         }
 
         sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
-        userInput.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
+        userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+        userInput.addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
 
         function initCustomSelects() {
             document.querySelectorAll('.custom-select').forEach(customSelect => {
@@ -1236,106 +1074,40 @@
                 if (!hiddenSelect) return;
                 const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
                 if (selectedOption) trigger.innerText = selectedOption.text;
-
-                trigger.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll('.custom-select.open').forEach(el => {
-                        if (el !== customSelect) el.classList.remove('open');
-                    });
-                    customSelect.classList.toggle('open');
-                });
+                trigger.addEventListener('click', (e) => { e.stopPropagation(); document.querySelectorAll('.custom-select.open').forEach(el => { if (el !== customSelect) el.classList.remove('open'); }); customSelect.classList.toggle('open'); });
                 dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
                     opt.addEventListener('click', (e) => {
                         const value = opt.getAttribute('data-value');
                         const text = opt.innerText;
-                        for (let i = 0; i < hiddenSelect.options.length; i++) {
-                            if (hiddenSelect.options[i].value === value) {
-                                hiddenSelect.selectedIndex = i;
-                                break;
-                            }
-                        }
+                        for (let i = 0; i < hiddenSelect.options.length; i++) { if (hiddenSelect.options[i].value === value) { hiddenSelect.selectedIndex = i; break; } }
                         trigger.innerText = text;
-                        const changeEvent = new Event('change', { bubbles: true });
-                        hiddenSelect.dispatchEvent(changeEvent);
+                        hiddenSelect.dispatchEvent(new Event('change', { bubbles: true }));
                         customSelect.classList.remove('open');
                     });
                 });
             });
         }
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
-        });
+        document.addEventListener('click', () => { document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open')); });
         initCustomSelects();
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('copyToast');
-                toast.style.opacity = '1';
-                setTimeout(() => { toast.style.opacity = '0'; }, 1500);
-            }).catch(() => alert('复制失败，请手动复制'));
-        }
+        function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => { const toast = document.getElementById('copyToast'); toast.style.opacity = '1'; setTimeout(() => { toast.style.opacity = '0'; }, 1500); }).catch(() => alert('复制失败，请手动复制')); }
 
-        // ====================== 全局 Tokens 统计（Supabase） ======================
-        async function getGlobalTokens() {
-            const { data, error } = await supabaseClient
-                .from('global_token_stats')
-                .select('total_tokens')
-                .eq('id', 1)
-                .single();
-            if (error) {
-                console.error('读取全局 tokens 失败', error);
-                return 0;
-            }
-            return data?.total_tokens || 0;
-        }
+        async function getGlobalTokens() { const { data, error } = await supabaseClient.from('global_token_stats').select('total_tokens').eq('id', 1).single(); if (error) return 0; return data?.total_tokens || 0; }
+        async function addGlobalTokens(inc) { const { data, error } = await supabaseClient.rpc('increment_global_tokens', { inc }); if (error) return null; return data; }
+        async function updateTotalTokensDisplay() { const total = await getGlobalTokens(); const span = document.getElementById('totalTokensDisplaySub'); if (span) span.innerText = `累计消耗Tokens: ${total}`; }
+        function showTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'flex'; }
+        function closeTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'none'; }
 
-        async function addGlobalTokens(inc) {
-            const { data, error } = await supabaseClient.rpc('increment_global_tokens', { inc });
-            if (error) {
-                console.error('累加全局 tokens 失败', error);
-                return null;
-            }
-            return data;
-        }
-
-        async function updateTotalTokensDisplay() {
-            const total = await getGlobalTokens();
-            const span = document.getElementById('totalTokensDisplaySub');
-            if (span) {
-                span.innerText = `累计消耗Tokens: ${total}`;
-            }
-        }
-
-        function showTokensInfo() {
-            const modal = document.getElementById('tokensInfoModal');
-            if (modal) modal.style.display = 'flex';
-        }
-        function closeTokensInfo() {
-            const modal = document.getElementById('tokensInfoModal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        // 初始化 Lucide 图标
         lucide.createIcons();
-
-        // 绑定弹窗关闭事件
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('tokensInfoModal');
             if (modal) {
-                const closeBtn = modal.querySelector('.tokens-modal-close');
-                const closeBtn2 = modal.querySelector('.tokens-modal-close-btn');
-                if (closeBtn) closeBtn.onclick = closeTokensInfo;
-                if (closeBtn2) closeBtn2.onclick = closeTokensInfo;
+                modal.querySelector('.tokens-modal-close').onclick = closeTokensInfo;
+                modal.querySelector('.tokens-modal-close-btn').onclick = closeTokensInfo;
                 modal.onclick = (e) => { if (e.target === modal) closeTokensInfo(); };
             }
         });
-
-        // 确保 Supabase 初始化后显示累计 tokens
-        if (supabaseClient) {
-            updateTotalTokensDisplay();
-        } else {
-            console.warn('Supabase 未初始化，无法读取全局 tokens');
-        }
+        if (supabaseClient) updateTotalTokensDisplay();
     </script>
 </body>
 
