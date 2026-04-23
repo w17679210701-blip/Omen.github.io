@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>实用工具 · 合集</title>
+    <title>工具库 · 技术栈全景</title>
     <link rel="stylesheet" href="css/common.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* --- 全局基础样式（浅色背景，与其他页面一致）--- */
+        /* --- 全局基础样式（与 index 一致的浅色背景）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -22,7 +23,7 @@
             padding: 0 16px 50px 16px;
         }
 
-        /* --- 导航栏（与 moments 完全一致）--- */
+        /* 导航栏（毛玻璃风格） */
         .timeline-header {
             position: sticky;
             top: 20px;
@@ -75,10 +76,6 @@
             right: 0;
             border-radius: 0 34px 0 0;
         }
-
-        /* .timeline-header:hover {
-            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
-        } */
 
         .timeline-header::before {
             content: '';
@@ -147,12 +144,11 @@
             color: #666;
         }
 
-        /* 右侧按钮组（与左侧保持对称） */
+        /* 右侧占位保持对称 */
         .nav-group {
             min-width: 88px;
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
         }
 
         @media (max-width: 768px) {
@@ -160,20 +156,24 @@
                 padding-left: 12px;
                 padding-right: 12px;
             }
+
             .timeline-header {
                 top: 12px;
                 margin-bottom: 32px;
                 padding: 8px 16px;
                 border-radius: 28px;
             }
+
             .back-btn-inline,
             .nav-btn {
                 width: 40px;
                 height: 40px;
             }
+
             .header-title h1 {
                 font-size: 1.2rem;
             }
+
             .nav-group {
                 min-width: 92px;
             }
@@ -198,11 +198,13 @@
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 9999;
         }
+
         .dropdown-menu.active {
             display: block;
             transform: scale(1) translate(0, 0);
             opacity: 1;
         }
+
         .menu-item {
             display: flex;
             align-items: center;
@@ -214,83 +216,230 @@
             border-radius: 16px;
             transition: 0.2s;
         }
+
         .menu-item:hover {
             background: rgba(128, 128, 128, 0.1);
         }
 
-        /* 工具卡片区域 - 单列居中 */
-        .tools-grid {
-            max-width: 600px;
-            margin: 20px auto 0 auto;
+        /* ===== 选项卡样式（无缝切换核心） ===== */
+        .tab-bar {
             display: flex;
             justify-content: center;
+            gap: 16px;
+            margin: 0 0 28px 0;
+            flex-wrap: wrap;
         }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 48px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c2c2e;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn i {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            display: inline-block;
+            vertical-align: middle;
+            stroke-width: 1.8;
+        }
+
+        .tab-btn.active {
+            background: #ffcc00;
+            border-color: rgba(255, 204, 0, 0.6);
+            color: #1a1a1a;
+            box-shadow: 0 6px 14px rgba(255, 204, 0, 0.25);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: #ffcc00;
+            transform: translateY(-2px);
+        }
+
+        /* 视图容器（切换核心） */
+        .view-container {
+            width: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        .view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .view.active-view {
+            display: block;
+            opacity: 1;
+        }
+
+        /* 技术卡片网格（复用上个版本样式） */
+        .tech-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin: 32px 0 20px 0;
+            padding-left: 12px;
+            border-left: 4px solid #ffcc00;
+            letter-spacing: -0.3px;
+            color: #1a1a1a;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-card,
         .tool-card {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 28px;
-            padding: 24px 20px;
+            padding: 20px 18px;
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            width: 100%;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
         }
+
+        .tech-card:hover,
         .tool-card:hover {
             transform: translateY(-6px);
             border-color: #ffcc00;
             background: rgba(255, 255, 255, 0.85);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 16px;
-        }
-        .card-header svg {
-            width: 32px;
-            height: 32px;
-            stroke: #ffcc00;
-            stroke-width: 1.5;
-            flex-shrink: 0;
-        }
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin: 0;
-            letter-spacing: 1px;
-        }
-        .card-desc {
-            font-size: 0.85rem;
-            opacity: 0.7;
-            line-height: 1.4;
-            margin: 8px 0 0;
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 640px) {
-            .card-title {
-                font-size: 1.1rem;
-            }
-            .card-header svg {
-                width: 28px;
-                height: 28px;
-            }
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 204, 0, 0.15);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .card-icon i {
+            width: 28px;
+            height: 28px;
+            stroke: #ffcc00;
+            stroke-width: 1.7;
+        }
+
+        .tech-name,
+        .tool-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 12px 0 6px;
+            letter-spacing: -0.2px;
+            color: #1a1a1a;
+        }
+
+        .tech-desc,
+        .tool-desc {
+            font-size: 0.85rem;
+            line-height: 1.45;
+            color: #4a4a4e;
+            opacity: 0.85;
+        }
+
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .badge {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2c2c2e;
+        }
+
+        .tool-entry-link {
+            display: inline-block;
+            margin-top: 18px;
+            background: rgba(255, 204, 0, 0.2);
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #e6a017;
+            text-decoration: none;
+            transition: 0.2s;
+            border: 0.5px solid rgba(230, 160, 23, 0.3);
+        }
+
+        .tool-entry-link:hover {
+            background: #ffcc00;
+            color: #1a1a1a;
+            transform: scale(0.97);
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
         }
 
         .footer-note {
-            margin-top: 50px;
+            margin-top: 60px;
             font-size: 12px;
             opacity: 0.5;
             text-align: center;
             color: #1a1a1a;
         }
+
+        .tools-grid {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tool-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-badge {
+            background: rgba(230, 160, 23, 0.15);
+            color: #e6a017;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            align-self: flex-start;
+            margin-top: 8px;
+        }
     </style>
 </head>
+
 <body>
-    <!-- 导航栏 -->
+
+    <!-- 导航栏（复用全局风格） -->
     <div class="timeline-header" id="timelineHeader">
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
         <button class="back-btn-inline" onclick="history.back()">
@@ -299,11 +448,14 @@
             </svg>
         </button>
         <div class="header-title">
-            <h1>工具箱</h1>
-            <span class="sub">Efficient tools</span>
+            <h1>技术/工具</h1>
+            <span class="sub">陪伴我创造的伙伴们</span>
         </div>
-        <div class="nav-group">
-            <!-- 右侧留白，保持与左侧对称 -->
+        <div class="nav-group" style="display: flex; gap: 12px;">
+            <button id="scrollTopBtn" class="nav-btn" onclick="scrollToTop()">
+                <i data-lucide="chevron-up"></i>
+            </button>
+            <!-- 如果还需要额外占位保持对称，可再留一个透明占位 -->
         </div>
         <div class="displacement-layer"></div>
     </div>
@@ -313,7 +465,8 @@
         <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
         <a href="moments.html" class="menu-item">
             <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path
+                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
                 <path d="M31 7V24" />
                 <path d="M16.6357 6.63599L30.7779 20.7781" />
                 <path d="M7 17H24" />
@@ -322,7 +475,8 @@
                 <path d="M17.6357 27.636L31.7779 41.7781" />
                 <path d="M24 31L42 31" />
                 <path d="M42.3643 16.636L28.2221 30.7781" />
-                <path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+                <path
+                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
             </svg>
             朋友圈
         </a>
@@ -330,29 +484,240 @@
         <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
         <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
         <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
-        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
+        <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>更新日志</a>
     </div>
 
-    <!-- 工具卡片（仅保留“二筒翻译官”） -->
-    <div class="tools-grid">
-        <a href="translate.html" class="tool-card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 8h11M9 15h7M12 3v2m0 10v2M8 7l-2 5h4L8 7zM17 12l2 5h-4l2-5z"/>
-                    <circle cx="12" cy="12" r="10"/>
-                </svg>
-                <h3 class="card-title">二筒翻译官</h3>
+    <!-- 选项卡切换栏 -->
+    <div class="tab-bar">
+        <div class="tab-btn active" data-view="tech">
+            <i data-lucide="cpu"></i> 技术栈全景
+        </div>
+        <div class="tab-btn" data-view="tools">
+            <i data-lucide="wrench"></i> 实用工具
+        </div>
+    </div>
+
+    <!-- 视图容器：技术栈视图（默认显示） -->
+    <div class="view-container">
+        <div id="techView" class="view active-view">
+            <div class="tech-container">
+                <!-- 前端核心 -->
+                <div class="section-title">🌐 前端基础</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="code-2"></i></div>
+                        <div class="tech-name">HTML5 / CSS3</div>
+                        <div class="tech-desc">语义化标记 + 弹性布局，浅色毛玻璃视觉体系，所有页面均为原生构建，无框架依赖。</div>
+                        <div class="badge-group"><span class="badge">语义标签</span><span class="badge">CSS
+                                Grid/Flex</span><span class="badge">响应式</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="file-js"></i></div>
+                        <div class="tech-name">JavaScript (ES6+)</div>
+                        <div class="tech-desc">全站原生JS驱动，负责动态交互、流式API调用、Canvas粒子特效、本地存储及异步数据流。</div>
+                        <div class="badge-group"><span class="badge">Async/Await</span><span class="badge">Fetch
+                                API</span><span class="badge">模块化</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="layout-template"></i></div>
+                        <div class="tech-name">Lucide 图标库</div>
+                        <div class="tech-desc">提供高一致性矢量图标，导航、点赞、上传等场景广泛使用，轻盈且可定制。</div>
+                        <div class="badge-group"><span class="badge">CDN</span><span class="badge">动态注入</span></div>
+                    </div>
+                </div>
+
+                <!-- 后端 & BaaS -->
+                <div class="section-title">⚙️ 云后端 & 数据库</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="database"></i></div>
+                        <div class="tech-name">Supabase</div>
+                        <div class="tech-desc">开源BaaS平台，提供PostgreSQL数据库、行级安全策略、实时订阅及RPC函数，支撑站点配置、动态存储、Token统计与访客记录。
+                        </div>
+                        <div class="badge-group"><span class="badge">PostgreSQL</span><span
+                                class="badge">RLS</span><span class="badge">RPC调用</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="cloud"></i></div>
+                        <div class="tech-name">腾讯云 COS</div>
+                        <div class="tech-desc">对象存储服务，搭配COS JS SDK V5，实现朋友圈图片/视频、相册文件、用户头像等的高效上传和CDN加速分发。</div>
+                        <div class="badge-group"><span class="badge">SDK集成</span><span class="badge">CDN加速</span><span
+                                class="badge">批量管理</span></div>
+                    </div>
+                </div>
+
+                <!-- AI 模型 -->
+                <div class="section-title">🤖 AI 模型 & 大语言引擎</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="sparkles"></i></div>
+                        <div class="tech-name">DeepSeek-V3.2 / V2.5</div>
+                        <div class="tech-desc">对话与翻译主力模型，通过硅基流动API调用，支持流式响应及Token用量统计，兼顾性能与成本。</div>
+                        <div class="badge-group"><span class="badge">128K上下文</span><span class="badge">推理优化</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="microchip"></i></div>
+                        <div class="tech-name">通义千问 Qwen3.5</div>
+                        <div class="tech-desc">多尺寸开源大模型，集成至AI对话模块，提供高质量中文理解与生成能力。</div>
+                        <div class="badge-group"><span class="badge">397B MoE</span><span class="badge">多语言</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="zap"></i></div>
+                        <div class="tech-name">MiniMax-M2.5 / 豆包</div>
+                        <div class="tech-desc">MiniMax及火山引擎豆包模型，丰富对话选择，适配不同场景需求。</div>
+                        <div class="badge-group"><span class="badge">火山引擎</span><span class="badge">多模态</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="globe"></i></div>
+                        <div class="tech-name">GPT-OSS-120b</div>
+                        <div class="tech-desc">基于OpenAI API接入的开源级模型，拓展AI助手阵营，保留实验性能力。</div>
+                        <div class="badge-group"><span class="badge">OpenAI兼容</span><span class="badge">高参数规模</span>
+                        </div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="message-square"></i></div>
+                        <div class="tech-name">硅基流动 API</div>
+                        <div class="tech-desc">一站式大模型托管平台，统一调用DeepSeek、Qwen、MiniMax等，并实现流式翻译/对话与用量统计。</div>
+                        <div class="badge-group"><span class="badge">统一网关</span><span class="badge">usage统计</span></div>
+                    </div>
+                </div>
+
+                <!-- 本地存储 & 客户端 -->
+                <div class="section-title">💾 本地存储 & 客户端技术</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="hard-drive"></i></div>
+                        <div class="tech-name">IndexedDB</div>
+                        <div class="tech-desc">用于Token消耗明细的本地持久化，记录每一次翻译/对话请求的token用量，支持离线查询与分析。</div>
+                        <div class="badge-group"><span class="badge">异步事务</span><span class="badge">大容量存储</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="bookmark"></i></div>
+                        <div class="tech-name">localStorage</div>
+                        <div class="tech-desc">存储朋友圈点赞状态以及用户轻量偏好，无后端交互实现即时互动反馈。</div>
+                        <div class="badge-group"><span class="badge">键值对</span><span class="badge">跨页面同步</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="image"></i></div>
+                        <div class="tech-name">Canvas 粒子特效</div>
+                        <div class="tech-desc">朋友圈点赞时生成动态彩色圆形粒子流，高性能动画引擎，提升交互趣味性。</div>
+                        <div class="badge-group"><span class="badge">requestAnimationFrame</span><span
+                                class="badge">性能优化</span></div>
+                    </div>
+                </div>
+
+                <!-- 开发与设计 -->
+                <div class="section-title">🧰 开发工具 & 设计体系</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="palette"></i></div>
+                        <div class="tech-name">毛玻璃设计语言</div>
+                        <div class="tech-desc">全站统一使用backdrop-filter blur、半透背景、细腻阴影，营造层次感与融冰美学。</div>
+                        <div class="badge-group"><span class="badge">backdrop-filter</span><span
+                                class="badge">玻璃态</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="git-branch"></i></div>
+                        <div class="tech-name">原生敏捷开发</div>
+                        <div class="tech-desc">无打包工具链，直接编写HTML/CSS/JS，快速迭代，服务器仅需静态托管即可运行。</div>
+                        <div class="badge-group"><span class="badge">零构建</span><span class="badge">轻量部署</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="smartphone"></i></div>
+                        <div class="tech-name">移动端优先适配</div>
+                        <div class="tech-desc">响应式断点、视口优化，触摸事件与滚动控制完整覆盖，手机/平板体验流畅。</div>
+                        <div class="badge-group"><span class="badge">touch事件</span><span class="badge">vw/vh单位</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <div class="tech-grid" style="margin-top: 8px;">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="infinity"></i></div>
+                        <div class="tech-name">流式交互架构</div>
+                        <div class="tech-desc">AI对话与翻译均采用Server-Sent Events风格流式传输，实时展示生成内容，降低等待感知。</div>
+                        <div class="badge-group"><span class="badge">ReadableStream</span><span
+                                class="badge">逐字渲染</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="shield"></i></div>
+                        <div class="tech-name">Supabase RPC 安全体系</div>
+                        <div class="tech-desc">管理后台密码验证、配置更新、token累加等敏感操作通过数据库函数执行，保障数据边界。</div>
+                        <div class="badge-group"><span class="badge">行级安全</span><span class="badge">函数封装</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="tags"></i></div>
+                        <div class="tech-name">多模型路由</div>
+                        <div class="tech-desc">根据用户选择动态切换硅基流动/火山引擎/OpenAI端点，统一抽象层支持后续扩展。</div>
+                        <div class="badge-group"><span class="badge">适配器模式</span><span class="badge">密钥隔离</span></div>
+                    </div>
+                </div>
             </div>
-            <p class="card-desc">依托AI大模型打造的定制对话式AI翻译，支持多语言与风格定制，实时交互。</p>
-        </a>
+        </div>
+
+        <!-- 实用工具视图（原tools.html融合，可扩展） -->
+        <div id="toolsView" class="view">
+            <div class="tools-grid">
+                <!-- 二筒翻译官（核心工具） -->
+                <div class="tool-card">
+                    <div class="card-icon"><i data-lucide="languages"></i></div>
+                    <div class="tool-name">二筒翻译官</div>
+                    <div class="tool-desc">依托AI大模型打造的定制对话式翻译，支持中↔英、中↔菲律宾语、中↔文言文双向互译，并可选择日常、学术、幽默等7种风格，流式实时输出翻译结果。</div>
+                    <div class="badge-group">
+                        <span class="badge">流式响应</span>
+                        <span class="badge">多语言引擎</span>
+                        <span class="badge">风格定制</span>
+                    </div>
+                    <a href="translate.html" class="tool-entry-link">🚀 打开翻译官</a>
+                </div>
+
+                <!-- 未来扩展预留（占位，体现工具集合） -->
+                <div class="tool-card">
+                    <div class="card-icon"><i data-lucide="bot"></i></div>
+                    <div class="tool-name">AI 对话助手</div>
+                    <div class="tool-desc">集成DeepSeek-V3.2、Qwen、MiniMax、豆包、GPT-OSS多模型，支持流式对话与Token统计，随时切换对话风格。</div>
+                    <div class="badge-group">
+                        <span class="badge">多模型切换</span>
+                        <span class="badge">Token统计</span>
+                        <span class="badge">长上下文</span>
+                    </div>
+                    <a href="AIBot.html" class="tool-entry-link">💬 开始对话</a>
+                </div>
+
+                <!-- 时光照相馆入口（视觉工具） -->
+                <div class="tool-card">
+                    <div class="card-icon"><i data-lucide="clock"></i></div>
+                    <div class="tool-name">时光照相馆</div>
+                    <div class="tool-desc">年轮光影 · 老街坊弄堂影像集，支持全屏浏览、缩放、左右滑动切换，记录岁月痕迹。</div>
+                    <div class="badge-group">
+                        <span class="badge">触摸手势</span>
+                        <span class="badge">图片预览</span>
+                        <span class="badge">历史存档</span>
+                    </div>
+                    <a href="timeline.html" class="tool-entry-link">📸 进入时光馆</a>
+                </div>
+
+                <!-- 工具箱占位提示（未来更多） -->
+                <div class="tool-card" style="opacity: 0.75;">
+                    <div class="card-icon"><i data-lucide="package"></i></div>
+                    <div class="tool-name">更多工具即将到来</div>
+                    <div class="tool-desc">后续将集成图片压缩、二维码生成、JSON格式化、Markdown编辑器等实用功能，持续丰富工具箱。</div>
+                    <div class="tool-badge">敬请期待</div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 40px;">
+                🧰
+            </div>
+        </div>
     </div>
 
-    <div class="footer-note">
-        更多工具持续更新中 · 敬请期待
+    <div class="footer-note" style="margin-top: 30px;">
+        🛠️ 技术展示 + 生产力工具
     </div>
 
     <script>
-        // 导航栏动态阴影
+        // 导航栏动态阴影（与主页一致）
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -394,14 +759,58 @@
         window.onclick = (e) => {
             const menu = document.getElementById('dropdown-menu');
             const trigger = document.getElementById('menu-trigger');
-            if (menu && trigger && !trigger.contains(e.target)) {
-                menu.classList.remove('active');
-            }
+            if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
         };
 
-        // 初始化 Lucide 图标
+        // ========= 选项卡无缝切换逻辑 =========
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const techView = document.getElementById('techView');
+        const toolsView = document.getElementById('toolsView');
+
+        function switchView(viewId) {
+            // 切换视图显示
+            if (viewId === 'tech') {
+                techView.classList.add('active-view');
+                toolsView.classList.remove('active-view');
+            } else {
+                toolsView.classList.add('active-view');
+                techView.classList.remove('active-view');
+            }
+            // 更新按钮激活样式
+            tabBtns.forEach(btn => {
+                if (btn.getAttribute('data-view') === viewId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            // 重新绘制 lucide 图标（防止动态添加后图标未渲染）
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 10);
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const viewId = btn.getAttribute('data-view');
+                if (viewId) switchView(viewId);
+            });
+        });
+
+        // 初始化所有 Lucide 图标
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
         lucide.createIcons();
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     </script>
     <script src="js/modal.js"></script>
 </body>
+
 </html>

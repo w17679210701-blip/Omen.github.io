@@ -335,7 +335,7 @@
             position: relative;
             padding: 3px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 204, 0, 0.3);
+            border: 2px solid #900207;
             animation: glowPulse 3s infinite;
             margin-top: 0 !important;
             z-index: 5 !important;
@@ -347,11 +347,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);
+                box-shadow: 0 0 10px #900207;
             }
 
             50% {
-                box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
+                box-shadow: 0 0 25px #900207;
             }
         }
 
@@ -373,6 +373,7 @@
             font-weight: bold;
             margin-bottom: 30px;
             letter-spacing: 2px;
+            color: #900207;
         }
 
         .contact-group {
@@ -705,7 +706,7 @@
         .nickname {
             font-weight: bold;
             font-size: 14px;
-            color: #e71212;
+            color: #900207;
             display: inline-block;
             margin-top: 15px;
         }
@@ -741,7 +742,7 @@
 
         .view-detail {
             font-size: 12px;
-            color: #ffcc00;
+            color: #900209;
             font-weight: 500;
         }
 
@@ -829,64 +830,91 @@
         .ai-card {
             width: 100%;
             height: 140px;
-            /* background-image: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/aigb.jpg'); */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            /* 背景固定 */
-            border-radius: 28px;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+            border-radius: 32px;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* 确保没有 backdrop-filter 和额外背景 */
-            margin-bottom: -15px;
+            margin: 0;
+            margin-bottom: -15px; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(144, 2, 7, 0.3);
+            transition: transform 0.2s ease;
+
+            /* 背景：指定图片 + 深红色底色 */
+            background-image: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/hxbg.webp'), linear-gradient(#900207, #900207);
+            /* linear-gradient(#900207, #900207) */
+            background-size: cover, cover;
+            background-position: center, center;
+            background-repeat: no-repeat;
+            background-blend-mode: normal;
+        }
+
+        .ai-card:hover {
+            transform: scale(0.98);
+            box-shadow: 0 4px 12px rgba(144, 2, 7, 0.5);
         }
 
         .ai-card::before {
             content: "";
             position: absolute;
-            inset: 2px;
-            border-radius: 26px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
+            /* 让星光不干扰点击 */
+
+            /* 绘制多个星光点 (位置和大小随机分布) */
+            background-image: radial-gradient(2px 2px at 15% 20%, #fff, rgba(0, 0, 0, 0)),
+                radial-gradient(3px 3px at 70% 45%, #ffd700, rgba(0, 0, 0, 0)),
+                radial-gradient(1.5px 1.5px at 85% 80%, #fff, rgba(0, 0, 0, 0)),
+                radial-gradient(2.5px 2.5px at 40% 60%, #ffaa66, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 95% 15%, #fff, rgba(0, 0, 0, 0)),
+                radial-gradient(1.8px 1.8px at 50% 90%, #ffd700, rgba(0, 0, 0, 0)),
+                radial-gradient(3px 3px at 5% 55%, #fff, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 60% 10%, #ffaa66, rgba(0, 0, 0, 0));
+            background-repeat: no-repeat;
+            opacity: 0;
+            animation: starTwinkle 2.5s ease-in-out infinite alternate;
         }
 
-        .ai-card:hover {
-            border-color: #007aff;
-            box-shadow: 0 0 30px rgba(0, 122, 255, 0.3);
-            transform: scale(1.02);
-        }
-
-        .ai-text {
-            font-size: 3rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #0ff, #0af);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            letter-spacing: 4px;
-            z-index: 2;
-            pointer-events: none;
-            animation: breathe 3s ease-in-out infinite;
-        }
-
-        @keyframes breathe {
+        @keyframes starTwinkle {
             0% {
-                text-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
-            }
-
-            50% {
-                text-shadow: 0 0 12px rgba(0, 122, 255, 0.6), 0 0 4px rgba(0, 122, 255, 0.4);
+                opacity: 0.2;
+                background-size: 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
             }
 
             100% {
-                text-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+                opacity: 1;
+                background-size: 12px 12px, 16px 16px, 8px 8px, 14px 14px, 12px 12px, 10px 10px, 18px 18px, 12px 12px;
+            }
+        }
+
+        /* 可选：鼠标悬浮时星星闪烁更快 */
+        .ai-card:hover::before {
+            animation-duration: 1.2s;
+        }
+
+        .ai-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            white-space: nowrap;
+            color: #ffffff;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 移动端适配：防止文字换行问题 */
+        @media (max-width: 560px) {
+            .ai-text {
+                font-size: 2rem;
+                white-space: normal;
+                text-align: center;
+                padding: 0 12px;
             }
         }
     </style>
@@ -1053,8 +1081,8 @@
         </div>
 
         <!-- 科幻粒子卡片（AI 入口） -->
-        <div class="ai-card" id="aiCard" onclick="window.location.href='AIBot.html'">
-            <div class="ai-text">AI</div>
+        <div class="ai-card" id="aiCard" onclick="window.location.href='tools.html'">
+            <div class="ai-text">技术栈 / 工具库 / AI</div>
         </div>
         <a href="moments.html" class="glass-card moments-preview-card" id="latest-moment"
             onclick="event.stopPropagation();">
@@ -1121,19 +1149,6 @@
                 <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path>
             </svg>
             <span style="font-size: 12px; letter-spacing: 2px;">时光照相馆</span>
-        </a>
-        <a href="tools.html" class="glass-card"
-            style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: inherit; margin-top: 15px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48" fill="none"
-                stroke="#ffcc00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 25V38C8 39.6569 9.34315 41 11 41H37C38.6569 41 40 39.6569 40 38V25" />
-                <path
-                    d="M5 15C5 13.8954 5.89543 13 7 13H41C42.1046 13 43 13.8954 43 15V23C43 24.1046 42.1046 25 41 25H7C5.89543 25 5 24.1046 5 23V15Z" />
-                <path d="M31 13V9C31 7.89543 30.1046 7 29 7H19C17.8954 7 17 7.89543 17 9V13" />
-                <path d="M15 23V29" />
-                <path d="M33 23V29" />
-            </svg>
-            <span style="font-size: 12px; letter-spacing: 2px;">工具箱</span>
         </a>
     </div>
 
