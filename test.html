@@ -3,12 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>二筒 · 对话式翻译机器人</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>工具库 · 技术栈全景</title>
+    <link rel="stylesheet" href="css/common.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- 全局基础样式（浅色背景，与其他页面一致）--- */
+        /* --- 全局基础样式（与 index 一致的浅色背景）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -16,18 +16,19 @@
 
         body {
             margin: 0;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
             background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
             color: #1a1a1a;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            display: flex;
-            flex-direction: column;
+            padding: 0 16px 50px 16px;
         }
 
+        /* 导航栏（毛玻璃风格） */
         .timeline-header {
-            flex-shrink: 0;
-            margin: 16px 16px 0 16px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin: 0 0 24px 0;
             background: transparent;
             backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
             border-radius: 34px;
@@ -137,66 +138,30 @@
 
         .header-title .sub {
             font-size: 0.75rem;
-            opacity: 0.8;
+            opacity: 0.6;
             display: block;
             margin-top: 4px;
             color: #666;
-            white-space: nowrap;
         }
 
+        /* 右侧占位保持对称 */
         .nav-group {
             min-width: 88px;
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .nav-btn-text {
-            background: rgba(120, 120, 128, 0.2);
-            backdrop-filter: blur(15px);
-            border: 0.5px solid rgba(255, 255, 255, 0.8);
-            border-radius: 30px;
-            padding: 0 16px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-            flex-shrink: 0;
-            color: #007aff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .nav-btn-text:hover {
-            background: rgba(120, 120, 128, 0.35);
-            transform: scale(0.96);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-btn-text svg {
-            stroke: currentColor;
-            width: 22px;
-            height: 22px;
         }
 
         @media (max-width: 768px) {
-            .timeline-header {
-                margin: 12px 12px 0 12px;
-                padding: 8px 16px;
-                border-radius: 28px;
-                flex-wrap: nowrap;
+            body {
+                padding-left: 12px;
+                padding-right: 12px;
             }
 
-            .nav-btn-text {
-                padding: 0 12px;
-                height: 40px;
-                font-size: 0.75rem;
+            .timeline-header {
+                top: 12px;
+                margin-bottom: 32px;
+                padding: 8px 16px;
+                border-radius: 28px;
             }
 
             .back-btn-inline,
@@ -212,13 +177,9 @@
             .nav-group {
                 min-width: 92px;
             }
-
-            .header-title .sub {
-                font-size: 0.7rem;
-                margin-top: 2px;
-            }
         }
 
+        /* 下拉菜单 */
         .dropdown-menu {
             display: none;
             position: fixed;
@@ -260,397 +221,225 @@
             background: rgba(128, 128, 128, 0.1);
         }
 
-        .chat-container {
-            flex: 1;
+        /* ===== 选项卡样式（无缝切换核心） ===== */
+        .tab-bar {
             display: flex;
-            flex-direction: column;
-            margin: 16px 16px 16px 16px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-
-        .config-bar {
-            flex-shrink: 0;
-            padding: 8px 24px;
-            background: rgba(0, 0, 0, 0.02);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .custom-select {
-            position: relative;
-            display: block;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .custom-select-trigger {
-            background: rgba(0, 0, 0, 0.03);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 40px;
-            padding: 6px 30px 6px 16px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            color: #1a1a1a;
-            white-space: nowrap;
-            position: relative;
-        }
-
-        .custom-select-trigger::after {
-            content: '▼';
-            font-size: 8px;
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-        }
-
-        .custom-select-dropdown {
-            position: absolute;
-            top: calc(100% + 5px);
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
-            padding: 6px 0;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.2s;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .custom-select.open .custom-select-dropdown {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .custom-select-option {
-            padding: 8px 14px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            color: #1a1a1a;
-        }
-
-        .custom-select-option:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .hidden-native {
-            display: none;
-        }
-
-        .messages-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            scroll-behavior: smooth;
-        }
-
-        .message {
-            display: flex;
-            gap: 12px;
-            max-width: 85%;
-        }
-
-        .message.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        .message.assistant {
-            align-self: flex-start;
-        }
-
-        .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
+            gap: 16px;
+            margin: 0 0 28px 0;
+            flex-wrap: wrap;
         }
 
-        .message.user .avatar {
-            background: rgba(230, 160, 23, 0.2);
-        }
-
-        .message.assistant .avatar {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .bubble {
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 12px 18px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-        }
-
-        .message.user .bubble {
-            background: #e6f4ff;
-            border-color: rgba(230, 160, 23, 0.2);
-        }
-
-        .message.assistant .bubble {
-            background: #ffffff;
-            border-color: rgba(0, 0, 0, 0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .bubble-text {
-            flex: 1;
-            word-break: break-word;
-            color: #1a1a1a;
-        }
-
-        .copy-btn {
-            background: rgba(0, 0, 0, 0.04);
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .copy-btn svg {
-            width: 16px;
-            height: 16px;
-            stroke: #e6a017;
-        }
-
-        .input-area {
-            flex-shrink: 0;
-            padding: 16px 24px 24px 24px;
-            background: rgba(0, 0, 0, 0.02);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .input-wrapper {
-            background: #ffffff;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 36px;
-            padding: 8px 8px 8px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-        }
-
-        .input-wrapper:focus-within {
-            border-color: #e6a017;
-            box-shadow: 0 0 0 2px rgba(230, 160, 23, 0.2);
-        }
-
-        textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #1a1a1a;
-            font-size: 0.95rem;
-            font-family: inherit;
-            resize: none;
-            outline: none;
-            max-height: 120px;
-            padding: 12px 0;
-        }
-
-        textarea::placeholder {
-            color: #8e8e93;
-        }
-
-        .send-btn {
-            background: #e6a017;
-            border: none;
-            border-radius: 36px;
-            padding: 8px 24px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #ffffff;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-
-        .send-btn:hover {
-            background: #cc8b0e;
-            transform: scale(0.96);
-        }
-
-        .messages-area::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .messages-area::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .messages-area::-webkit-scrollbar-thumb {
-            background: #e6a017;
-        }
-
-        @media (max-width: 640px) {
-            .chat-container {
-                margin: 12px 12px 12px 12px;
-            }
-
-            .message {
-                max-width: 95%;
-            }
-
-            .config-bar {
-                padding: 8px 16px;
-                gap: 8px;
-            }
-
-            .custom-select-trigger {
-                font-size: 0.75rem;
-                padding: 4px 24px 4px 12px;
-            }
-
-            .input-area {
-                padding: 12px 16px 20px;
-            }
-
-            .bubble {
-                font-size: 0.85rem;
-            }
-        }
-
-        .tokens-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tokens-modal-content {
-            background: #ffffff;
-            border-radius: 28px;
-            max-width: 90%;
-            width: 400px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 20px 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            position: relative;
-            font-size: 14px;
-            color: #1a1a1a;
-        }
-
-        .tokens-modal-content h3 {
-            margin-top: 0;
-            text-align: center;
-            font-size: 1.3rem;
-        }
-
-        .tokens-modal-content h4 {
-            margin: 12px 0 6px;
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 48px;
+            padding: 12px 28px;
             font-size: 1rem;
+            font-weight: 600;
+            color: #2c2c2e;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            letter-spacing: 0.5px;
         }
 
-        .tokens-modal-section {
+        .tab-btn i {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            display: inline-block;
+            vertical-align: middle;
+            stroke-width: 1.8;
+        }
+
+        .tab-btn.active {
+            background: #ffcc00;
+            border-color: rgba(255, 204, 0, 0.6);
+            color: #1a1a1a;
+            box-shadow: 0 6px 14px rgba(255, 204, 0, 0.25);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: #ffcc00;
+            transform: translateY(-2px);
+        }
+
+        /* 视图容器（切换核心） */
+        .view-container {
+            width: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        .view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .view.active-view {
+            display: block;
+            opacity: 1;
+        }
+
+        /* 技术卡片网格（复用上个版本样式） */
+        .tech-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin: 32px 0 20px 0;
+            padding-left: 12px;
+            border-left: 4px solid #ffcc00;
+            letter-spacing: -0.3px;
+            color: #1a1a1a;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-card,
+        .tool-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 28px;
+            padding: 20px 18px;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .tech-card:hover,
+        .tool-card:hover {
+            transform: translateY(-6px);
+            border-color: #ffcc00;
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 204, 0, 0.15);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 16px;
         }
 
-        .tokens-modal-section ul {
-            margin: 6px 0;
-            padding-left: 20px;
+        .card-icon i {
+            width: 28px;
+            height: 28px;
+            stroke: #ffcc00;
+            stroke-width: 1.7;
         }
 
-        .tokens-modal-section li {
-            margin: 6px 0;
-            line-height: 1.4;
+        .tech-name,
+        .tool-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 12px 0 6px;
+            letter-spacing: -0.2px;
+            color: #1a1a1a;
         }
 
-        .note {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 6px;
+        .tech-desc,
+        .tool-desc {
+            font-size: 0.85rem;
+            line-height: 1.45;
+            color: #4a4a4e;
+            opacity: 0.85;
         }
 
-        .tokens-modal-close {
-            position: absolute;
-            top: 12px;
-            right: 20px;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
         }
 
-        .tokens-modal-close:hover {
-            color: #333;
+        .badge {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2c2c2e;
         }
 
-        .tokens-modal-close-btn {
-            display: block;
-            width: 100%;
-            background: #e6a017;
-            border: none;
+        .tool-entry-link {
+            display: inline-block;
+            margin-top: 18px;
+            background: rgba(255, 204, 0, 0.2);
             border-radius: 40px;
-            padding: 10px;
-            color: white;
-            font-weight: 600;
-            margin-top: 20px;
-            cursor: pointer;
+            padding: 8px 18px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #e6a017;
+            text-decoration: none;
+            transition: 0.2s;
+            border: 0.5px solid rgba(230, 160, 23, 0.3);
+        }
+
+        .tool-entry-link:hover {
+            background: #ffcc00;
+            color: #1a1a1a;
+            transform: scale(0.97);
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-note {
+            margin-top: 60px;
+            font-size: 12px;
+            opacity: 0.5;
             text-align: center;
+            color: #1a1a1a;
         }
 
-        .tokens-modal-close-btn:hover {
-            background: #cc8b0e;
+        .tools-grid {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        @media (max-width: 640px) {
-            .tokens-modal-content {
-                width: 90%;
-                padding: 16px;
-            }
+        .tool-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-badge {
+            background: rgba(230, 160, 23, 0.15);
+            color: #e6a017;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            align-self: flex-start;
+            margin-top: 8px;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- 导航栏（复用全局风格） -->
     <div class="timeline-header" id="timelineHeader">
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
         <button class="back-btn-inline" onclick="history.back()">
@@ -659,19 +448,19 @@
             </svg>
         </button>
         <div class="header-title">
-            <h1>二筒翻译官</h1>
-            <span id="totalTokensDisplaySub" class="sub" style="cursor: pointer;" onclick="showTokensInfo()">累计消耗Tokens:
-                0</span>
+            <h1>技术/工具</h1>
+            <span class="sub">陪伴我创造的伙伴们</span>
         </div>
-        <div class="nav-group">
-            <button class="nav-btn-text" onclick="window.location.href='AIBot.html'">
-                <i data-lucide="message-circle"></i>
-                <span>聊天模式</span>
+        <div class="nav-group" style="display: flex; gap: 12px;">
+            <button id="scrollTopBtn" class="nav-btn" onclick="scrollToTop()">
+                <i data-lucide="chevron-up"></i>
             </button>
+            <!-- 如果还需要额外占位保持对称，可再留一个透明占位 -->
         </div>
         <div class="displacement-layer"></div>
     </div>
 
+    <!-- 下拉菜单 -->
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
         <a href="moments.html" class="menu-item">
@@ -695,154 +484,240 @@
         <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
         <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
         <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
-        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
+        <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>更新日志</a>
     </div>
 
-    <div class="chat-container">
-        <div class="config-bar">
-            <div class="custom-select" data-select-id="translateModeSelect">
-                <div class="custom-select-trigger">中-英</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="zh-en">中-英</div>
-                    <div class="custom-select-option" data-value="zh-ca">中-加</div>
-                    <div class="custom-select-option" data-value="zh-lw">中-言</div>
-                </div>
-            </div>
-            <select id="translateModeSelect" class="hidden-native">
-                <option value="zh-en" selected>中-英</option>
-                <option value="zh-ca">中-加</option>
-                <option value="zh-lw">中-言</option>
-            </select>
-
-            <div class="custom-select" data-select-id="styleSelect">
-                <div class="custom-select-trigger">日常风格</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="标准">标准风格</div>
-                    <div class="custom-select-option" data-value="口语">日常风格</div>
-                    <div class="custom-select-option" data-value="正式">商务风格</div>
-                    <div class="custom-select-option" data-value="学术">学术风格</div>
-                    <div class="custom-select-option" data-value="文学">文艺风格</div>
-                    <div class="custom-select-option" data-value="幽默">幽默风格</div>
-                    <div class="custom-select-option" data-value="简洁">简洁风格</div>
-                </div>
-            </div>
-            <select id="styleSelect" class="hidden-native">
-                <option value="标准">标准风格</option>
-                <option value="口语" selected>日常风格</option>
-                <option value="正式">正式/商务风格</option>
-                <option value="学术">学术风格</option>
-                <option value="文学">文学/文艺风格</option>
-                <option value="幽默">幽默风格</option>
-                <option value="简洁">简洁风格</option>
-            </select>
-
-            <div class="custom-select" data-select-id="modelSelect">
-                <div class="custom-select-trigger">chat</div>
-                <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="deepseek-chat">chat</div>
-                    <div class="custom-select-option" data-value="deepseek-reasoner">reasoner</div>
-                </div>
-            </div>
-            <select id="modelSelect" class="hidden-native">
-                <option value="deepseek-chat" selected>chat</option>
-                <option value="deepseek-reasoner">reasoner</option>
-            </select>
+    <!-- 选项卡切换栏 -->
+    <div class="tab-bar">
+        <div class="tab-btn active" data-view="tech">
+            <i data-lucide="cpu"></i> 技术栈全景
         </div>
-
-        <div class="messages-area" id="messagesArea">
-            <div class="message assistant">
-                <div class="avatar">
-                    <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png"
-                        style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                </div>
-                <div class="bubble">你好！我是 AiBot的翻译模型。可以在顶部选择你要翻译的模式和风格，把你想要翻译的内容发给我吧～</div>
-            </div>
-        </div>
-
-        <div class="input-area">
-            <div class="input-wrapper">
-                <textarea id="userInput" rows="1" placeholder="输入要翻译的文本..."></textarea>
-                <button id="sendBtn" class="send-btn">发送</button>
-            </div>
+        <div class="tab-btn" data-view="tools">
+            <i data-lucide="wrench"></i> 实用工具
         </div>
     </div>
 
-    <div id="copyToast"
-        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(230,160,23,0.4); color: #e6a017; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-        已复制</div>
+    <!-- 视图容器：技术栈视图（默认显示） -->
+    <div class="view-container">
+        <div id="techView" class="view active-view">
+            <div class="tech-container">
+                <!-- 前端核心 -->
+                <div class="section-title">🌐 前端基础</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="code-2"></i></div>
+                        <div class="tech-name">HTML5 / CSS3</div>
+                        <div class="tech-desc">语义化标记 + 弹性布局，浅色毛玻璃视觉体系，所有页面均为原生构建，无框架依赖。</div>
+                        <div class="badge-group"><span class="badge">语义标签</span><span class="badge">CSS
+                                Grid/Flex</span><span class="badge">响应式</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="file-js"></i></div>
+                        <div class="tech-name">JavaScript (ES6+)</div>
+                        <div class="tech-desc">全站原生JS驱动，负责动态交互、流式API调用、Canvas粒子特效、本地存储及异步数据流。</div>
+                        <div class="badge-group"><span class="badge">Async/Await</span><span class="badge">Fetch
+                                API</span><span class="badge">模块化</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="layout-template"></i></div>
+                        <div class="tech-name">Lucide 图标库</div>
+                        <div class="tech-desc">提供高一致性矢量图标，导航、点赞、上传等场景广泛使用，轻盈且可定制。</div>
+                        <div class="badge-group"><span class="badge">CDN</span><span class="badge">动态注入</span></div>
+                    </div>
+                </div>
 
-    <div id="tokensInfoModal" class="tokens-modal" style="display: none;">
-        <div class="tokens-modal-content">
-            <span class="tokens-modal-close">&times;</span>
-            <h3>Tokens 消耗说明</h3>
-            <div class="tokens-modal-section">
-                <h4>📏 换算参考</h4>
-                <ul>
-                    <li>1 token ≈ 0.75 个英文单词</li>
-                    <li>1 token ≈ 0.6 个汉字</li>
-                    <li>1 token ≈ 1 个数字/标点符号</li>
-                    <li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li>
-                </ul>
+                <!-- 后端 & BaaS -->
+                <div class="section-title">⚙️ 云后端 & 数据库</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="database"></i></div>
+                        <div class="tech-name">Supabase</div>
+                        <div class="tech-desc">开源BaaS平台，提供PostgreSQL数据库、行级安全策略、实时订阅及RPC函数，支撑站点配置、动态存储、Token统计与访客记录。
+                        </div>
+                        <div class="badge-group"><span class="badge">PostgreSQL</span><span
+                                class="badge">RLS</span><span class="badge">RPC调用</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="cloud"></i></div>
+                        <div class="tech-name">腾讯云 COS</div>
+                        <div class="tech-desc">对象存储服务，搭配COS JS SDK V5，实现朋友圈图片/视频、相册文件、用户头像等的高效上传和CDN加速分发。</div>
+                        <div class="badge-group"><span class="badge">SDK集成</span><span class="badge">CDN加速</span><span
+                                class="badge">批量管理</span></div>
+                    </div>
+                </div>
+
+                <!-- AI 模型 -->
+                <div class="section-title">🤖 AI 模型 & 大语言引擎</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="sparkles"></i></div>
+                        <div class="tech-name">DeepSeek-V3.2 / V2.5</div>
+                        <div class="tech-desc">对话与翻译主力模型，通过硅基流动API调用，支持流式响应及Token用量统计，兼顾性能与成本。</div>
+                        <div class="badge-group"><span class="badge">128K上下文</span><span class="badge">推理优化</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="microchip"></i></div>
+                        <div class="tech-name">通义千问 Qwen3.5</div>
+                        <div class="tech-desc">多尺寸开源大模型，集成至AI对话模块，提供高质量中文理解与生成能力。</div>
+                        <div class="badge-group"><span class="badge">397B MoE</span><span class="badge">多语言</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="zap"></i></div>
+                        <div class="tech-name">MiniMax-M2.5 / 豆包</div>
+                        <div class="tech-desc">MiniMax及火山引擎豆包模型，丰富对话选择，适配不同场景需求。</div>
+                        <div class="badge-group"><span class="badge">火山引擎</span><span class="badge">多模态</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="globe"></i></div>
+                        <div class="tech-name">GPT-OSS-120b</div>
+                        <div class="tech-desc">基于OpenAI API接入的开源级模型，拓展AI助手阵营，保留实验性能力。</div>
+                        <div class="badge-group"><span class="badge">OpenAI兼容</span><span class="badge">高参数规模</span>
+                        </div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="message-square"></i></div>
+                        <div class="tech-name">硅基流动 API</div>
+                        <div class="tech-desc">一站式大模型托管平台，统一调用DeepSeek、Qwen、MiniMax等，并实现流式翻译/对话与用量统计。</div>
+                        <div class="badge-group"><span class="badge">统一网关</span><span class="badge">usage统计</span></div>
+                    </div>
+                </div>
+
+                <!-- 本地存储 & 客户端 -->
+                <div class="section-title">💾 本地存储 & 客户端技术</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="hard-drive"></i></div>
+                        <div class="tech-name">IndexedDB</div>
+                        <div class="tech-desc">用于Token消耗明细的本地持久化，记录每一次翻译/对话请求的token用量，支持离线查询与分析。</div>
+                        <div class="badge-group"><span class="badge">异步事务</span><span class="badge">大容量存储</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="bookmark"></i></div>
+                        <div class="tech-name">localStorage</div>
+                        <div class="tech-desc">存储朋友圈点赞状态以及用户轻量偏好，无后端交互实现即时互动反馈。</div>
+                        <div class="badge-group"><span class="badge">键值对</span><span class="badge">跨页面同步</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="image"></i></div>
+                        <div class="tech-name">Canvas 粒子特效</div>
+                        <div class="tech-desc">朋友圈点赞时生成动态彩色圆形粒子流，高性能动画引擎，提升交互趣味性。</div>
+                        <div class="badge-group"><span class="badge">requestAnimationFrame</span><span
+                                class="badge">性能优化</span></div>
+                    </div>
+                </div>
+
+                <!-- 开发与设计 -->
+                <div class="section-title">🧰 开发工具 & 设计体系</div>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="palette"></i></div>
+                        <div class="tech-name">毛玻璃设计语言</div>
+                        <div class="tech-desc">全站统一使用backdrop-filter blur、半透背景、细腻阴影，营造层次感与融冰美学。</div>
+                        <div class="badge-group"><span class="badge">backdrop-filter</span><span
+                                class="badge">玻璃态</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="git-branch"></i></div>
+                        <div class="tech-name">原生敏捷开发</div>
+                        <div class="tech-desc">无打包工具链，直接编写HTML/CSS/JS，快速迭代，服务器仅需静态托管即可运行。</div>
+                        <div class="badge-group"><span class="badge">零构建</span><span class="badge">轻量部署</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="smartphone"></i></div>
+                        <div class="tech-name">移动端优先适配</div>
+                        <div class="tech-desc">响应式断点、视口优化，触摸事件与滚动控制完整覆盖，手机/平板体验流畅。</div>
+                        <div class="badge-group"><span class="badge">touch事件</span><span class="badge">vw/vh单位</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <div class="tech-grid" style="margin-top: 8px;">
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="infinity"></i></div>
+                        <div class="tech-name">流式交互架构</div>
+                        <div class="tech-desc">AI对话与翻译均采用Server-Sent Events风格流式传输，实时展示生成内容，降低等待感知。</div>
+                        <div class="badge-group"><span class="badge">ReadableStream</span><span
+                                class="badge">逐字渲染</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="shield"></i></div>
+                        <div class="tech-name">Supabase RPC 安全体系</div>
+                        <div class="tech-desc">管理后台密码验证、配置更新、token累加等敏感操作通过数据库函数执行，保障数据边界。</div>
+                        <div class="badge-group"><span class="badge">行级安全</span><span class="badge">函数封装</span></div>
+                    </div>
+                    <div class="tech-card">
+                        <div class="card-icon"><i data-lucide="tags"></i></div>
+                        <div class="tech-name">多模型路由</div>
+                        <div class="tech-desc">根据用户选择动态切换硅基流动/火山引擎/OpenAI端点，统一抽象层支持后续扩展。</div>
+                        <div class="badge-group"><span class="badge">适配器模式</span><span class="badge">密钥隔离</span></div>
+                    </div>
+                </div>
             </div>
-            <div class="tokens-modal-section">
-                <h4>⚙️ 哪些内容会消耗 Tokens？</h4>
-                <ul>
-                    <li>📤 你发送的消息（用户输入）</li>
-                    <li>🤖 AI 返回的回答（模型输出）</li>
-                    <li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li>
-                </ul>
-                <p class="note">※ 每次对话/翻译请求都会包含系统提示词，因此即使只发两个字，也会消耗约 100+ tokens。</p>
-            </div>
-            <div class="tokens-modal-section">
-                <h4>📊 统计范围</h4>
-                <ul>
-                    <li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li>
-                    <li>✅ AI
-                        对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong>
-                    </li>
-                    <li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li>
-                </ul>
-            </div>
-            <button class="tokens-modal-close-btn">关闭</button>
         </div>
+
+        <!-- 实用工具视图（原tools.html融合，可扩展） -->
+        <div id="toolsView" class="view">
+            <div class="tools-grid">
+                <!-- 二筒翻译官（核心工具） -->
+                <div class="tool-card">
+                    <div class="card-icon"><i data-lucide="languages"></i></div>
+                    <div class="tool-name">二筒翻译官</div>
+                    <div class="tool-desc">依托AI大模型打造的定制对话式翻译，支持中↔英、中↔菲律宾语、中↔文言文双向互译，并可选择日常、学术、幽默等7种风格，流式实时输出翻译结果。</div>
+                    <div class="badge-group">
+                        <span class="badge">流式响应</span>
+                        <span class="badge">多语言引擎</span>
+                        <span class="badge">风格定制</span>
+                    </div>
+                    <a href="translate.html" class="tool-entry-link">🚀 打开翻译官</a>
+                </div>
+
+                <!-- 未来扩展预留（占位，体现工具集合） -->
+                <div class="tool-card">
+                    <div class="card-icon"><i data-lucide="bot"></i></div>
+                    <div class="tool-name">AI 对话助手</div>
+                    <div class="tool-desc">集成DeepSeek-V3.2、Qwen、MiniMax、豆包、GPT-OSS多模型，支持流式对话与Token统计，随时切换对话风格。</div>
+                    <div class="badge-group">
+                        <span class="badge">多模型切换</span>
+                        <span class="badge">Token统计</span>
+                        <span class="badge">长上下文</span>
+                    </div>
+                    <a href="AIBot.html" class="tool-entry-link">💬 开始对话</a>
+                </div>
+
+                <!-- 时光照相馆入口（视觉工具） -->
+                <div class="tool-card">
+                    <div class="card-icon"><i data-lucide="clock"></i></div>
+                    <div class="tool-name">时光照相馆</div>
+                    <div class="tool-desc">年轮光影 · 老街坊弄堂影像集，支持全屏浏览、缩放、左右滑动切换，记录岁月痕迹。</div>
+                    <div class="badge-group">
+                        <span class="badge">触摸手势</span>
+                        <span class="badge">图片预览</span>
+                        <span class="badge">历史存档</span>
+                    </div>
+                    <a href="timeline.html" class="tool-entry-link">📸 进入时光馆</a>
+                </div>
+
+                <!-- 工具箱占位提示（未来更多） -->
+                <div class="tool-card" style="opacity: 0.75;">
+                    <div class="card-icon"><i data-lucide="package"></i></div>
+                    <div class="tool-name">更多工具即将到来</div>
+                    <div class="tool-desc">后续将集成图片压缩、二维码生成、JSON格式化、Markdown编辑器等实用功能，持续丰富工具箱。</div>
+                    <div class="tool-badge">敬请期待</div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 40px;">
+                🧰
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note" style="margin-top: 30px;">
+        🛠️ 技术展示 + 生产力工具
     </div>
 
     <script>
-        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
-        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-        window.db = supabase.createClient(supabaseUrl, supabaseKey);
-        const supabaseClient = window.db;
-
-        let db = null;
-        const DB_NAME = 'TokenStatsDB';
-        const STORE_NAME = 'requests';
-        const DB_VERSION = 1;
-
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                if (db) return resolve(db);
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => { db = request.result; resolve(db); };
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                    }
-                };
-            });
-        }
-
-        async function addRequestRecord(entry) {
-            try {
-                const db = await openDB();
-                const tx = db.transaction(STORE_NAME, 'readwrite');
-                const store = tx.objectStore(STORE_NAME);
-                store.add({ ...entry, timestamp: Date.now() });
-                await tx.complete;
-            } catch (err) { console.error('保存明细失败', err); }
-        }
-
+        // 导航栏动态阴影（与主页一致）
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -876,239 +751,66 @@
         }
         initEdgeDistortion();
 
-        function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('active'); }
+        // 菜单切换
+        function toggleMenu(e) {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('active');
+        }
         window.onclick = (e) => {
             const menu = document.getElementById('dropdown-menu');
             const trigger = document.getElementById('menu-trigger');
             if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
         };
 
-        const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
-        const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+        // ========= 选项卡无缝切换逻辑 =========
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const techView = document.getElementById('techView');
+        const toolsView = document.getElementById('toolsView');
 
-        function getModelId(selectedModel) {
-            return selectedModel === 'deepseek-reasoner' ? 'deepseek-ai/DeepSeek-R1' : 'deepseek-ai/DeepSeek-V2.5';
-        }
-
-        const messagesArea = document.getElementById('messagesArea');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const translateModeSelect = document.getElementById('translateModeSelect');
-        const styleSelect = document.getElementById('styleSelect');
-        const modelSelect = document.getElementById('modelSelect');
-
-        function addMessage(role, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            const avatar = document.createElement('div');
-            avatar.className = 'avatar';
-            const img = document.createElement('img');
-            img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '50%';
-            img.src = role === 'user' ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg' : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
-            avatar.appendChild(img);
-            messageDiv.appendChild(avatar);
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            const textSpan = document.createElement('div');
-            textSpan.className = 'bubble-text';
-            textSpan.innerHTML = content.replace(/\n/g, '<br>');
-            bubble.appendChild(textSpan);
-            if (role === 'assistant') {
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.title = '复制翻译结果';
-                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-                copyBtn.addEventListener('click', (e) => { e.stopPropagation(); copyToClipboard(content); });
-                bubble.appendChild(copyBtn);
+        function switchView(viewId) {
+            // 切换视图显示
+            if (viewId === 'tech') {
+                techView.classList.add('active-view');
+                toolsView.classList.remove('active-view');
+            } else {
+                toolsView.classList.add('active-view');
+                techView.classList.remove('active-view');
             }
-            messageDiv.appendChild(bubble);
-            messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        async function translateWithSiliconFlowStream(text, mode, style, modelValue) {
-            const styleMap = {
-                '标准': '自然的、标准的翻译',
-                '口语': '保留用户原文的说话语气，用日常口语表达，但必须准确传达原意。“能…吗”请用“Can you…?”。', '正式': '正式的、商务场合的风格，用词严谨礼貌',
-                '学术': '学术论文风格，用词专业、结构清晰',
-                '文学': '文学性的、富有文采的风格，可以适当使用修辞',
-                '幽默': '幽默诙谐的风格，翻译时加入一点趣味性',
-                '简洁': '简洁明了、通俗易懂的风格，避免复杂词汇'
-            };
-            const styleInstruction = styleMap[style] || styleMap['标准'];
-
-            function isChinese(str) { return /[\u4e00-\u9fa5]/.test(str); }
-
-            let sourceLang, targetLang;
-            switch (mode) {
-                case 'zh-en':
-                    if (isChinese(text)) { sourceLang = '中文'; targetLang = '英文'; }
-                    else { sourceLang = '英文'; targetLang = '中文'; }
-                    break;
-                case 'zh-ca':   // 中-加：Tagalog (菲律宾语)
-                    if (isChinese(text)) {
-                        sourceLang = '中文';
-                        targetLang = 'Tagalog';       // 使用模型熟悉的英文名称
-                    } else {
-                        sourceLang = 'Tagalog';
-                        targetLang = '中文';
-                    }
-                    break;
-                case 'zh-lw':
-                    if (isChinese(text)) { sourceLang = '中文'; targetLang = '文言文'; }
-                    else { sourceLang = '文言文'; targetLang = '中文'; }
-                    break;
-                default:
-                    sourceLang = '中文'; targetLang = '英文';
-            }
-
-            const systemPrompt = `你是一个专业且自然的翻译器。用户输入的就是要翻译的文本。请将用户提供的${sourceLang}文本翻译成${targetLang}，翻译要求：${styleInstruction}。
-
-【语气要求】请仔细识别用户原文中的语气（疑问、感叹、反问、幽默、讽刺、认真、温柔、愤怒等），并在翻译结果中完整保留这种语气。对于“能…吗”这类句式，请优先使用“Can you…?”表示能力或允许，而不是“Will you…?”或“Are you going to…?”。使用目标语言中最自然的表达方式，不要直译，不要添加任何解释。
-
-【输出格式】只输出翻译后的文字，不要输出"翻译："、"Please translate:"、引号、括号、原文、任何标记或多余字符。`;
-
-            const userMessage = `请翻译：${text}`;
-            const modelId = getModelId(modelValue);
-            const response = await fetch(SILICONFLOW_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SILICONFLOW_API_KEY}` },
-                body: JSON.stringify({
-                    model: modelId,
-                    messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }],
-                    temperature: 0, max_tokens: 500, stream: true, stream_options: { include_usage: true }
-                })
-            });
-
-            if (!response.ok) throw new Error(`API 请求失败 (${response.status}): ${await response.text()}`);
-            if (!response.body) throw new Error('当前浏览器不支持流式响应');
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let fullContent = '', buffer = '', usageRecorded = false;
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message assistant';
-            const avatar = document.createElement('div');
-            avatar.className = 'avatar';
-            const img = document.createElement('img');
-            img.src = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
-            img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '50%';
-            avatar.appendChild(img);
-            messageDiv.appendChild(avatar);
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            const textSpan = document.createElement('div');
-            textSpan.className = 'bubble-text';
-            textSpan.innerHTML = '';
-            bubble.appendChild(textSpan);
-            messageDiv.appendChild(bubble);
-            messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') continue;
-                        try {
-                            const parsed = JSON.parse(data);
-                            const delta = parsed.choices[0]?.delta?.content;
-                            if (delta) { fullContent += delta; textSpan.innerHTML = fullContent.replace(/\n/g, '<br>'); messagesArea.scrollTop = messagesArea.scrollHeight; }
-                            if (parsed.usage && !usageRecorded) {
-                                usageRecorded = true;
-                                const usage = parsed.usage;
-                                const newTotal = await addGlobalTokens(usage.total_tokens);
-                                if (newTotal !== null) document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${newTotal}`;
-                                await addRequestRecord({ type: '翻译', model: modelId, input: text, output: fullContent, input_tokens: usage.prompt_tokens || 0, output_tokens: usage.completion_tokens || 0, total_tokens: usage.total_tokens || 0 });
-                            }
-                        } catch (e) { }
-                    }
+            // 更新按钮激活样式
+            tabBtns.forEach(btn => {
+                if (btn.getAttribute('data-view') === viewId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
                 }
-            }
-
-            let finalResult = fullContent.trim();
-            finalResult = finalResult.replace(/^(翻译|请翻译|把这段话翻译成|翻译一下)[：:]\s*/i, '').replace(/^Please translate[：:]\s*/i, '').replace(/^“翻译[：:]”\s*/, '');
-            messageDiv.remove();
-            addMessage('assistant', finalResult || '抱歉，没有收到有效回复。');
+            });
+            // 重新绘制 lucide 图标（防止动态添加后图标未渲染）
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 10);
         }
 
-        async function handleSend() {
-            let text = userInput.value.trim();
-            if (!text) return;
-            const prefixes = [/^把这段话翻译成\S+\s*/, /^请翻译[：:]\s*/, /^翻译一下[：:]\s*/, /^翻译[：:]\s*/, /^将以下内容翻译成\S+\s*/, /^Please translate[：:]\s*/i];
-            let cleanText = text;
-            for (const prefix of prefixes) cleanText = cleanText.replace(prefix, '');
-            const finalText = cleanText.trim() || text;
-            addMessage('user', text);
-            userInput.value = '';
-            userInput.style.height = '';
-            try {
-                await translateWithSiliconFlowStream(finalText, translateModeSelect.value, styleSelect.value, modelSelect.value);
-            } catch (err) {
-                console.error(err);
-                let errorMsg = '翻译失败：';
-                if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
-                else if (err.message.includes('429')) errorMsg += '请求过于频繁，请稍后再试';
-                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查网络';
-                else errorMsg += err.message;
-                addMessage('assistant', errorMsg);
-            }
-        }
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const viewId = btn.getAttribute('data-view');
+                if (viewId) switchView(viewId);
+            });
+        });
 
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-        userInput.addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
+        // 初始化所有 Lucide 图标
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+        lucide.createIcons();
 
-        function initCustomSelects() {
-            document.querySelectorAll('.custom-select').forEach(customSelect => {
-                const trigger = customSelect.querySelector('.custom-select-trigger');
-                const dropdown = customSelect.querySelector('.custom-select-dropdown');
-                const hiddenSelectId = customSelect.getAttribute('data-select-id');
-                const hiddenSelect = document.getElementById(hiddenSelectId);
-                if (!hiddenSelect) return;
-                const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
-                if (selectedOption) trigger.innerText = selectedOption.text;
-                trigger.addEventListener('click', (e) => { e.stopPropagation(); document.querySelectorAll('.custom-select.open').forEach(el => { if (el !== customSelect) el.classList.remove('open'); }); customSelect.classList.toggle('open'); });
-                dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
-                    opt.addEventListener('click', (e) => {
-                        const value = opt.getAttribute('data-value');
-                        const text = opt.innerText;
-                        for (let i = 0; i < hiddenSelect.options.length; i++) { if (hiddenSelect.options[i].value === value) { hiddenSelect.selectedIndex = i; break; } }
-                        trigger.innerText = text;
-                        hiddenSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                        customSelect.classList.remove('open');
-                    });
-                });
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         }
-        document.addEventListener('click', () => { document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open')); });
-        initCustomSelects();
-
-        function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => { const toast = document.getElementById('copyToast'); toast.style.opacity = '1'; setTimeout(() => { toast.style.opacity = '0'; }, 1500); }).catch(() => alert('复制失败，请手动复制')); }
-
-        async function getGlobalTokens() { const { data, error } = await supabaseClient.from('global_token_stats').select('total_tokens').eq('id', 1).single(); if (error) return 0; return data?.total_tokens || 0; }
-        async function addGlobalTokens(inc) { const { data, error } = await supabaseClient.rpc('increment_global_tokens', { inc }); if (error) return null; return data; }
-        async function updateTotalTokensDisplay() { const total = await getGlobalTokens(); const span = document.getElementById('totalTokensDisplaySub'); if (span) span.innerText = `累计消耗Tokens: ${total}`; }
-        function showTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'flex'; }
-        function closeTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'none'; }
-
-        lucide.createIcons();
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('tokensInfoModal');
-            if (modal) {
-                modal.querySelector('.tokens-modal-close').onclick = closeTokensInfo;
-                modal.querySelector('.tokens-modal-close-btn').onclick = closeTokensInfo;
-                modal.onclick = (e) => { if (e.target === modal) closeTokensInfo(); };
-            }
-        });
-        if (supabaseClient) updateTotalTokensDisplay();
     </script>
+    <script src="js/modal.js"></script>
 </body>
 
 </html>
