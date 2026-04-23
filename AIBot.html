@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- 全局基础样式（浅色背景，与其他页面一致）--- */
+        /* --- 全局基础样式（与 translate.html 完全一致）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -25,7 +25,7 @@
             flex-direction: column;
         }
 
-        /* --- 导航栏（普通块级）--- */
+        /* --- 导航栏 --- */
         .timeline-header {
             flex-shrink: 0;
             margin: 16px 16px 0 16px;
@@ -39,9 +39,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            flex-wrap: nowrap;
-            overflow: visible;
-            /* overflow: hidden; */
+            flex-wrap: wrap;
+            overflow: hidden;
         }
 
         .displacement-layer {
@@ -77,10 +76,6 @@
             right: 0;
             border-radius: 0 34px 0 0;
         }
-
-        /* .timeline-header:hover {
-            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
-        } */
 
         .timeline-header::before {
             content: '';
@@ -128,13 +123,36 @@
 
         .header-title {
             flex: 1;
-            min-width: 0;
             text-align: center;
-            overflow: hidden;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            display: block;
+            margin-top: 4px;
+            color: #666;
             white-space: nowrap;
         }
 
-        /* 带文字的导航按钮（更宽） */
+        .nav-group {
+            min-width: 88px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            align-items: center;
+        }
+
         .nav-btn-text {
             background: rgba(120, 120, 128, 0.2);
             backdrop-filter: blur(15px);
@@ -162,30 +180,10 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .header-title h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        .header-title .sub {
-            font-size: 0.75rem;
-            opacity: 0.6;
-            display: block;
-            margin-top: 4px;
-            color: #666;
-            white-space: nowrap;
-        }
-
-        .nav-group {
-            min-width: 88px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
+        .nav-btn-text svg {
+            stroke: currentColor;
+            width: 22px;
+            height: 22px;
         }
 
         @media (max-width: 768px) {
@@ -214,6 +212,11 @@
 
             .nav-group {
                 min-width: 92px;
+            }
+
+            .header-title .sub {
+                font-size: 0.7rem;
+                margin-top: 2px;
             }
         }
 
@@ -259,18 +262,39 @@
             background: rgba(128, 128, 128, 0.1);
         }
 
-        /* 模型选择栏（毛玻璃自定义下拉框） */
-        .model-bar {
-            flex-shrink: 0;
-            margin: 12px 16px 0 16px;
+        /* 主容器 */
+        .chat-container {
+            flex: 1;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            margin: 16px 16px 16px 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        /* 配置栏 */
+        .config-bar {
+            flex-shrink: 0;
+            padding: 8px 24px;
+            background: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .custom-select {
             position: relative;
-            display: inline-block;
-            min-width: 200px;
+            display: block;
+            flex: 1;
+            min-width: 0;
         }
 
         .custom-select-trigger {
@@ -333,32 +357,7 @@
             display: none;
         }
 
-        @media (max-width: 640px) {
-            .custom-select {
-                min-width: 160px;
-            }
-
-            .custom-select-trigger {
-                font-size: 0.75rem;
-                padding: 4px 24px 4px 12px;
-            }
-        }
-
-        /* 主容器 — 占据剩余高度，内部 flex 列 */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            margin: 12px 16px 16px 16px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-
-        /* 消息区域 — 可滚动 */
+        /* 消息区域 */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -459,10 +458,61 @@
             stroke: #e6a017;
         }
 
+        /* 图片预览区域 */
+        .image-preview-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 20px 8px 20px;
+            background: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: -1px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-item .remove-img {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .preview-item .remove-img:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
         /* 输入区域 */
         .input-area {
             flex-shrink: 0;
-            padding: 16px 24px 24px 24px;
+            padding: 8px 24px 20px 24px;
             background: rgba(0, 0, 0, 0.02);
             border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
@@ -472,16 +522,36 @@
             backdrop-filter: blur(8px);
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 36px;
-            padding: 8px 8px 8px 20px;
+            padding: 8px 8px 8px 16px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             transition: 0.2s;
         }
 
         .input-wrapper:focus-within {
             border-color: #e6a017;
             box-shadow: 0 0 0 2px rgba(230, 160, 23, 0.2);
+        }
+
+        .upload-btn {
+            background: transparent;
+            border: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #8e8e93;
+            border-radius: 50%;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .upload-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #e6a017;
         }
 
         textarea {
@@ -494,7 +564,7 @@
             resize: none;
             outline: none;
             max-height: 120px;
-            padding: 12px 0;
+            padding: 10px 0;
         }
 
         textarea::placeholder {
@@ -505,7 +575,7 @@
             background: #e6a017;
             border: none;
             border-radius: 36px;
-            padding: 8px 24px;
+            padding: 8px 20px;
             font-weight: 600;
             font-size: 0.85rem;
             color: #ffffff;
@@ -531,7 +601,40 @@
             background: #e6a017;
         }
 
-        /* 滚动控制按钮 — 水平居中，位于输入框上方 */
+        @media (max-width: 640px) {
+            .chat-container {
+                margin: 12px 12px 12px 12px;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .config-bar {
+                padding: 8px 16px;
+                gap: 8px;
+            }
+
+            .custom-select-trigger {
+                font-size: 0.75rem;
+                padding: 4px 24px 4px 12px;
+            }
+
+            .input-area {
+                padding: 8px 12px 16px;
+            }
+
+            .bubble {
+                font-size: 0.85rem;
+            }
+
+            .preview-item {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* 滚动控制按钮 */
         .scroll-control-btn {
             position: fixed;
             bottom: 120px;
@@ -564,32 +667,9 @@
             transform: translateX(-50%) scale(1.05);
         }
 
-        @media (max-width: 640px) {
-            .chat-container {
-                margin: 8px 12px 12px 12px;
-            }
-
-            .message {
-                max-width: 95%;
-            }
-
-            .input-area {
-                padding: 12px 16px 20px;
-            }
-
-            .bubble {
-                font-size: 0.85rem;
-            }
-
-            .scroll-control-btn {
-                bottom: 120px;
-                width: 40px;
-                height: 40px;
-            }
-        }
-
-        /* Tokens 说明弹窗 */
-        .tokens-modal {
+        /* 弹窗公用 */
+        .tokens-modal,
+        .confirm-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -603,18 +683,63 @@
             justify-content: center;
         }
 
-        .tokens-modal-content {
-            background: #ffffff;
+        .tokens-modal-content,
+        .confirm-modal-content {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
             border-radius: 28px;
             max-width: 90%;
-            width: 400px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 20px 24px;
+            width: 340px;
+            padding: 24px 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             position: relative;
             font-size: 14px;
             color: #1a1a1a;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .confirm-modal-content p {
+            margin: 12px 0 20px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .confirm-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-modal-buttons button {
+            background: rgba(0, 0, 0, 0.08);
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .confirm-modal-buttons button:first-child {
+            background: #e6a017;
+            color: white;
+        }
+
+        .confirm-modal-buttons button:first-child:hover {
+            background: #cc8b0e;
+            transform: scale(0.96);
+        }
+
+        .confirm-modal-buttons button:last-child {
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+        }
+
+        .confirm-modal-buttons button:last-child:hover {
+            background: rgba(0, 0, 0, 0.12);
+            transform: scale(0.96);
         }
 
         .tokens-modal-content h3 {
@@ -630,6 +755,7 @@
 
         .tokens-modal-section {
             margin-bottom: 16px;
+            text-align: left;
         }
 
         .tokens-modal-section ul {
@@ -657,10 +783,6 @@
             color: #999;
         }
 
-        .tokens-modal-close:hover {
-            color: #333;
-        }
-
         .tokens-modal-close-btn {
             display: block;
             width: 100%;
@@ -680,9 +802,11 @@
         }
 
         @media (max-width: 640px) {
-            .tokens-modal-content {
-                width: 90%;
-                padding: 16px;
+
+            .tokens-modal-content,
+            .confirm-modal-content {
+                width: 85%;
+                padding: 20px;
             }
         }
     </style>
@@ -699,8 +823,7 @@
         </button>
         <div class="header-title">
             <h1>AiBot</h1>
-            <span id="totalTokensDisplaySub" class="sub" style="cursor: pointer;" onclick="showTokensInfo()">累计消耗Tokens:
-                0</span>
+            <span id="totalTokensDisplaySub" class="sub" style="cursor: pointer;" onclick="showTokensInfo()">累计消耗Tokens: 0</span>
         </div>
         <div class="nav-group">
             <button class="nav-btn-text" onclick="window.location.href='translate.html'">
@@ -710,40 +833,17 @@
         <div class="displacement-layer"></div>
     </div>
 
-    <!-- 模型选择栏（毛玻璃自定义下拉框） -->
-    <div class="model-bar">
-        <div class="custom-select" data-select-id="modelSelect">
-            <div class="custom-select-trigger">DeepSeek-V3.2</div>
-            <div class="custom-select-dropdown">
-                <div class="custom-select-option" data-value="deepseek-ai/DeepSeek-V3.2">DeepSeek-V3.2</div>
-                <div class="custom-select-option" data-value="Pro/deepseek-ai/DeepSeek-R1">DeepSeek-R1 (推理模型)</div>
-                <div class="custom-select-option" data-value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</div>
-            </div>
-        </div>
-        <select id="modelSelect" class="hidden-native">
-            <option value="deepseek-ai/DeepSeek-V3.2" selected>DeepSeek-V3.2</option>
-            <option value="Pro/deepseek-ai/DeepSeek-R1">DeepSeek-R1 (推理模型)</option>
-            <option value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</option>
-        </select>
-    </div>
-
     <!-- 下拉菜单 -->
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
         <a href="moments.html" class="menu-item">
             <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
-                <path
-                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
-                <path d="M31 7V24" />
-                <path d="M16.6357 6.63599L30.7779 20.7781" />
-                <path d="M7 17H24" />
-                <path d="M20.3643 17.636L6.22212 31.7781" />
-                <path d="M17 25V42" />
-                <path d="M17.6357 27.636L31.7779 41.7781" />
-                <path d="M24 31L42 31" />
+                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" /><path d="M16.6357 6.63599L30.7779 20.7781" /><path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" /><path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" /><path d="M24 31L42 31" />
                 <path d="M42.3643 16.636L28.2221 30.7781" />
-                <path
-                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+                <path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
             </svg>
             朋友圈
         </a>
@@ -756,31 +856,61 @@
 
     <!-- 对话主容器 -->
     <div class="chat-container">
+        <!-- 配置栏 -->
+        <div class="config-bar">
+            <div class="custom-select" data-select-id="modelSelect">
+                <div class="custom-select-trigger">DeepSeek-V3.2</div>
+                <div class="custom-select-dropdown">
+                    <div class="custom-select-option" data-value="deepseek-ai/DeepSeek-V3.2">DeepSeek-V3.2</div>
+                    <div class="custom-select-option" data-value="Pro/deepseek-ai/DeepSeek-R1">DeepSeek-R1 (推理模型)</div>
+                    <div class="custom-select-option" data-value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</div>
+                    <div class="custom-select-option" data-value="Qwen/Qwen3-VL-32B-Instruct">Qwen3-VL-32B-Instruct (视觉识别)</div>
+                </div>
+            </div>
+            <select id="modelSelect" class="hidden-native">
+                <option value="deepseek-ai/DeepSeek-V3.2" selected>DeepSeek-V3.2</option>
+                <option value="Pro/deepseek-ai/DeepSeek-R1">DeepSeek-R1 (推理模型)</option>
+                <option value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</option>
+                <option value="Qwen/Qwen3-VL-32B-Instruct">Qwen3-VL-32B-Instruct (视觉识别)</option>
+            </select>
+        </div>
+
+        <!-- 消息区域 -->
         <div class="messages-area" id="messagesArea">
             <div class="message assistant">
                 <div class="avatar">
                     <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png"
                         style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                 </div>
-                <div class="bubble">你好！我是 AiBot，支持 DeepSeek、Qwen、MiniMax、豆包和 GPT-OSS 模型。在顶部选择模型后，即可开始对话～</div>
+                <div class="bubble">你好！我是 AiBot，支持纯文本模型（DeepSeek-V3.2、R1、豆包）和多模态视觉模型（Qwen3-VL-32B）。选择视觉模型后，可以上传或粘贴图片，我会识别图片内容并结合你的文字提问进行回答。</div>
             </div>
         </div>
+
+        <!-- 图片预览区域 -->
+        <div id="imagePreviewArea" class="image-preview-area" style="display: none;"></div>
+
+        <!-- 输入区域 -->
         <div class="input-area">
             <div class="input-wrapper">
+                <button id="uploadImageBtn" class="upload-btn" title="上传图片">
+                    <i data-lucide="image"></i>
+                </button>
+                <input type="file" id="imageInput" accept="image/*" multiple style="display: none;">
                 <textarea id="userInput" rows="1" placeholder="输入你的问题..."></textarea>
                 <button id="sendBtn" class="send-btn">发送</button>
             </div>
         </div>
     </div>
 
-    <!-- 滚动控制按钮（水平居中，位于输入框上方） -->
+    <!-- 滚动控制按钮 -->
     <div id="scrollControlBtn" class="scroll-control-btn">
         <i data-lucide="arrow-down"></i>
     </div>
 
     <div id="copyToast"
         style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(230,160,23,0.4); color: #e6a017; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-        已复制</div>
+        已复制
+    </div>
 
     <!-- Tokens 说明弹窗 -->
     <div id="tokensInfoModal" class="tokens-modal" style="display: none;">
@@ -789,33 +919,31 @@
             <h3>Tokens 消耗说明</h3>
             <div class="tokens-modal-section">
                 <h4>📏 换算参考</h4>
-                <ul>
-                    <li>1 token ≈ 0.75 个英文单词</li>
-                    <li>1 token ≈ 0.6 个汉字</li>
-                    <li>1 token ≈ 1 个数字/标点符号</li>
-                    <li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li>
-                </ul>
+                <ul><li>1 token ≈ 0.75 个英文单词</li><li>1 token ≈ 0.6 个汉字</li><li>1 token ≈ 1 个数字/标点符号</li><li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li></ul>
             </div>
             <div class="tokens-modal-section">
                 <h4>⚙️ 哪些内容会消耗 Tokens？</h4>
-                <ul>
-                    <li>📤 你发送的消息（用户输入）</li>
-                    <li>🤖 AI 返回的回答（模型输出）</li>
-                    <li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li>
-                </ul>
+                <ul><li>📤 你发送的消息（用户输入）</li><li>🤖 AI 返回的回答（模型输出）</li><li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li></ul>
                 <p class="note">※ 每次对话/翻译请求都会包含系统提示词，因此即使只发两个字，也会消耗约 100+ tokens。</p>
             </div>
             <div class="tokens-modal-section">
                 <h4>📊 统计范围</h4>
-                <ul>
-                    <li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li>
-                    <li>✅ AI
-                        对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong>
-                    </li>
-                    <li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li>
-                </ul>
+                <ul><li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li><li>✅ AI 对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong></li><li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li></ul>
             </div>
             <button class="tokens-modal-close-btn">关闭</button>
+        </div>
+    </div>
+
+    <!-- 模型切换确认弹窗（仅对 R1 生效，可复用） -->
+    <div id="confirmModelModal" class="confirm-modal" style="display: none;">
+        <div class="confirm-modal-content">
+            <p><strong>DeepSeek-R1 是深度推理模型</strong><br><br>
+            该模型在回答之前会进行完整的后台深度思考，该过程不会在前端显示，因此整个回答时间会比较长。<br><br>
+            ⚠️ 这不是模型无响应，而是它在后端进行深度思考，思考完成后才会在前端输出内容。</p>
+            <div class="confirm-modal-buttons">
+                <button id="confirmSwitchBtn">确定切换</button>
+                <button id="cancelSwitchBtn">不换了</button>
+            </div>
         </div>
     </div>
 
@@ -826,7 +954,7 @@
         window.db = supabase.createClient(supabaseUrl, supabaseKey);
         const supabaseClient = window.db;
 
-        // ====================== Tokens 统计系统 (IndexedDB 本地明细) ======================
+        // ====================== Tokens 统计系统 ======================
         let db = null;
         const DB_NAME = 'TokenStatsDB';
         const STORE_NAME = 'requests';
@@ -837,10 +965,7 @@
                 if (db) return resolve(db);
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
                 request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
+                request.onsuccess = () => { db = request.result; resolve(db); };
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -850,42 +975,17 @@
             });
         }
 
-        // 添加一条记录到 IndexedDB（本地明细）
         async function addRequestRecord(entry) {
             try {
                 const db = await openDB();
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
-                store.add({
-                    ...entry,
-                    timestamp: Date.now()
-                });
+                store.add({ ...entry, timestamp: Date.now() });
                 await tx.complete;
-            } catch (err) {
-                console.error('保存明细失败', err);
-            }
+            } catch (err) { console.error('保存明细失败', err); }
         }
 
-        // 获取所有记录（本地明细）
-        async function getAllRecords() {
-            const db = await openDB();
-            return new Promise((resolve) => {
-                const tx = db.transaction(STORE_NAME, 'readonly');
-                const store = tx.objectStore(STORE_NAME);
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => resolve([]);
-            });
-        }
-
-        // 数字缩写格式化（可选，当前未使用，保留备用）
-        function formatNumber(num) {
-            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'k';
-            return num.toString();
-        }
-
-        // ====================== 导航栏动态阴影等原有代码 ======================
+        // ====================== 导航栏动态阴影 ======================
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -919,36 +1019,134 @@
         }
         initEdgeDistortion();
 
-        // 菜单切换
-        function toggleMenu(e) {
-            e.stopPropagation();
-            document.getElementById('dropdown-menu').classList.toggle('active');
-        }
+        function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('active'); }
         window.onclick = (e) => {
             const menu = document.getElementById('dropdown-menu');
             const trigger = document.getElementById('menu-trigger');
-            if (menu && trigger && !trigger.contains(e.target)) {
-                menu.classList.remove('active');
-            }
+            if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
         };
 
-        // ====================== 多 API 配置 ======================
-        // 硅基流动配置
+        // ====================== API 配置 ======================
         const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
         const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
-        // 火山引擎（豆包）配置
         const VOLC_ACCESS_KEY = 'ark-9e858f30-24eb-4bd2-a47b-96e89b29628b-d8fa4';
         const VOLC_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
-        // OpenAI（GPT-OSS）配置
-        const OPENAI_API_KEY = 'sk-hydatekprncyuofqalkianywtcxpdburwypswtensmvslkrn';
-        const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
         const messagesArea = document.getElementById('messagesArea');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const hiddenModelSelect = document.getElementById('modelSelect');
 
-        // 自定义下拉框初始化
+        // ====================== 图片上传与粘贴功能 ======================
+        const uploadBtn = document.getElementById('uploadImageBtn');
+        const imageInput = document.getElementById('imageInput');
+        const previewArea = document.getElementById('imagePreviewArea');
+        let currentImages = []; // 存储 { id, dataURL, file }
+
+        function renderPreview() {
+            previewArea.innerHTML = '';
+            if (currentImages.length === 0) {
+                previewArea.style.display = 'none';
+                return;
+            }
+            previewArea.style.display = 'flex';
+            currentImages.forEach((img, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'preview-item';
+                const imgEl = document.createElement('img');
+                imgEl.src = img.dataURL;
+                itemDiv.appendChild(imgEl);
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'remove-img';
+                removeBtn.innerHTML = '✕';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentImages.splice(idx, 1);
+                    renderPreview();
+                };
+                itemDiv.appendChild(removeBtn);
+                previewArea.appendChild(itemDiv);
+            });
+        }
+
+        function addImageFromFile(file) {
+            if (!file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataURL = e.target.result;
+                currentImages.push({
+                    id: Date.now() + Math.random(),
+                    dataURL: dataURL,
+                    file: file
+                });
+                renderPreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addImagesFromFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/')) {
+                    addImageFromFile(file);
+                }
+            }
+        }
+
+        uploadBtn.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                addImagesFromFiles(Array.from(e.target.files));
+                imageInput.value = '';
+            }
+        });
+
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    if (file) addImageFromFile(file);
+                    break;
+                }
+            }
+        });
+
+        // ====================== 模型切换确认弹窗逻辑（仅 R1 需要确认） ======================
+        const confirmModal = document.getElementById('confirmModelModal');
+        const confirmSwitchBtn = document.getElementById('confirmSwitchBtn');
+        const cancelSwitchBtn = document.getElementById('cancelSwitchBtn');
+        let pendingSwitchData = null;
+
+        function closeConfirmModal() {
+            confirmModal.style.display = 'none';
+            pendingSwitchData = null;
+        }
+
+        function showConfirmModal(data) {
+            pendingSwitchData = data;
+            confirmModal.style.display = 'flex';
+        }
+
+        function performModelSwitch(data) {
+            if (!data) return;
+            const { value, text, trigger, hiddenSelect } = data;
+            for (let i = 0; i < hiddenSelect.options.length; i++) {
+                if (hiddenSelect.options[i].value === value) {
+                    hiddenSelect.selectedIndex = i;
+                    break;
+                }
+            }
+            if (trigger) trigger.innerText = text;
+            const changeEvent = new Event('change', { bubbles: true });
+            hiddenSelect.dispatchEvent(changeEvent);
+            closeConfirmModal();
+        }
+
+        const NEED_CONFIRM_MODEL_VALUE = 'Pro/deepseek-ai/DeepSeek-R1';
+
         function initCustomSelects() {
             document.querySelectorAll('.custom-select').forEach(customSelect => {
                 const trigger = customSelect.querySelector('.custom-select-trigger');
@@ -956,8 +1154,9 @@
                 const hiddenSelectId = customSelect.getAttribute('data-select-id');
                 const hiddenSelect = document.getElementById(hiddenSelectId);
                 if (!hiddenSelect) return;
-                const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
-                if (selectedOption) trigger.innerText = selectedOption.text;
+
+                const currentOption = hiddenSelect.options[hiddenSelect.selectedIndex];
+                if (currentOption) trigger.innerText = currentOption.text;
 
                 trigger.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -966,24 +1165,46 @@
                     });
                     customSelect.classList.toggle('open');
                 });
+
                 dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
                     opt.addEventListener('click', (e) => {
                         const value = opt.getAttribute('data-value');
                         const text = opt.innerText;
-                        for (let i = 0; i < hiddenSelect.options.length; i++) {
-                            if (hiddenSelect.options[i].value === value) {
-                                hiddenSelect.selectedIndex = i;
-                                break;
+                        if (value === NEED_CONFIRM_MODEL_VALUE) {
+                            const currentValue = hiddenSelect.value;
+                            if (currentValue === NEED_CONFIRM_MODEL_VALUE) {
+                                customSelect.classList.remove('open');
+                                return;
                             }
+                            showConfirmModal({
+                                value: value,
+                                text: text,
+                                trigger: trigger,
+                                hiddenSelect: hiddenSelect
+                            });
+                        } else {
+                            for (let i = 0; i < hiddenSelect.options.length; i++) {
+                                if (hiddenSelect.options[i].value === value) {
+                                    hiddenSelect.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                            trigger.innerText = text;
+                            const changeEvent = new Event('change', { bubbles: true });
+                            hiddenSelect.dispatchEvent(changeEvent);
                         }
-                        trigger.innerText = text;
-                        const changeEvent = new Event('change', { bubbles: true });
-                        hiddenSelect.dispatchEvent(changeEvent);
                         customSelect.classList.remove('open');
                     });
                 });
             });
         }
+
+        confirmSwitchBtn.addEventListener('click', () => {
+            if (pendingSwitchData) performModelSwitch(pendingSwitchData);
+        });
+        cancelSwitchBtn.addEventListener('click', closeConfirmModal);
+        confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) closeConfirmModal(); });
+
         document.addEventListener('click', () => {
             document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
         });
@@ -994,20 +1215,15 @@
         const scrollControlBtn = document.getElementById('scrollControlBtn');
 
         function scrollToBottom() {
-            if (autoScrollEnabled) {
-                messagesArea.scrollTop = messagesArea.scrollHeight;
-            }
+            if (autoScrollEnabled) messagesArea.scrollTop = messagesArea.scrollHeight;
         }
 
-        // 监听用户滚动
         messagesArea.addEventListener('scroll', () => {
             const isNearBottom = messagesArea.scrollHeight - messagesArea.scrollTop - messagesArea.clientHeight < 50;
             if (isNearBottom) {
-                // 用户滚到底部，恢复自动滚动
                 autoScrollEnabled = true;
                 scrollControlBtn.classList.remove('show');
             } else {
-                // 用户离开底部，禁用自动滚动
                 if (autoScrollEnabled) {
                     autoScrollEnabled = false;
                     scrollControlBtn.classList.add('show');
@@ -1015,27 +1231,21 @@
             }
         });
 
-        // 点击按钮滚动到底部并恢复自动滚动
         scrollControlBtn.addEventListener('click', () => {
             messagesArea.scrollTo({ top: messagesArea.scrollHeight, behavior: 'smooth' });
             autoScrollEnabled = true;
             scrollControlBtn.classList.remove('show');
         });
 
-        // ====================== 原有消息与流式函数（修改滚动调用） ======================
-        function addMessage(role, content, isStreamingPlaceholder = false) {
+        // ====================== 消息气泡函数（支持带图片的用户消息） ======================
+        function addMessage(role, content, images = null, isStreamingPlaceholder = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
             const avatar = document.createElement('div');
             avatar.className = 'avatar';
             const img = document.createElement('img');
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
-            img.src = role === 'user'
-                ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg'
-                : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
+            img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '50%';
+            img.src = role === 'user' ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg' : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
             avatar.appendChild(img);
             messageDiv.appendChild(avatar);
 
@@ -1046,15 +1256,31 @@
             textSpan.innerHTML = content.replace(/\n/g, '<br>');
             bubble.appendChild(textSpan);
 
+            if (role === 'user' && images && images.length > 0) {
+                const imgContainer = document.createElement('div');
+                imgContainer.style.display = 'flex';
+                imgContainer.style.flexWrap = 'wrap';
+                imgContainer.style.gap = '8px';
+                imgContainer.style.marginTop = '10px';
+                images.forEach(imgData => {
+                    const previewImg = document.createElement('img');
+                    previewImg.src = imgData.dataURL;
+                    previewImg.style.width = '80px';
+                    previewImg.style.height = '80px';
+                    previewImg.style.objectFit = 'cover';
+                    previewImg.style.borderRadius = '12px';
+                    previewImg.style.border = '1px solid rgba(0,0,0,0.1)';
+                    imgContainer.appendChild(previewImg);
+                });
+                bubble.appendChild(imgContainer);
+            }
+
             if (role === 'assistant' && !isStreamingPlaceholder) {
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
                 copyBtn.title = '复制回答';
                 copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    copyToClipboard(content);
-                });
+                copyBtn.addEventListener('click', (e) => { e.stopPropagation(); copyToClipboard(content); });
                 bubble.appendChild(copyBtn);
             }
             messageDiv.appendChild(bubble);
@@ -1063,54 +1289,56 @@
             return { messageDiv, textSpan, bubble };
         }
 
-        // 统一的流式调用，根据模型选择不同的 API（仅硅基流动统计 tokens）
-        async function callModelStream(userPrompt, modelValue) {
+        // ====================== 流式调用（支持多模态：当选择 Qwen3-VL 且用户上传图片时） ======================
+        async function callModelStream(userPrompt, modelValue, images = []) {
             let apiUrl, apiKey, requestBody;
-
-            // 判断模型来源
             const isVolcanic = modelValue === 'doubao-seed-2-0-pro-260215';
-            const isOpenAI = modelValue === 'openai/gpt-oss-120b';
+            const isMultimodal = modelValue === 'Qwen/Qwen3-VL-32B-Instruct';
+
+            // 构建消息内容
+            let messagesContent;
+            if (isMultimodal && images.length > 0) {
+                // 多模态：构建 content 数组，其中包含文本和图片（图片需转为 data URL 格式，模型支持）
+                const contentParts = [{ type: "text", text: userPrompt || "请描述这张图片" }];
+                for (let img of images) {
+                    contentParts.push({
+                        type: "image_url",
+                        image_url: { url: img.dataURL }  // data:image/... 格式
+                    });
+                }
+                messagesContent = contentParts;
+            } else {
+                // 纯文本
+                messagesContent = userPrompt;
+            }
 
             if (isVolcanic) {
                 apiUrl = VOLC_API_URL;
                 apiKey = VOLC_ACCESS_KEY;
                 requestBody = {
                     model: modelValue,
-                    messages: [{ role: 'user', content: userPrompt }],
-                    temperature: 0.7,
-                    max_tokens: 4096,
-                    stream: true
-                };
-            } else if (isOpenAI) {
-                apiUrl = OPENAI_API_URL;
-                apiKey = OPENAI_API_KEY;
-                requestBody = {
-                    model: 'gpt-oss-120b',
-                    messages: [{ role: 'user', content: userPrompt }],
+                    messages: [{ role: 'user', content: messagesContent }],
                     temperature: 0.7,
                     max_tokens: 4096,
                     stream: true
                 };
             } else {
-                // 硅基流动模型（支持 tokens 统计）
                 apiUrl = SILICONFLOW_API_URL;
                 apiKey = SILICONFLOW_API_KEY;
                 requestBody = {
                     model: modelValue,
-                    messages: [{ role: 'user', content: userPrompt }],
+                    messages: [{ role: 'user', content: messagesContent }],
                     temperature: 0.7,
                     max_tokens: 4096,
                     stream: true,
                     stream_options: { include_usage: true }
                 };
+                // 硅基流动多模态可能需要特殊处理，但 Qwen3-VL-32B-Instruct 支持标准的 OpenAI 多模态格式，直接发送即可。
             }
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
             if (!response.ok) {
@@ -1123,11 +1351,9 @@
             const decoder = new TextDecoder('utf-8');
             let fullContent = '';
             let usageRecorded = false;
-            const { textSpan, messageDiv } = addMessage('assistant', '⏳ 生成中...', true);
-            if (thinkingMsg) {
-                thinkingMsg.remove();
-                thinkingMsg = null;
-            }
+            const { textSpan, messageDiv } = addMessage('assistant', '⏳ 生成中...', null, true);
+            if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
@@ -1145,39 +1371,33 @@
                                 textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
                                 scrollToBottom();
                             }
-                            // 仅硅基流动分支有 usage（且仅记录一次）
-                            if (parsed.usage && !usageRecorded) {
+                            if (parsed.usage && !usageRecorded && !isVolcanic) {
                                 usageRecorded = true;
                                 const usage = parsed.usage;
-                                // 累加全局统计并获取新总数
                                 const newTotal = await addGlobalTokens(usage.total_tokens);
                                 if (newTotal !== null) {
-                                    const span = document.getElementById('totalTokensDisplaySub');
-                                    if (span) span.innerText = `累计消耗Tokens: ${newTotal}`;
+                                    document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${newTotal}`;
                                 }
-                                // 保存本地明细
                                 await addRequestRecord({
-                                    type: '翻译',
-                                    model: modelId,
-                                    input: text,
+                                    type: '对话',
+                                    model: modelValue,
+                                    input: userPrompt,
                                     output: fullContent,
                                     input_tokens: usage.prompt_tokens || 0,
                                     output_tokens: usage.completion_tokens || 0,
                                     total_tokens: usage.total_tokens || 0
                                 });
                             }
-                        } catch (e) {
-                            // 忽略解析错误
-                        }
+                        } catch (e) { }
                     }
                 }
             }
-            if (fullContent) {
-                messageDiv.remove();
-                addMessage('assistant', fullContent, false);
+
+            messageDiv.remove();
+            if (fullContent.trim()) {
+                addMessage('assistant', fullContent, null, false);
             } else {
-                messageDiv.remove();
-                addMessage('assistant', '抱歉，没有收到有效回复。', false);
+                addMessage('assistant', '抱歉，没有收到有效回复。', null, false);
             }
         }
 
@@ -1186,17 +1406,12 @@
             if (thinkingMsg) thinkingMsg.remove();
             const tempDiv = document.createElement('div');
             tempDiv.className = 'message assistant';
-            // 创建头像容器和图片
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'avatar';
             const img = document.createElement('img');
             img.src = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
+            img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.borderRadius = '50%';
             avatarDiv.appendChild(img);
-            // 创建气泡
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'bubble';
             bubbleDiv.style.opacity = '0.7';
@@ -1213,14 +1428,20 @@
 
         async function handleSend() {
             const text = userInput.value.trim();
-            if (!text) return;
-            addMessage('user', text);
+            if (!text && currentImages.length === 0) return;
+
+            const imagesToSend = [...currentImages];
+            currentImages = [];
+            renderPreview();
+
+            addMessage('user', text || '(无文字内容)', imagesToSend, false);
             userInput.value = '';
             userInput.style.height = 'auto';
+
             const selectedModel = hiddenModelSelect.value;
             showThinking();
             try {
-                await callModelStream(text, selectedModel);
+                await callModelStream(text || (imagesToSend.length > 0 ? "请描述这张图片" : ""), selectedModel, imagesToSend);
                 hideThinking();
             } catch (err) {
                 hideThinking();
@@ -1236,10 +1457,7 @@
 
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
         });
         userInput.addEventListener('input', function () {
             this.style.height = 'auto';
@@ -1254,69 +1472,36 @@
             }).catch(() => alert('复制失败，请手动复制'));
         }
 
-        // ====================== 全局 Tokens 统计（Supabase） ======================
+        // ====================== 全局 Tokens 统计 ======================
         async function getGlobalTokens() {
-            const { data, error } = await supabaseClient
-                .from('global_token_stats')
-                .select('total_tokens')
-                .eq('id', 1)
-                .single();
-            if (error) {
-                console.error('读取全局 tokens 失败', error);
-                return 0;
-            }
+            const { data, error } = await supabaseClient.from('global_token_stats').select('total_tokens').eq('id', 1).single();
+            if (error) return 0;
             return data?.total_tokens || 0;
         }
-
         async function addGlobalTokens(inc) {
             const { data, error } = await supabaseClient.rpc('increment_global_tokens', { inc });
-            if (error) {
-                console.error('累加全局 tokens 失败', error);
-                return null;
-            }
+            if (error) return null;
             return data;
         }
-
         async function updateTotalTokensDisplay() {
             const total = await getGlobalTokens();
             const span = document.getElementById('totalTokensDisplaySub');
-            if (span) {
-                span.innerText = `累计消耗Tokens: ${total}`;
-            }
+            if (span) span.innerText = `累计消耗Tokens: ${total}`;
         }
+        function showTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'flex'; }
+        function closeTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'none'; }
 
-        function showTokensInfo() {
-            const modal = document.getElementById('tokensInfoModal');
-            if (modal) modal.style.display = 'flex';
-        }
-        function closeTokensInfo() {
-            const modal = document.getElementById('tokensInfoModal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        // 初始化 Lucide 图标
         lucide.createIcons();
-
-        // 绑定弹窗关闭事件
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('tokensInfoModal');
             if (modal) {
-                const closeBtn = modal.querySelector('.tokens-modal-close');
-                const closeBtn2 = modal.querySelector('.tokens-modal-close-btn');
-                if (closeBtn) closeBtn.onclick = closeTokensInfo;
-                if (closeBtn2) closeBtn2.onclick = closeTokensInfo;
+                modal.querySelector('.tokens-modal-close').onclick = closeTokensInfo;
+                modal.querySelector('.tokens-modal-close-btn').onclick = closeTokensInfo;
                 modal.onclick = (e) => { if (e.target === modal) closeTokensInfo(); };
             }
         });
-
-        // 确保 Supabase 初始化后显示累计 tokens
-        if (supabaseClient) {
-            updateTotalTokensDisplay();
-        } else {
-            console.warn('Supabase 未初始化，无法读取全局 tokens');
-        }
+        if (supabaseClient) updateTotalTokensDisplay();
     </script>
-    <script src="js/modal.js"></script>
 </body>
 
 </html>
