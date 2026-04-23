@@ -736,15 +736,13 @@
             </select>
 
             <div class="custom-select" data-select-id="modelSelect">
-                <div class="custom-select-trigger">chat</div>
+                <div class="custom-select-trigger">DeepSeek-V3.2</div>
                 <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="deepseek-chat">chat</div>
-                    <div class="custom-select-option" data-value="deepseek-reasoner">reasoner</div>
+                    <div class="custom-select-option" data-value="DeepSeek-V3.2">chat</div>
                 </div>
             </div>
             <select id="modelSelect" class="hidden-native">
                 <option value="deepseek-chat" selected>chat</option>
-                <option value="deepseek-reasoner">reasoner</option>
             </select>
         </div>
 
@@ -886,7 +884,8 @@
         const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 
         function getModelId(selectedModel) {
-            return selectedModel === 'deepseek-reasoner' ? 'deepseek-ai/DeepSeek-R1' : 'deepseek-ai/DeepSeek-V2.5';
+            // 无论传入什么，都使用 V3.2 进行翻译
+            return 'deepseek-ai/DeepSeek-V3.2';
         }
 
         const messagesArea = document.getElementById('messagesArea');
