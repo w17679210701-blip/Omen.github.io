@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>工具集 · 导航站</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* ===== 全局基础样式（与 log.html 背景一致）===== */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -14,48 +17,95 @@
         body {
             margin: 0;
             height: 100vh;
-            /* 强化背景层次，让毛玻璃更明显 */
-            background: radial-gradient(circle at 20% 30%, #eef2f5, #d9e0e8);
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
             color: #1a1a1a;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
             position: relative;
         }
 
-        /* ---------- 顶部毛玻璃导航栏 (高透) ---------- */
+        /* ===== 顶部导航栏 (fixed 悬浮，与 log.html 样式完全一致) ===== */
         .timeline-header {
-            flex-shrink: 0;
-            margin: 16px 16px 0 16px;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(32px) saturate(180%);
-            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            z-index: 100;
+            background: transparent;
+            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
             border-radius: 34px;
-            border: 0.5px solid rgba(255, 255, 255, 0.7);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
             padding: 10px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            position: relative;
-            z-index: 10;
+            gap: 16px;
+            flex-wrap: nowrap;
+            overflow: hidden;
         }
+
+        @media (max-width: 768px) {
+            .timeline-header {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                padding: 8px 16px;
+                border-radius: 28px;
+            }
+        }
+
         .displacement-layer {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             height: 8px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.2) 40%, transparent 100%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
             pointer-events: none;
+            transition: transform 0.05s linear;
+            z-index: 2;
             border-radius: 0 0 34px 34px;
         }
-        .nav-btn, .back-btn-inline {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(12px);
-            border: 0.5px solid rgba(255, 255, 255, 0.9);
+
+        .displacement-layer::before,
+        .displacement-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
+            pointer-events: none;
+        }
+
+        .displacement-layer::before {
+            left: 0;
+            border-radius: 34px 0 0 0;
+        }
+
+        .displacement-layer::after {
+            right: 0;
+            border-radius: 0 34px 0 0;
+        }
+
+        .timeline-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            filter: blur(4px);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            transform: translateZ(-1px) scale(1.02);
+        }
+
+        .back-btn-inline,
+        .nav-btn {
+            background: rgba(120, 120, 128, 0.2);
+            backdrop-filter: blur(15px);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
             border-radius: 30px;
             width: 44px;
             height: 44px;
@@ -63,19 +113,31 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #007aff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
             flex-shrink: 0;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
-        .nav-btn:hover, .back-btn-inline:hover {
-            background: rgba(255, 255, 255, 0.8);
+
+        .back-btn-inline:hover,
+        .nav-btn:hover {
+            background: rgba(120, 120, 128, 0.35);
             transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
+
+        .back-btn-inline svg,
+        .nav-btn svg {
+            stroke: currentColor;
+            width: 22px;
+            height: 22px;
+        }
+
         .header-title {
             flex: 1;
             text-align: center;
         }
+
         .header-title h1 {
             margin: 0;
             font-size: 1.5rem;
@@ -85,60 +147,65 @@
             -webkit-background-clip: text;
             color: transparent;
         }
+
         .header-title .sub {
             font-size: 0.75rem;
-            opacity: 0.7;
+            opacity: 0.6;
             display: block;
             margin-top: 4px;
-            color: #3a3a3c;
+            color: #666;
         }
+
         .nav-group {
             min-width: 88px;
             display: flex;
             justify-content: flex-end;
+            gap: 12px;
         }
+
         @media (max-width: 768px) {
-            .timeline-header {
-                margin: 12px 12px 0 12px;
-                padding: 8px 16px;
-                border-radius: 28px;
-            }
-            .nav-btn, .back-btn-inline {
+
+            .back-btn-inline,
+            .nav-btn {
                 width: 40px;
                 height: 40px;
             }
+
             .header-title h1 {
                 font-size: 1.2rem;
             }
+
             .nav-group {
                 min-width: 92px;
             }
         }
 
-        /* 下拉菜单 - 毛玻璃加强 */
+        /* ===== 下拉菜单（与 log.html 一致）===== */
         .dropdown-menu {
             display: none;
             position: fixed;
             top: calc(env(safe-area-inset-top, 20px) + 80px);
             left: calc(env(safe-area-inset-left, 20px) + 20px);
-            width: 170px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(30px);
-            border: 0.5px solid rgba(255, 255, 255, 0.7);
-            border-radius: 28px;
+            width: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
             padding: 8px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
             transform: scale(0.4) translate(-30px, -30px);
             opacity: 0;
             transform-origin: top left;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 9999;
         }
+
         .dropdown-menu.active {
             display: block;
             transform: scale(1) translate(0, 0);
             opacity: 1;
         }
+
         .menu-item {
             display: flex;
             align-items: center;
@@ -147,107 +214,138 @@
             color: #1a1a1a;
             text-decoration: none;
             font-size: 15px;
-            border-radius: 22px;
+            border-radius: 16px;
             transition: 0.2s;
         }
+
         .menu-item:hover {
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(128, 128, 128, 0.1);
         }
 
-        /* ---------- 滑动容器 ---------- */
+        /* ===== 内容区域（滑动容器）避开 fixed 栏 ===== */
         .swipe-container {
-            flex: 1;
-            overflow: hidden;
             position: relative;
-            margin: 12px 12px 0 12px;
-            border-radius: 36px;
-            background: rgba(255, 255, 255, 0.2); /* 极浅透底 */
+            width: 100%;
+            height: calc(100vh - 110px);
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin-top: 76px;
+            margin-bottom: 70px;
         }
+
+        @media (max-width: 768px) {
+            .swipe-container {
+                height: calc(100vh - 100px);
+                margin-top: 68px;
+                margin-bottom: 62px;
+            }
+        }
+
+        .swipe-container::-webkit-scrollbar {
+            display: none;
+        }
+
         .swipe-wrapper {
             display: flex;
-            width: 100%;
+            width: 400%;
             height: 100%;
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            will-change: transform;
         }
+
         .page {
-            width: 100%;
-            flex-shrink: 0;
+            width: 25%;
+            height: 100%;
+            scroll-snap-align: start;
             overflow-y: auto;
             padding: 16px 16px 30px 16px;
-            scrollbar-width: thin;
             -webkit-overflow-scrolling: touch;
         }
+
         .page::-webkit-scrollbar {
             width: 4px;
         }
+
         .page::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 4px;
         }
+
         .page::-webkit-scrollbar-thumb {
             background: #ffcc00;
             border-radius: 4px;
         }
 
-        /* ========= 增强版毛玻璃卡片（所有卡片统一） ========= */
-        .tech-card, .tool-card, .external-card, .mini-card {
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 0.5px solid rgba(255, 255, 255, 0.7);
+        /* ===== 统一毛玻璃卡片样式 ===== */
+        .tech-card,
+        .tool-card,
+        .external-card,
+        .mini-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 28px;
             padding: 18px 20px;
             transition: all 0.25s ease;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
             margin-bottom: 16px;
         }
-        .tech-card:hover, .tool-card:hover, .external-card:hover, .mini-card:hover {
-            background: rgba(255, 255, 255, 0.75);
-            transform: translateY(-3px);
-            border-color: rgba(255, 204, 0, 0.5);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+
+        .tech-card:active,
+        .tool-card:active,
+        .external-card:active,
+        .mini-card:active {
+            transform: scale(0.99);
+            background: rgba(255, 255, 255, 0.85);
         }
+
         .card-header {
             display: flex;
             align-items: center;
             gap: 14px;
             margin-bottom: 12px;
         }
+
         .card-icon {
             width: 44px;
             height: 44px;
-            background: rgba(255, 204, 0, 0.2);
+            background: rgba(255, 204, 0, 0.15);
             border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(4px);
         }
+
         .card-icon i {
             width: 26px;
             height: 26px;
-            stroke: #e6a017;
-            stroke-width: 1.8;
+            stroke: #ffcc00;
+            stroke-width: 1.7;
         }
+
         .card-title {
             font-size: 1.2rem;
             font-weight: 700;
             color: #1a1a1a;
             margin: 0;
         }
+
         .card-desc {
             font-size: 0.85rem;
             color: #3a3a3c;
             line-height: 1.45;
             margin: 8px 0 0;
         }
+
         .badge-group {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 12px;
         }
+
         .badge {
             background: rgba(0, 0, 0, 0.06);
             border-radius: 40px;
@@ -255,8 +353,8 @@
             font-size: 0.7rem;
             font-weight: 500;
             color: #2c2c2e;
-            backdrop-filter: blur(2px);
         }
+
         .section-title {
             font-size: 1.4rem;
             font-weight: 600;
@@ -264,441 +362,531 @@
             padding-left: 12px;
             border-left: 4px solid #ffcc00;
             color: #1a1a1a;
-            letter-spacing: -0.3px;
         }
+
         .footer-note {
             text-align: center;
             font-size: 11px;
-            color: #6c6c70;
-            margin-top: 24px;
-            padding-bottom: 12px;
+            color: #888;
+            margin: 24px 0 16px;
         }
 
-        /* 友情链接两列网格 (毛玻璃保持一致) */
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            margin-top: 8px;
-        }
-        .mini-card {
-            padding: 16px 12px;
-            text-decoration: none;
-            color: #1a1a1a;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 0;
-        }
-        .mini-card i {
-            width: 32px;
-            height: 32px;
-            stroke: #e6a017;
-        }
-        .mini-card .link-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #1a1a1a;
-        }
-        .mini-card .link-url {
-            font-size: 0.65rem;
-            color: #6c6c70;
-        }
-
-        /* 站外链接两列网格 */
+        /* 两列网格布局 */
+        .links-grid,
         .external-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 14px;
             margin-top: 8px;
         }
+
+        .mini-card,
         .external-card {
-            padding: 14px 12px;
-            text-decoration: none;
-            color: #1a1a1a;
-            margin-bottom: 0;
+            padding: 14px 10px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            margin-bottom: 0;
+            text-decoration: none;
+            color: #1a1a1a;
         }
+
+        .mini-card i,
         .external-card i {
             width: 32px;
             height: 32px;
-            stroke: #e6a017;
+            stroke: #ffcc00;
         }
+
+        .link-name,
         .external-title {
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.9rem;
             color: #1a1a1a;
         }
+
+        .link-url,
         .external-desc {
-            font-size: 0.7rem;
-            color: #6c6c70;
+            font-size: 0.65rem;
+            color: #777;
         }
 
         /* 工具箱卡片整体点击 */
         .tool-card {
             cursor: pointer;
         }
+
         .click-hint {
             margin-top: 12px;
             font-size: 0.7rem;
-            color: #8e8e93;
+            color: #aaa;
             text-align: right;
         }
 
-        /* ---------- 底部标签栏 (强毛玻璃 + 液态玻璃高亮) ---------- */
+        /* ===== 底部标签栏 (fixed 悬浮) ===== */
         .bottom-tab-bar {
-            flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(32px);
-            -webkit-backdrop-filter: blur(32px);
-            border-top: 0.5px solid rgba(255, 255, 255, 0.8);
-            border-radius: 36px 36px 0 0;
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(28px);
+            border-radius: 36px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 10px 16px 20px;
-            margin: 0 12px 12px 12px;
-            box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.02);
-            z-index: 20;
+            padding: 8px 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
+
+        @media (max-width: 768px) {
+            .bottom-tab-bar {
+                bottom: 12px;
+                left: 12px;
+                right: 12px;
+                padding: 6px 10px;
+            }
+        }
+
         .tab-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
             background: transparent;
             border: none;
             flex: 1;
             cursor: pointer;
-            padding: 8px 0;
-            border-radius: 40px;
-            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+            padding: 6px 0;
+            border-radius: 32px;
+            transition: all 0.2s ease;
             color: #8e8e93;
         }
+
         .tab-item i {
-            width: 26px;
-            height: 26px;
+            width: 24px;
+            height: 24px;
             stroke-width: 1.8;
-            transition: all 0.2s;
-        }
-        .tab-item span {
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-        /* 液态玻璃选中效果 - 半透高亮 + 微光 */
-        .tab-item.active {
-            color: #e6a017;
-            background: rgba(255, 204, 0, 0.22);
-            backdrop-filter: blur(12px);
-            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.05);
-            transform: scale(1.02);
-        }
-        .tab-item.active i {
-            stroke: #e6a017;
-            filter: drop-shadow(0 0 4px rgba(230, 160, 23, 0.3));
         }
 
-        @media (max-width: 640px) {
-            .swipe-container {
-                margin: 8px 12px 0 12px;
-            }
-            .bottom-tab-bar {
-                padding: 6px 12px 16px;
-                margin: 4px 12px 12px 12px;
-            }
-            .tab-item i {
-                width: 22px;
-                height: 22px;
-            }
-            .tab-item span {
-                font-size: 0.65rem;
-            }
-            .card-title {
-                font-size: 1.1rem;
-            }
+        .tab-item span {
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .tab-item.active {
+            color: #e6a017;
+            background: rgba(255, 204, 0, 0.2);
+            backdrop-filter: blur(8px);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-item.active i {
+            stroke: #e6a017;
         }
     </style>
 </head>
+
 <body>
 
-<!-- 顶部毛玻璃导航栏 -->
-<div class="timeline-header" id="timelineHeader">
-    <div style="display: flex; gap: 12px;">
+    <!-- 顶部导航栏 (fixed 悬浮) -->
+    <div class="timeline-header" id="timelineHeader">
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
         <button class="back-btn-inline" onclick="history.back()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M15 18l-6-6 6-6" />
             </svg>
         </button>
+        <div class="header-title">
+            <h1>导航站</h1>
+            <span class="sub">陪伴我创造的伙伴们</span>
+        </div>
+        <div class="nav-group">
+            <!-- 右侧留白占位，保持对称 -->
+        </div>
+        <div class="displacement-layer"></div>
     </div>
-    <div class="header-title">
-        <h1>工具集 · 导航站</h1>
-        <span class="sub">陪伴我创造的伙伴们</span>
+
+    <!-- 下拉菜单 -->
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
+        <a href="moments.html" class="menu-item">
+            <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
+                <path
+                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" />
+                <path d="M16.6357 6.63599L30.7779 20.7781" />
+                <path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" />
+                <path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" />
+                <path d="M24 31L42 31" />
+                <path d="M42.3643 16.636L28.2221 30.7781" />
+                <path
+                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+            </svg>
+            朋友圈
+        </a>
+        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
+        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
+        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
     </div>
-    <div class="nav-group"></div>
-    <div class="displacement-layer"></div>
-</div>
 
-<!-- 下拉菜单 -->
-<div class="dropdown-menu" id="dropdown-menu">
-    <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
-    <a href="moments.html" class="menu-item">
-        <svg width="20" height="20" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
-            <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
-            <path d="M31 7V24" /><path d="M16.6357 6.63599L30.7779 20.7781" /><path d="M7 17H24" />
-            <path d="M20.3643 17.636L6.22212 31.7781" /><path d="M17 25V42" />
-            <path d="M17.6357 27.636L31.7779 41.7781" /><path d="M24 31L42 31" />
-            <path d="M42.3643 16.636L28.2221 30.7781" /><path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
-        </svg>
-        朋友圈
-    </a>
-    <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
-    <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
-    <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
-    <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
-    <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>更新日志</a>
-</div>
-
-<!-- 可滑动内容 (顺序：工具箱、站外链接、友情链接、技术栈) -->
-<div class="swipe-container" id="swipeContainer">
-    <div class="swipe-wrapper" id="swipeWrapper">
-        <!-- 页面0：工具箱 -->
-        <div class="page" data-index="0">
-            <div class="tool-card" data-url="translate.html">
-                <div class="card-header">
-                    <div class="card-icon"><i data-lucide="languages"></i></div>
-                    <div class="card-title">二筒翻译官</div>
+    <!-- 横向滑动内容区域 -->
+    <div class="swipe-container" id="swipeContainer">
+        <div class="swipe-wrapper" id="swipeWrapper">
+            <!-- 页面1：工具箱 -->
+            <div class="page" data-index="0">
+                <!-- 二筒翻译官 -->
+                <div class="tool-card" data-url="translate.html">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="languages"></i></div>
+                        <div class="card-title">二筒翻译官</div>
+                    </div>
+                    <div class="card-desc">AI对话式翻译，中↔英/中↔菲/中↔文言文，7种翻译风格，流式输出纯净结果。</div>
+                    <div class="badge-group"><span class="badge">多语向</span><span class="badge">风格定制</span><span
+                            class="badge">实时Tokens</span></div>
+                    <div class="click-hint">点击进入 →</div>
                 </div>
-                <div class="card-desc">AI对话式翻译，中↔英/中↔菲/中↔文言文，7种风格，流式输出纯净结果。</div>
-                <div class="badge-group"><span class="badge">多语向</span><span class="badge">风格定制</span><span class="badge">实时Tokens</span></div>
-                <div class="click-hint">点击进入 →</div>
-            </div>
-            <div class="tool-card" data-url="AIBot.html">
-                <div class="card-header">
-                    <div class="card-icon"><i data-lucide="bot"></i></div>
-                    <div class="card-title">AI 对话助手</div>
+                <!-- AI 对话助手 -->
+                <div class="tool-card" data-url="AIBot.html">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="bot"></i></div>
+                        <div class="card-title">AI 对话助手</div>
+                    </div>
+                    <div class="card-desc">DeepSeek / Qwen / MiniMax / 豆包 / GPT-OSS 多模型切换，流式对话与滚动控制。</div>
+                    <div class="badge-group"><span class="badge">多模型路由</span><span class="badge">Token统计</span></div>
+                    <div class="click-hint">点击进入 →</div>
                 </div>
-                <div class="card-desc">DeepSeek / Qwen / MiniMax / 豆包 / GPT-OSS 多模型切换，流式对话。</div>
-                <div class="badge-group"><span class="badge">多模型路由</span><span class="badge">Token统计</span></div>
-                <div class="click-hint">点击进入 →</div>
-            </div>
-            <div class="footer-note">🔧 更多实用工具即将集成，敬请期待</div>
-        </div>
+                <!-- 新增 Emby 卡片 -->
+                <div class="tool-card" data-url="https://xueshan.liminalnet.com">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="tv"></i></div>
+                        <div class="card-title">Emby 影音</div>
+                    </div>
+                    <div class="card-desc">本服务器禁止中国大陆及日本 IP 访问。</div>
+                    <div class="badge-group"><span class="badge">媒体服务器</span><span class="badge">地区限制</span></div>
+                    <div class="click-hint">点击进入 →</div>
+                </div>
 
-        <!-- 页面1：站外链接 (两列) -->
-        <div class="page" data-index="1">
-            <div class="section-title" style="margin-top: 4px;">🌍 推荐站外链接</div>
-            <div class="external-grid">
-                <a href="https://feiniaoyun.xyz/#/register?code=hsJyiKTS" target="_blank" class="external-card"><i data-lucide="cloud"></i><span class="external-title">飞鸟云</span><span class="external-desc">网络服务</span></a>
-                <a href="https://x2.xueshan.shop/#/register?code=J4ez7EYv" target="_blank" class="external-card"><i data-lucide="mountain-snow"></i><span class="external-title">雪山机场</span><span class="external-desc">高速接入</span></a>
-                <a href="https://iplark.com/check" target="_blank" class="external-card"><i data-lucide="shield-check"></i><span class="external-title">IP质量检测</span><span class="external-desc">iplark.com</span></a>
-                <a href="https://www.clashverge.dev/index.html" target="_blank" class="external-card"><i data-lucide="zap"></i><span class="external-title">Clash Verge</span><span class="external-desc">代理工具</span></a>
-                <a href="https://www.seagm.com/zh-cn" target="_blank" class="external-card"><i data-lucide="gift"></i><span class="external-title">礼品卡商店</span><span class="external-desc">SEAGM</span></a>
-                <a href="https://xueshan.liminalnet.com/web/index.html#!/home" target="_blank" class="external-card"><i data-lucide="tv"></i><span class="external-title">Emby 影音</span><span class="external-desc">雪山媒体库</span></a>
-                <a href="https://www.siliconflow.cn/" target="_blank" class="external-card"><i data-lucide="cpu"></i><span class="external-title">硅基流动(国内)</span><span class="external-desc">API平台</span></a>
-                <a href="https://www.siliconflow.com/" target="_blank" class="external-card"><i data-lucide="globe"></i><span class="external-title">硅基流动(国际)</span><span class="external-desc">国际站</span></a>
-                <a href="https://serper.dev/" target="_blank" class="external-card"><i data-lucide="search"></i><span class="external-title">Serper AI联网</span><span class="external-desc">API接口</span></a>
-                <a href="https://slimpic.toolooz.com/" target="_blank" class="external-card"><i data-lucide="image"></i><span class="external-title">图片压缩</span><span class="external-desc">Slimpic</span></a>
-                <a href="https://convertio.co/zh/" target="_blank" class="external-card"><i data-lucide="refresh-cw"></i><span class="external-title">图片格式转换</span><span class="external-desc">Convertio</span></a>
+                <!-- Ωmen-Cloud 自建节点卡片 -->
+                <div class="tool-card" data-url="https://47.82.6.57:2096/sub/%CE%A9men-Cloud" data-password="yt990701">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="cloud"></i></div>
+                        <div class="card-title">Ωmen-Cloud</div>
+                    </div>
+                    <div class="card-desc">自建节点服务，仅限个人使用。点击后需验证密码。</div>
+                    <div class="badge-group"><span class="badge">私人服务</span><span class="badge">密码保护</span></div>
+                    <div class="click-hint">点击验证密码 →</div>
+                </div>
+                <div class="footer-note">🔧 更多实用工具即将集成，敬请期待</div>
             </div>
-            <div class="footer-note">🔰 所有链接新标签页打开，注意信息安全</div>
-        </div>
 
-        <!-- 页面2：友情链接 (毛玻璃两列，彻底黑色/深灰文字) -->
-        <div class="page" data-index="2">
-            <div class="section-title">🔗 友情链接</div>
-            <div class="links-grid">
-                <a href="https://ai.google/" target="_blank" class="mini-card"><i data-lucide="bot"></i><span class="link-name">Gemini</span><span class="link-url">Google AI</span></a>
-                <a href="https://www.deepseek.com/" target="_blank" class="mini-card"><i data-lucide="brain"></i><span class="link-name">DeepSeek</span><span class="link-url">开源推理</span></a>
-                <a href="https://cloud.tencent.com/" target="_blank" class="mini-card"><i data-lucide="cloud"></i><span class="link-name">腾讯云</span><span class="link-url">COS/CDN</span></a>
-                <a href="https://github.com/" target="_blank" class="mini-card"><i data-lucide="github"></i><span class="link-name">GitHub</span><span class="link-url">开源社区</span></a>
-                <a href="https://supabase.com/" target="_blank" class="mini-card"><i data-lucide="database"></i><span class="link-name">Supabase</span><span class="link-url">BaaS平台</span></a>
-                <a href="https://iconpark.oceanengine.com/home" target="_blank" class="mini-card"><i data-lucide="icons"></i><span class="link-name">Iconpark</span><span class="link-url">图标库</span></a>
-                <a href="https://lucide.dev/" target="_blank" class="mini-card"><i data-lucide="sparkle"></i><span class="link-name">Lucide</span><span class="link-url">Feather衍生</span></a>
-                <a href="https://www.ffmpeg.org/" target="_blank" class="mini-card"><i data-lucide="video"></i><span class="link-name">FFmpeg</span><span class="link-url">多媒体处理</span></a>
-                <a href="https://handbrake.fr/" target="_blank" class="mini-card"><i data-lucide="settings"></i><span class="link-name">HandBrake</span><span class="link-url">开源转码</span></a>
-                <a href="https://www.volcengine.com/" target="_blank" class="mini-card"><i data-lucide="zap"></i><span class="link-name">火山引擎</span><span class="link-url">豆包模型</span></a>
-                <a href="https://www.siliconflow.com/" target="_blank" class="mini-card"><i data-lucide="cpu"></i><span class="link-name">SiliconFlow</span><span class="link-url">模型托管</span></a>
-                <a href="https://platform.deepseek.com/usage" target="_blank" class="mini-card"><i data-lucide="scroll"></i><span class="link-name">DeepSeek平台</span><span class="link-url">API管理</span></a>
-                <a href="https://docs.openclaw.ai/zh-CN" target="_blank" class="mini-card"><i data-lucide="claw"></i><span class="link-name">OpenClaw</span><span class="link-url">AI智能体</span></a>
-                <a href="https://www.cherry-ai.com/" target="_blank" class="mini-card"><i data-lucide="sparkles"></i><span class="link-name">CherryStudio</span><span class="link-url">桌面AI</span></a>
+            <!-- 页面2：站外链接（两列网格） -->
+            <div class="page" data-index="1">
+                <div class="section-title" style="margin-top: 4px;">🌍 推荐站外链接</div>
+                <div class="external-grid">
+                    <a href="https://feiniaoyun.xyz/#/register?code=hsJyiKTS" target="_blank" class="external-card"><i
+                            data-lucide="cloud"></i><span class="external-title">飞鸟云</span><span
+                            class="external-desc">网络服务</span></a>
+                    <a href="https://x2.xueshan.shop/#/register?code=J4ez7EYv" target="_blank" class="external-card"><i
+                            data-lucide="mountain-snow"></i><span class="external-title">雪山机场</span><span
+                            class="external-desc">高速接入</span></a>
+                    <a href="https://iplark.com/check" target="_blank" class="external-card"><i
+                            data-lucide="shield-check"></i><span class="external-title">IP质量检测</span><span
+                            class="external-desc">iplark.com</span></a>
+                    <a href="https://www.clashverge.dev/index.html" target="_blank" class="external-card"><i
+                            data-lucide="zap"></i><span class="external-title">Clash Verge</span><span
+                            class="external-desc">代理工具</span></a>
+                    <a href="https://www.seagm.com/zh-cn" target="_blank" class="external-card"><i
+                            data-lucide="gift"></i><span class="external-title">礼品卡商店</span><span
+                            class="external-desc">SEAGM</span></a>
+                    <a href="https://xueshan.liminalnet.com/web/index.html#!/home" target="_blank"
+                        class="external-card"><i data-lucide="tv"></i><span class="external-title">Emby 影音</span><span
+                            class="external-desc">雪山媒体库</span></a>
+                    <a href="https://www.siliconflow.cn/" target="_blank" class="external-card"><i
+                            data-lucide="cpu"></i><span class="external-title">硅基流动(国内)</span><span
+                            class="external-desc">API平台</span></a>
+                    <a href="https://www.siliconflow.com/" target="_blank" class="external-card"><i
+                            data-lucide="globe"></i><span class="external-title">硅基流动(国际)</span><span
+                            class="external-desc">国际站</span></a>
+                    <a href="https://serper.dev/" target="_blank" class="external-card"><i
+                            data-lucide="search"></i><span class="external-title">Serper AI联网</span><span
+                            class="external-desc">API接口</span></a>
+                    <a href="https://slimpic.toolooz.com/" target="_blank" class="external-card"><i
+                            data-lucide="image"></i><span class="external-title">图片压缩</span><span
+                            class="external-desc">Slimpic</span></a>
+                    <a href="https://convertio.co/zh/" target="_blank" class="external-card"><i
+                            data-lucide="refresh-cw"></i><span class="external-title">图片格式转换</span><span
+                            class="external-desc">Convertio</span></a>
+                    <a href="https://claw.cloud/" target="_blank" class="external-card">
+                        <i data-lucide="cloud"></i>
+                        <span class="external-title">Claw.Cloud</span>
+                        <span class="external-desc">Cloud VPS</span>
+                    </a>
+                </div>
+                <div class="footer-note">🔰 所有链接新标签页打开，注意信息安全</div>
             </div>
-            <div class="footer-note">✨ 感谢生态支持 · 友情互联</div>
-        </div>
 
-        <!-- 页面3：技术栈内容 -->
-        <div class="page" data-index="3">
-            <div class="section-title">🌐 前端核心</div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="code-2"></i></div><div class="card-title">HTML5 / CSS3</div></div><div class="card-desc">语义化 + 弹性布局，浅色毛玻璃体系，零框架。</div><div class="badge-group"><span class="badge">语义标签</span><span class="badge">Grid/Flex</span><span class="badge">响应式</span></div></div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="file-js"></i></div><div class="card-title">JavaScript (ES6+)</div></div><div class="card-desc">驱动流式API、Canvas粒子、本地存储。</div><div class="badge-group"><span class="badge">Async/Await</span><span class="badge">Fetch API</span></div></div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="layout-template"></i></div><div class="card-title">Lucide 图标库</div></div><div class="card-desc">统一矢量图标，轻盈可定制。</div><div class="badge-group"><span class="badge">CDN注入</span><span class="badge">动态渲染</span></div></div>
-            <div class="section-title">⚙️ 云后端 & 数据库</div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="database"></i></div><div class="card-title">Supabase</div></div><div class="card-desc">PostgreSQL / RLS / RPC，配置与Token统计。</div><div class="badge-group"><span class="badge">BaaS</span><span class="badge">实时订阅</span></div></div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="cloud"></i></div><div class="card-title">腾讯云 COS</div></div><div class="card-desc">对象存储 + CDN加速，图片/视频分发。</div><div class="badge-group"><span class="badge">SDK集成</span><span class="badge">批量管理</span></div></div>
-            <div class="section-title">🤖 AI模型引擎</div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="sparkles"></i></div><div class="card-title">DeepSeek-V3.2 / V2.5</div></div><div class="card-desc">流式翻译/对话主力，用量统计。</div><div class="badge-group"><span class="badge">128K上下文</span><span class="badge">硅基流动</span></div></div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="microchip"></i></div><div class="card-title">通义千问 Qwen3.5 / MiniMax</div></div><div class="card-desc">多尺寸开源模型，国内语义理解。</div></div>
-            <div class="section-title">💾 本地存储 & 特效</div>
-            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="hard-drive"></i></div><div class="card-title">IndexedDB + localStorage</div></div><div class="card-desc">Token明细 / 点赞持久化 + Canvas爱心雨粒子。</div></div>
-            <div class="footer-note">🛠️ 纯静态全栈 · 技术沉淀展示</div>
+            <!-- 页面3：友情链接 -->
+            <div class="page" data-index="2">
+                <div class="section-title">🔗 友情链接</div>
+                <div class="links-grid">
+                    <a href="https://ai.google/" target="_blank" class="mini-card"><i data-lucide="bot"></i><span
+                            class="link-name">Gemini</span><span class="link-url">Google AI</span></a>
+                    <a href="https://www.deepseek.com/" target="_blank" class="mini-card"><i
+                            data-lucide="brain"></i><span class="link-name">DeepSeek</span><span
+                            class="link-url">开源推理</span></a>
+                    <a href="https://cloud.tencent.com/" target="_blank" class="mini-card"><i
+                            data-lucide="cloud"></i><span class="link-name">腾讯云</span><span
+                            class="link-url">COS/CDN</span></a>
+                    <a href="https://github.com/" target="_blank" class="mini-card"><i data-lucide="github"></i><span
+                            class="link-name">GitHub</span><span class="link-url">开源社区</span></a>
+                    <a href="https://supabase.com/" target="_blank" class="mini-card"><i
+                            data-lucide="database"></i><span class="link-name">Supabase</span><span
+                            class="link-url">BaaS平台</span></a>
+                    <a href="https://iconpark.oceanengine.com/home" target="_blank" class="mini-card"><i
+                            data-lucide="icons"></i><span class="link-name">Iconpark</span><span
+                            class="link-url">图标库</span></a>
+                    <a href="https://lucide.dev/" target="_blank" class="mini-card"><i data-lucide="sparkle"></i><span
+                            class="link-name">Lucide</span><span class="link-url">Feather衍生</span></a>
+                    <a href="https://www.ffmpeg.org/" target="_blank" class="mini-card"><i data-lucide="video"></i><span
+                            class="link-name">FFmpeg</span><span class="link-url">多媒体处理</span></a>
+                    <a href="https://handbrake.fr/" target="_blank" class="mini-card"><i
+                            data-lucide="settings"></i><span class="link-name">HandBrake</span><span
+                            class="link-url">开源转码</span></a>
+                    <a href="https://www.volcengine.com/" target="_blank" class="mini-card"><i
+                            data-lucide="zap"></i><span class="link-name">火山引擎</span><span
+                            class="link-url">豆包模型</span></a>
+                    <a href="https://www.siliconflow.com/" target="_blank" class="mini-card"><i
+                            data-lucide="cpu"></i><span class="link-name">SiliconFlow</span><span
+                            class="link-url">模型托管</span></a>
+                    <a href="https://platform.deepseek.com/usage" target="_blank" class="mini-card"><i
+                            data-lucide="scroll"></i><span class="link-name">DeepSeek平台</span><span
+                            class="link-url">API管理</span></a>
+                    <a href="https://docs.openclaw.ai/zh-CN" target="_blank" class="mini-card"><i
+                            data-lucide="claw"></i><span class="link-name">OpenClaw</span><span
+                            class="link-url">AI智能体</span></a>
+                    <a href="https://www.cherry-ai.com/" target="_blank" class="mini-card"><i
+                            data-lucide="sparkles"></i><span class="link-name">CherryStudio</span><span
+                            class="link-url">桌面AI</span></a>
+                </div>
+                <div class="footer-note">✨ 感谢生态支持 · 友情互联</div>
+            </div>
+
+            <!-- 页面4：技术栈内容 -->
+            <div class="page" data-index="3">
+                <div class="section-title">🌐 前端核心</div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="code-2"></i></div>
+                        <div class="card-title">HTML5 / CSS3</div>
+                    </div>
+                    <div class="card-desc">语义化 + 弹性布局，浅色毛玻璃体系，零框架。</div>
+                    <div class="badge-group"><span class="badge">语义标签</span><span class="badge">Grid/Flex</span><span
+                            class="badge">响应式</span></div>
+                </div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="file-js"></i></div>
+                        <div class="card-title">JavaScript (ES6+)</div>
+                    </div>
+                    <div class="card-desc">驱动流式API、Canvas粒子、本地存储。</div>
+                    <div class="badge-group"><span class="badge">Async/Await</span><span class="badge">Fetch API</span>
+                    </div>
+                </div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="layout-template"></i></div>
+                        <div class="card-title">Lucide 图标库</div>
+                    </div>
+                    <div class="card-desc">统一矢量图标，轻盈可定制。</div>
+                    <div class="badge-group"><span class="badge">CDN注入</span><span class="badge">动态渲染</span></div>
+                </div>
+                <div class="section-title">⚙️ 云后端 & 数据库</div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="database"></i></div>
+                        <div class="card-title">Supabase</div>
+                    </div>
+                    <div class="card-desc">PostgreSQL / RLS / RPC，配置与Token统计。</div>
+                    <div class="badge-group"><span class="badge">BaaS</span><span class="badge">实时订阅</span></div>
+                </div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="cloud"></i></div>
+                        <div class="card-title">腾讯云 COS</div>
+                    </div>
+                    <div class="card-desc">对象存储 + CDN加速，图片/视频分发。</div>
+                    <div class="badge-group"><span class="badge">SDK集成</span><span class="badge">批量管理</span></div>
+                </div>
+                <div class="section-title">🤖 AI模型引擎</div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="sparkles"></i></div>
+                        <div class="card-title">DeepSeek-V3.2 / V2.5</div>
+                    </div>
+                    <div class="card-desc">流式翻译/对话主力，用量统计。</div>
+                    <div class="badge-group"><span class="badge">128K上下文</span><span class="badge">硅基流动</span></div>
+                </div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="microchip"></i></div>
+                        <div class="card-title">通义千问 Qwen3.5 / MiniMax</div>
+                    </div>
+                    <div class="card-desc">多尺寸开源模型，国内语义理解。</div>
+                </div>
+                <div class="section-title">💾 本地存储 & 特效</div>
+                <div class="tech-card">
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="hard-drive"></i></div>
+                        <div class="card-title">IndexedDB + localStorage</div>
+                    </div>
+                    <div class="card-desc">Token明细 / 点赞持久化 + Canvas爱心雨粒子。</div>
+                </div>
+                <div class="footer-note">🛠️ 纯静态全栈 · 技术沉淀展示</div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 底部液态玻璃标签栏 (新顺序) -->
-<div class="bottom-tab-bar" id="bottomTabBar">
-    <button class="tab-item active" data-tab="0"><i data-lucide="wrench"></i><span>工具箱</span></button>
-    <button class="tab-item" data-tab="1"><i data-lucide="external-link"></i><span>站外链接</span></button>
-    <button class="tab-item" data-tab="2"><i data-lucide="link-2"></i><span>友情链接</span></button>
-    <button class="tab-item" data-tab="3"><i data-lucide="cpu"></i><span>技术栈</span></button>
-</div>
+    <!-- 底部标签栏 (fixed 悬浮) -->
+    <div class="bottom-tab-bar" id="bottomTabBar">
+        <button class="tab-item active" data-index="0"><i data-lucide="wrench"></i><span>工具箱</span></button>
+        <button class="tab-item" data-index="1"><i data-lucide="external-link"></i><span>站外链接</span></button>
+        <button class="tab-item" data-index="2"><i data-lucide="link-2"></i><span>友情链接</span></button>
+        <button class="tab-item" data-index="3"><i data-lucide="cpu"></i><span>技术栈</span></button>
+    </div>
 
-<script>
-    // 顶部导航栏动态光影
-    const headerEl = document.getElementById('timelineHeader');
-    let ticking = false;
-    function updateHeaderShadow() {
-        if (!headerEl) return;
-        const scrollY = window.scrollY;
-        const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
-        const blur = 12 + wave * 16;
-        const yOffset = 4 + wave * 8;
-        const highlight = 0.7 + wave * 0.3;
-        headerEl.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.03)`;
-        ticking = false;
-    }
-    window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
-    updateHeaderShadow();
+    <script>
+        // 导航栏动态阴影（与 log.html 相同）
+        const header = document.getElementById('timelineHeader');
+        let ticking = false;
+        function updateHeaderShadow() {
+            if (!header) return;
+            const scrollY = window.scrollY;
+            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+            const blur = 12 + wave * 16;
+            const yOffset = 4 + wave * 8;
+            const highlight = 0.7 + wave * 0.3;
+            header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
+            ticking = false;
+        }
+        window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
+        updateHeaderShadow();
 
-    function initEdgeDistortion() {
-        const headerDom = document.querySelector('.timeline-header');
-        const layer = document.querySelector('.displacement-layer');
-        if (!headerDom || !layer) return;
-        let tickFlag = false;
-        window.addEventListener('scroll', () => {
-            if (!tickFlag) {
-                requestAnimationFrame(() => {
-                    const intensity = (Math.sin(window.scrollY * 0.03) + 1) / 2;
-                    layer.style.transform = `translateY(${2 + intensity * 3}px)`;
-                    tickFlag = false;
-                });
-                tickFlag = true;
+        function initEdgeDistortion() {
+            const headerEl = document.querySelector('.timeline-header');
+            const layer = document.querySelector('.displacement-layer');
+            if (!headerEl || !layer) return;
+            let tick = false;
+            window.addEventListener('scroll', () => {
+                if (!tick) {
+                    requestAnimationFrame(() => {
+                        const i = (Math.sin(window.scrollY * 0.03) + 1) / 2;
+                        layer.style.transform = `translateY(${2 + i * 3}px)`;
+                        tick = false;
+                    });
+                    tick = true;
+                }
+            });
+        }
+        initEdgeDistortion();
+
+        // 菜单切换
+        function toggleMenu(e) {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('active');
+        }
+        window.onclick = (e) => {
+            const menu = document.getElementById('dropdown-menu');
+            const trigger = document.getElementById('menu-trigger');
+            if (menu && trigger && !trigger.contains(e.target)) {
+                menu.classList.remove('active');
             }
-        });
-    }
-    initEdgeDistortion();
+        };
 
-    function toggleMenu(e) {
-        e.stopPropagation();
-        document.getElementById('dropdown-menu').classList.toggle('active');
-    }
-    window.onclick = (e) => {
-        const menu = document.getElementById('dropdown-menu');
-        const trigger = document.getElementById('menu-trigger');
-        if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
-    };
+        // 滑动切换与标签联动
+        const swipeContainer = document.getElementById('swipeContainer');
+        const tabs = document.querySelectorAll('.tab-item');
+        const pages = document.querySelectorAll('.page');
 
-    // ========= 滑动 + 点击联动 (纯净无冗余) =========
-    const wrapper = document.getElementById('swipeWrapper');
-    const container = document.getElementById('swipeContainer');
-    const tabs = document.querySelectorAll('.tab-item');
-    let startX = 0, startY = 0, currentX = 0;
-    let isSwiping = false;
-    let isHorizontal = false;
-    let currentIndex = 0;
-    const totalPages = document.querySelectorAll('.page').length;
-
-    function switchToPage(index, smooth = true) {
-        if (index < 0) index = 0;
-        if (index >= totalPages) index = totalPages - 1;
-        if (index === currentIndex) return;
-        currentIndex = index;
-        const offset = -currentIndex * 100;
-        wrapper.style.transition = smooth ? 'transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1)' : 'none';
-        wrapper.style.transform = `translateX(${offset}%)`;
-        tabs.forEach((tab, i) => {
-            if (i === currentIndex) tab.classList.add('active');
-            else tab.classList.remove('active');
-        });
-    }
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const idx = parseInt(tab.getAttribute('data-tab'), 10);
-            if (!isNaN(idx)) switchToPage(idx, true);
-        });
-    });
-
-    container.addEventListener('touchstart', (e) => {
-        if (e.target.closest('.tab-item')) return;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        isSwiping = true;
-        isHorizontal = false;
-        wrapper.style.transition = 'none';
-    }, { passive: true });
-
-    container.addEventListener('touchmove', (e) => {
-        if (!isSwiping) return;
-        const curX = e.touches[0].clientX;
-        const curY = e.touches[0].clientY;
-        const deltaX = Math.abs(curX - startX);
-        const deltaY = Math.abs(curY - startY);
-        if (!isHorizontal && (deltaX > deltaY && deltaX > 8)) {
-            isHorizontal = true;
+        function updateActiveTabByScroll() {
+            const scrollLeft = swipeContainer.scrollLeft;
+            const pageWidth = swipeContainer.clientWidth;
+            const activeIndex = Math.round(scrollLeft / pageWidth);
+            if (activeIndex >= 0 && activeIndex < tabs.length) {
+                tabs.forEach((tab, idx) => {
+                    if (idx === activeIndex) tab.classList.add('active');
+                    else tab.classList.remove('active');
+                });
+            }
         }
-        if (!isHorizontal) return;
-        e.preventDefault();
-        currentX = curX;
-        let diff = currentX - startX;
-        const maxDrag = window.innerWidth * 0.25;
-        let newOffset = -currentIndex * 100 + (diff / window.innerWidth) * 100;
-        if (Math.abs(diff) > maxDrag) {
-            newOffset = newOffset > 0 ? maxDrag / window.innerWidth * 100 : -maxDrag / window.innerWidth * 100;
-        }
-        wrapper.style.transform = `translateX(${newOffset}%)`;
-    }, { passive: false });
 
-    container.addEventListener('touchend', () => {
-        if (!isSwiping) return;
-        isSwiping = false;
-        const moveDist = Math.abs(currentX - startX);
-        if (!isHorizontal || moveDist < 12) {
-            wrapper.style.transition = 'transform 0.25s ease';
-            wrapper.style.transform = `translateX(${-currentIndex * 100}%)`;
-            isHorizontal = false;
-            return;
-        }
-        const diff = currentX - startX;
-        const threshold = window.innerWidth * 0.12;
-        let target = currentIndex;
-        if (diff > threshold && currentIndex > 0) target = currentIndex - 1;
-        else if (diff < -threshold && currentIndex < totalPages - 1) target = currentIndex + 1;
-        switchToPage(target, true);
-        startX = currentX = 0;
-        isHorizontal = false;
-    });
-
-    // 工具箱卡片跳转
-    document.querySelectorAll('.tool-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            const url = card.getAttribute('data-url');
-            if (url) window.location.href = url;
+        let scrollTimer = null;
+        swipeContainer.addEventListener('scroll', () => {
+            if (scrollTimer) clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                updateActiveTabByScroll();
+            }, 50);
         });
-    });
+        setTimeout(updateActiveTabByScroll, 100);
 
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 150);
-    window.addEventListener('resize', () => {
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        switchToPage(currentIndex, false);
-    });
-</script>
+        tabs.forEach((tab, idx) => {
+            tab.addEventListener('click', () => {
+                const pageWidth = swipeContainer.clientWidth;
+                swipeContainer.scrollTo({
+                    left: idx * pageWidth,
+                    behavior: 'smooth'
+                });
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // 工具箱卡片跳转（包括新增的 Emby 卡片）
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const url = card.getAttribute('data-url');
+                const requiredPassword = card.getAttribute('data-password');
+
+                // 如果需要密码验证
+                if (requiredPassword) {
+                    const userPassword = prompt('请输入访问密码：');
+                    // 用户点击“取消”时，直接返回，不弹错误
+                    if (userPassword === null) {
+                        return;
+                    }
+                    if (userPassword !== requiredPassword) {
+                        alert('密码错误，无法访问。');
+                        return;
+                    }
+                }
+
+                if (url) {
+                    if (url.startsWith('http')) {
+                        window.open(url, '_blank');
+                    } else {
+                        window.location.href = url;
+                    }
+                }
+            });
+        });
+
+
+
+        // 初始化图标
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        window.addEventListener('resize', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
 </body>
+
 </html>
