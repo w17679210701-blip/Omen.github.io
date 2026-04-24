@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- 全局基础样式（与 translate.html 完全一致）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -25,7 +24,6 @@
             flex-direction: column;
         }
 
-        /* --- 导航栏 --- */
         .timeline-header {
             flex-shrink: 0;
             margin: 16px 16px 0 16px;
@@ -193,34 +191,28 @@
                 border-radius: 28px;
                 flex-wrap: nowrap;
             }
-
             .nav-btn-text {
                 padding: 0 12px;
                 height: 40px;
                 font-size: 0.75rem;
             }
-
             .back-btn-inline,
             .nav-btn {
                 width: 40px;
                 height: 40px;
             }
-
             .header-title h1 {
                 font-size: 1.2rem;
             }
-
             .nav-group {
                 min-width: 92px;
             }
-
             .header-title .sub {
                 font-size: 0.7rem;
                 margin-top: 2px;
             }
         }
 
-        /* 下拉菜单 */
         .dropdown-menu {
             display: none;
             position: fixed;
@@ -262,7 +254,6 @@
             background: rgba(128, 128, 128, 0.1);
         }
 
-        /* 主容器 */
         .chat-container {
             flex: 1;
             display: flex;
@@ -276,7 +267,6 @@
             overflow: hidden;
         }
 
-        /* 配置栏 */
         .config-bar {
             flex-shrink: 0;
             padding: 8px 24px;
@@ -357,7 +347,6 @@
             display: none;
         }
 
-        /* 消息区域 */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -368,7 +357,6 @@
             scroll-behavior: smooth;
         }
 
-        /* 气泡样式 */
         .message {
             display: flex;
             gap: 12px;
@@ -458,7 +446,6 @@
             stroke: #e6a017;
         }
 
-        /* 图片预览区域 */
         .image-preview-area {
             display: flex;
             flex-wrap: wrap;
@@ -509,7 +496,6 @@
             transform: scale(1.1);
         }
 
-        /* 输入区域 */
         .input-area {
             flex-shrink: 0;
             padding: 8px 24px 20px 24px;
@@ -534,24 +520,57 @@
             box-shadow: 0 0 0 2px rgba(230, 160, 23, 0.2);
         }
 
+        /* 上传图片按钮改为圆形加号图标 */
         .upload-btn {
-            background: transparent;
-            border: none;
+            background: rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
             width: 36px;
             height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #8e8e93;
-            border-radius: 50%;
             transition: 0.2s;
             flex-shrink: 0;
+            color: #8e8e93;
+        }
+        .upload-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: #e6a017;
+            transform: scale(0.96);
         }
 
-        .upload-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
+        /* 联网开关：圆形图标，无文字 */
+        .toggle-switch {
+            background: rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+            color: #8e8e93;
+        }
+        .toggle-switch:hover {
+            background: rgba(0, 0, 0, 0.08);
+            transform: scale(0.96);
+        }
+        .toggle-switch.active {
+            background: rgba(230, 160, 23, 0.2);
+            border-color: rgba(230, 160, 23, 0.5);
             color: #e6a017;
+        }
+        .toggle-switch svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
         }
 
         textarea {
@@ -605,36 +624,33 @@
             .chat-container {
                 margin: 12px 12px 12px 12px;
             }
-
             .message {
                 max-width: 95%;
             }
-
             .config-bar {
                 padding: 8px 16px;
                 gap: 8px;
             }
-
             .custom-select-trigger {
                 font-size: 0.75rem;
                 padding: 4px 24px 4px 12px;
             }
-
             .input-area {
                 padding: 8px 12px 16px;
             }
-
             .bubble {
                 font-size: 0.85rem;
             }
-
             .preview-item {
                 width: 50px;
                 height: 50px;
             }
+            .upload-btn, .toggle-switch {
+                width: 32px;
+                height: 32px;
+            }
         }
 
-        /* 滚动控制按钮 */
         .scroll-control-btn {
             position: fixed;
             bottom: 120px;
@@ -667,7 +683,6 @@
             transform: translateX(-50%) scale(1.05);
         }
 
-        /* 弹窗公用 */
         .tokens-modal,
         .confirm-modal {
             position: fixed;
@@ -813,7 +828,6 @@
 </head>
 
 <body>
-    <!-- 导航栏 -->
     <div class="timeline-header" id="timelineHeader">
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
         <button class="back-btn-inline" onclick="history.back()">
@@ -833,7 +847,6 @@
         <div class="displacement-layer"></div>
     </div>
 
-    <!-- 下拉菜单 -->
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
         <a href="moments.html" class="menu-item">
@@ -854,9 +867,7 @@
         <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
     </div>
 
-    <!-- 对话主容器 -->
     <div class="chat-container">
-        <!-- 配置栏 -->
         <div class="config-bar">
             <div class="custom-select" data-select-id="modelSelect">
                 <div class="custom-select-trigger">DeepSeek-V3.2</div>
@@ -875,34 +886,34 @@
             </select>
         </div>
 
-        <!-- 消息区域 -->
         <div class="messages-area" id="messagesArea">
             <div class="message assistant">
                 <div class="avatar">
                     <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png"
                         style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                 </div>
-                <div class="bubble">你好！我是 AiBot，支持纯文本模型（DeepSeek-V3.2、R1、豆包）和多模态视觉模型（Qwen3-VL-32B）。选择视觉模型后，可以上传或粘贴图片，我会识别图片内容并结合你的文字提问进行回答。</div>
+                <div class="bubble">你好！我是 AiBot。支持纯文本模型和多模态视觉模型。右下角圆形按钮是联网开关，开启后每次提问都会联网获取最新信息（如实时汇率、新闻等）。</div>
             </div>
         </div>
 
-        <!-- 图片预览区域 -->
         <div id="imagePreviewArea" class="image-preview-area" style="display: none;"></div>
 
-        <!-- 输入区域 -->
         <div class="input-area">
             <div class="input-wrapper">
                 <button id="uploadImageBtn" class="upload-btn" title="上传图片">
-                    <i data-lucide="image"></i>
+                    <i data-lucide="circle-plus"></i>
                 </button>
                 <input type="file" id="imageInput" accept="image/*" multiple style="display: none;">
+                <!-- 联网开关：圆形图标，无文字 -->
+                <div id="webSwitch" class="toggle-switch" title="联网搜索开关">
+                    <i data-lucide="globe"></i>
+                </div>
                 <textarea id="userInput" rows="1" placeholder="输入你的问题..."></textarea>
                 <button id="sendBtn" class="send-btn">发送</button>
             </div>
         </div>
     </div>
 
-    <!-- 滚动控制按钮 -->
     <div id="scrollControlBtn" class="scroll-control-btn">
         <i data-lucide="arrow-down"></i>
     </div>
@@ -912,7 +923,6 @@
         已复制
     </div>
 
-    <!-- Tokens 说明弹窗 -->
     <div id="tokensInfoModal" class="tokens-modal" style="display: none;">
         <div class="tokens-modal-content">
             <span class="tokens-modal-close">&times;</span>
@@ -934,12 +944,9 @@
         </div>
     </div>
 
-    <!-- 模型切换确认弹窗（仅对 R1 生效，可复用） -->
     <div id="confirmModelModal" class="confirm-modal" style="display: none;">
         <div class="confirm-modal-content">
-            <p><strong>DeepSeek-R1 是深度推理模型</strong><br><br>
-            该模型在回答之前会进行完整的后台深度思考，该过程不会在前端显示，因此整个回答时间会比较长。<br><br>
-            ⚠️ 这不是模型无响应，而是它在后端进行深度思考，思考完成后才会在前端输出内容。</p>
+            <p><strong>DeepSeek-R1 是深度推理模型</strong><br><br>该模型在回答之前会进行完整的后台深度思考，该过程不会在前端显示，因此整个回答时间会比较长。<br><br>⚠️ 这不是模型无响应，而是它在后端进行深度思考，思考完成后才会在前端输出内容。</p>
             <div class="confirm-modal-buttons">
                 <button id="confirmSwitchBtn">确定切换</button>
                 <button id="cancelSwitchBtn">不换了</button>
@@ -948,13 +955,11 @@
     </div>
 
     <script>
-        // ====================== 初始化 Supabase 客户端 ======================
         const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
         const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
         window.db = supabase.createClient(supabaseUrl, supabaseKey);
         const supabaseClient = window.db;
 
-        // ====================== Tokens 统计系统 ======================
         let db = null;
         const DB_NAME = 'TokenStatsDB';
         const STORE_NAME = 'requests';
@@ -985,7 +990,6 @@
             } catch (err) { console.error('保存明细失败', err); }
         }
 
-        // ====================== 导航栏动态阴影 ======================
         const header = document.getElementById('timelineHeader');
         let ticking = false;
         function updateHeaderShadow() {
@@ -1026,7 +1030,6 @@
             if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
         };
 
-        // ====================== API 配置 ======================
         const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
         const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
         const VOLC_ACCESS_KEY = 'ark-9e858f30-24eb-4bd2-a47b-96e89b29628b-d8fa4';
@@ -1037,11 +1040,10 @@
         const sendBtn = document.getElementById('sendBtn');
         const hiddenModelSelect = document.getElementById('modelSelect');
 
-        // ====================== 图片上传与粘贴功能 ======================
         const uploadBtn = document.getElementById('uploadImageBtn');
         const imageInput = document.getElementById('imageInput');
         const previewArea = document.getElementById('imagePreviewArea');
-        let currentImages = []; // 存储 { id, dataURL, file }
+        let currentImages = [];
 
         function renderPreview() {
             previewArea.innerHTML = '';
@@ -1092,17 +1094,13 @@
             }
         }
 
-        uploadBtn.addEventListener('click', () => {
-            imageInput.click();
-        });
-
+        uploadBtn.addEventListener('click', () => { imageInput.click(); });
         imageInput.addEventListener('change', (e) => {
             if (e.target.files.length) {
                 addImagesFromFiles(Array.from(e.target.files));
                 imageInput.value = '';
             }
         });
-
         document.addEventListener('paste', (e) => {
             const items = e.clipboardData.items;
             for (let item of items) {
@@ -1114,39 +1112,24 @@
             }
         });
 
-        // ====================== 模型切换确认弹窗逻辑（仅 R1 需要确认） ======================
         const confirmModal = document.getElementById('confirmModelModal');
         const confirmSwitchBtn = document.getElementById('confirmSwitchBtn');
         const cancelSwitchBtn = document.getElementById('cancelSwitchBtn');
         let pendingSwitchData = null;
-
-        function closeConfirmModal() {
-            confirmModal.style.display = 'none';
-            pendingSwitchData = null;
-        }
-
-        function showConfirmModal(data) {
-            pendingSwitchData = data;
-            confirmModal.style.display = 'flex';
-        }
-
+        function closeConfirmModal() { confirmModal.style.display = 'none'; pendingSwitchData = null; }
+        function showConfirmModal(data) { pendingSwitchData = data; confirmModal.style.display = 'flex'; }
         function performModelSwitch(data) {
             if (!data) return;
             const { value, text, trigger, hiddenSelect } = data;
             for (let i = 0; i < hiddenSelect.options.length; i++) {
-                if (hiddenSelect.options[i].value === value) {
-                    hiddenSelect.selectedIndex = i;
-                    break;
-                }
+                if (hiddenSelect.options[i].value === value) { hiddenSelect.selectedIndex = i; break; }
             }
             if (trigger) trigger.innerText = text;
             const changeEvent = new Event('change', { bubbles: true });
             hiddenSelect.dispatchEvent(changeEvent);
             closeConfirmModal();
         }
-
         const NEED_CONFIRM_MODEL_VALUE = 'Pro/deepseek-ai/DeepSeek-R1';
-
         function initCustomSelects() {
             document.querySelectorAll('.custom-select').forEach(customSelect => {
                 const trigger = customSelect.querySelector('.custom-select-trigger');
@@ -1154,40 +1137,24 @@
                 const hiddenSelectId = customSelect.getAttribute('data-select-id');
                 const hiddenSelect = document.getElementById(hiddenSelectId);
                 if (!hiddenSelect) return;
-
                 const currentOption = hiddenSelect.options[hiddenSelect.selectedIndex];
                 if (currentOption) trigger.innerText = currentOption.text;
-
                 trigger.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    document.querySelectorAll('.custom-select.open').forEach(el => {
-                        if (el !== customSelect) el.classList.remove('open');
-                    });
+                    document.querySelectorAll('.custom-select.open').forEach(el => { if (el !== customSelect) el.classList.remove('open'); });
                     customSelect.classList.toggle('open');
                 });
-
                 dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
                     opt.addEventListener('click', (e) => {
                         const value = opt.getAttribute('data-value');
                         const text = opt.innerText;
                         if (value === NEED_CONFIRM_MODEL_VALUE) {
                             const currentValue = hiddenSelect.value;
-                            if (currentValue === NEED_CONFIRM_MODEL_VALUE) {
-                                customSelect.classList.remove('open');
-                                return;
-                            }
-                            showConfirmModal({
-                                value: value,
-                                text: text,
-                                trigger: trigger,
-                                hiddenSelect: hiddenSelect
-                            });
+                            if (currentValue === NEED_CONFIRM_MODEL_VALUE) { customSelect.classList.remove('open'); return; }
+                            showConfirmModal({ value, text, trigger, hiddenSelect });
                         } else {
                             for (let i = 0; i < hiddenSelect.options.length; i++) {
-                                if (hiddenSelect.options[i].value === value) {
-                                    hiddenSelect.selectedIndex = i;
-                                    break;
-                                }
+                                if (hiddenSelect.options[i].value === value) { hiddenSelect.selectedIndex = i; break; }
                             }
                             trigger.innerText = text;
                             const changeEvent = new Event('change', { bubbles: true });
@@ -1198,46 +1165,27 @@
                 });
             });
         }
-
-        confirmSwitchBtn.addEventListener('click', () => {
-            if (pendingSwitchData) performModelSwitch(pendingSwitchData);
-        });
+        confirmSwitchBtn.addEventListener('click', () => { if (pendingSwitchData) performModelSwitch(pendingSwitchData); });
         cancelSwitchBtn.addEventListener('click', closeConfirmModal);
         confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) closeConfirmModal(); });
-
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
-        });
+        document.addEventListener('click', () => { document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open')); });
         initCustomSelects();
 
-        // ====================== 自动滚动控制 ======================
         let autoScrollEnabled = true;
         const scrollControlBtn = document.getElementById('scrollControlBtn');
-
-        function scrollToBottom() {
-            if (autoScrollEnabled) messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
+        function scrollToBottom() { if (autoScrollEnabled) messagesArea.scrollTop = messagesArea.scrollHeight; }
         messagesArea.addEventListener('scroll', () => {
             const isNearBottom = messagesArea.scrollHeight - messagesArea.scrollTop - messagesArea.clientHeight < 50;
-            if (isNearBottom) {
-                autoScrollEnabled = true;
-                scrollControlBtn.classList.remove('show');
-            } else {
-                if (autoScrollEnabled) {
-                    autoScrollEnabled = false;
-                    scrollControlBtn.classList.add('show');
-                }
+            if (isNearBottom) { autoScrollEnabled = true; scrollControlBtn.classList.remove('show'); } else {
+                if (autoScrollEnabled) { autoScrollEnabled = false; scrollControlBtn.classList.add('show'); }
             }
         });
-
         scrollControlBtn.addEventListener('click', () => {
             messagesArea.scrollTo({ top: messagesArea.scrollHeight, behavior: 'smooth' });
             autoScrollEnabled = true;
             scrollControlBtn.classList.remove('show');
         });
 
-        // ====================== 消息气泡函数（支持带图片的用户消息） ======================
         function addMessage(role, content, images = null, isStreamingPlaceholder = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
@@ -1248,33 +1196,23 @@
             img.src = role === 'user' ? 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg' : 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png';
             avatar.appendChild(img);
             messageDiv.appendChild(avatar);
-
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
             const textSpan = document.createElement('div');
             textSpan.className = 'bubble-text';
             textSpan.innerHTML = content.replace(/\n/g, '<br>');
             bubble.appendChild(textSpan);
-
             if (role === 'user' && images && images.length > 0) {
                 const imgContainer = document.createElement('div');
-                imgContainer.style.display = 'flex';
-                imgContainer.style.flexWrap = 'wrap';
-                imgContainer.style.gap = '8px';
-                imgContainer.style.marginTop = '10px';
+                imgContainer.style.display = 'flex'; imgContainer.style.flexWrap = 'wrap'; imgContainer.style.gap = '8px'; imgContainer.style.marginTop = '10px';
                 images.forEach(imgData => {
                     const previewImg = document.createElement('img');
                     previewImg.src = imgData.dataURL;
-                    previewImg.style.width = '80px';
-                    previewImg.style.height = '80px';
-                    previewImg.style.objectFit = 'cover';
-                    previewImg.style.borderRadius = '12px';
-                    previewImg.style.border = '1px solid rgba(0,0,0,0.1)';
+                    previewImg.style.width = '80px'; previewImg.style.height = '80px'; previewImg.style.objectFit = 'cover'; previewImg.style.borderRadius = '12px'; previewImg.style.border = '1px solid rgba(0,0,0,0.1)';
                     imgContainer.appendChild(previewImg);
                 });
                 bubble.appendChild(imgContainer);
             }
-
             if (role === 'assistant' && !isStreamingPlaceholder) {
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
@@ -1289,71 +1227,42 @@
             return { messageDiv, textSpan, bubble };
         }
 
-        // ====================== 流式调用（支持多模态：当选择 Qwen3-VL 且用户上传图片时） ======================
         async function callModelStream(userPrompt, modelValue, images = []) {
             let apiUrl, apiKey, requestBody;
             const isVolcanic = modelValue === 'doubao-seed-2-0-pro-260215';
             const isMultimodal = modelValue === 'Qwen/Qwen3-VL-32B-Instruct';
-
-            // 构建消息内容
             let messagesContent;
             if (isMultimodal && images.length > 0) {
-                // 多模态：构建 content 数组，其中包含文本和图片（图片需转为 data URL 格式，模型支持）
                 const contentParts = [{ type: "text", text: userPrompt || "请描述这张图片" }];
                 for (let img of images) {
-                    contentParts.push({
-                        type: "image_url",
-                        image_url: { url: img.dataURL }  // data:image/... 格式
-                    });
+                    contentParts.push({ type: "image_url", image_url: { url: img.dataURL } });
                 }
                 messagesContent = contentParts;
             } else {
-                // 纯文本
                 messagesContent = userPrompt;
             }
-
             if (isVolcanic) {
                 apiUrl = VOLC_API_URL;
                 apiKey = VOLC_ACCESS_KEY;
-                requestBody = {
-                    model: modelValue,
-                    messages: [{ role: 'user', content: messagesContent }],
-                    temperature: 0.7,
-                    max_tokens: 4096,
-                    stream: true
-                };
+                requestBody = { model: modelValue, messages: [{ role: 'user', content: messagesContent }], temperature: 0.7, max_tokens: 4096, stream: true };
             } else {
                 apiUrl = SILICONFLOW_API_URL;
                 apiKey = SILICONFLOW_API_KEY;
-                requestBody = {
-                    model: modelValue,
-                    messages: [{ role: 'user', content: messagesContent }],
-                    temperature: 0.7,
-                    max_tokens: 4096,
-                    stream: true,
-                    stream_options: { include_usage: true }
-                };
-                // 硅基流动多模态可能需要特殊处理，但 Qwen3-VL-32B-Instruct 支持标准的 OpenAI 多模态格式，直接发送即可。
+                requestBody = { model: modelValue, messages: [{ role: 'user', content: messagesContent }], temperature: 0.7, max_tokens: 4096, stream: true, stream_options: { include_usage: true } };
             }
-
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API 请求失败 (${response.status}): ${errorText}`);
-            }
+            if (!response.ok) throw new Error(`API 请求失败 (${response.status}): ${await response.text()}`);
             if (!response.body) throw new Error('当前浏览器不支持流式响应');
-
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let fullContent = '';
             let usageRecorded = false;
             const { textSpan, messageDiv } = addMessage('assistant', '⏳ 生成中...', null, true);
             if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
-
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
@@ -1366,39 +1275,21 @@
                         try {
                             const parsed = JSON.parse(data);
                             const delta = parsed.choices[0]?.delta?.content;
-                            if (delta) {
-                                fullContent += delta;
-                                textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
-                                scrollToBottom();
-                            }
+                            if (delta) { fullContent += delta; textSpan.innerHTML = fullContent.replace(/\n/g, '<br>'); scrollToBottom(); }
                             if (parsed.usage && !usageRecorded && !isVolcanic) {
                                 usageRecorded = true;
                                 const usage = parsed.usage;
                                 const newTotal = await addGlobalTokens(usage.total_tokens);
-                                if (newTotal !== null) {
-                                    document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${newTotal}`;
-                                }
-                                await addRequestRecord({
-                                    type: '对话',
-                                    model: modelValue,
-                                    input: userPrompt,
-                                    output: fullContent,
-                                    input_tokens: usage.prompt_tokens || 0,
-                                    output_tokens: usage.completion_tokens || 0,
-                                    total_tokens: usage.total_tokens || 0
-                                });
+                                if (newTotal !== null) document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${newTotal}`;
+                                await addRequestRecord({ type: '对话', model: modelValue, input: userPrompt, output: fullContent, input_tokens: usage.prompt_tokens || 0, output_tokens: usage.completion_tokens || 0, total_tokens: usage.total_tokens || 0 });
                             }
                         } catch (e) { }
                     }
                 }
             }
-
             messageDiv.remove();
-            if (fullContent.trim()) {
-                addMessage('assistant', fullContent, null, false);
-            } else {
-                addMessage('assistant', '抱歉，没有收到有效回复。', null, false);
-            }
+            if (fullContent.trim()) addMessage('assistant', fullContent, null, false);
+            else addMessage('assistant', '抱歉，没有收到有效回复。', null, false);
         }
 
         let thinkingMsg = null;
@@ -1422,11 +1313,46 @@
             scrollToBottom();
             thinkingMsg = tempDiv;
         }
-        function hideThinking() {
-            if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
+        function hideThinking() { if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; } }
+
+        // ========== 联网功能（开关控制，默认关闭） ==========
+        const SERPER_API_KEY = 'e6f17dc5ad2ffc438cfbfe7040ef364ef883a061';
+        let webSearchEnabled = false;  // 默认关闭
+
+        // 联网开关 UI（圆形图标，无文字）
+        const webSwitch = document.getElementById('webSwitch');
+        function updateSwitchUI() {
+            if (webSearchEnabled) {
+                webSwitch.classList.add('active');
+            } else {
+                webSwitch.classList.remove('active');
+            }
+        }
+        webSwitch.addEventListener('click', () => {
+            webSearchEnabled = !webSearchEnabled;
+            updateSwitchUI();
+            localStorage.setItem('webSearchEnabled', webSearchEnabled ? '1' : '0');
+        });
+        // 读取保存的状态（如果保存过则使用，否则默认 false）
+        const saved = localStorage.getItem('webSearchEnabled');
+        if (saved !== null) webSearchEnabled = saved === '1';
+        else webSearchEnabled = false;
+        updateSwitchUI();
+
+        async function searchGoogle(query) {
+            const url = 'https://google.serper.dev/search';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-API-KEY': SERPER_API_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ q: query, num: 3 })
+            });
+            if (!response.ok) return '';
+            const data = await response.json();
+            if (!data.organic || !data.organic.length) return '';
+            return data.organic.map(item => `【标题】${item.title || ''}\n【链接】${item.link || ''}\n【摘要】${item.snippet || ''}`).join('\n\n');
         }
 
-        async function handleSend() {
+        async function handleSendWithSearch() {
             const text = userInput.value.trim();
             if (!text && currentImages.length === 0) return;
 
@@ -1439,25 +1365,44 @@
             userInput.style.height = 'auto';
 
             const selectedModel = hiddenModelSelect.value;
+            let enhancedMessage = text || (imagesToSend.length > 0 ? "请描述这张图片" : "");
+
+            // 只有当开关开启且没有图片时才搜索
+            const shouldSearch = webSearchEnabled && imagesToSend.length === 0;
+            if (shouldSearch) {
+                const searchMsgDiv = addMessage('assistant', '🔍 正在搜索最新信息...', null, true);
+                try {
+                    const searchResults = await searchGoogle(text);
+                    if (searchResults) {
+                        enhancedMessage = `用户的问题是：“${text}”。请基于以下最新的搜索结果来回答用户的问题。如果搜索结果足以回答问题，回答中请引用相关来源。如果搜索结果不相关或没有提供信息，请告知用户并基于你自身的知识进行回答。\n\n【搜索结果】\n${searchResults}`;
+                    }
+                    searchMsgDiv.messageDiv.remove();
+                } catch (err) {
+                    console.error(err);
+                    searchMsgDiv.messageDiv.remove();
+                    addMessage('assistant', '⚠️ 搜索服务暂时不可用，我将基于自身知识回答。', null, false);
+                }
+            }
+
             showThinking();
             try {
-                await callModelStream(text || (imagesToSend.length > 0 ? "请描述这张图片" : ""), selectedModel, imagesToSend);
+                await callModelStream(enhancedMessage, selectedModel, imagesToSend);
                 hideThinking();
             } catch (err) {
                 hideThinking();
                 console.error(err);
                 let errorMsg = '对话失败：';
-                if (err.message.includes('401')) errorMsg += 'API Key 无效，请检查';
-                else if (err.message.includes('429')) errorMsg += '请求过于频繁，请稍后再试';
-                else if (err.message.includes('fetch')) errorMsg += '网络请求失败，请检查网络';
+                if (err.message.includes('401')) errorMsg += 'API Key 无效';
+                else if (err.message.includes('429')) errorMsg += '请求过于频繁';
+                else if (err.message.includes('fetch')) errorMsg += '网络请求失败';
                 else errorMsg += err.message;
-                addMessage('assistant', errorMsg);
+                addMessage('assistant', errorMsg, null, false);
             }
         }
 
-        sendBtn.addEventListener('click', handleSend);
+        sendBtn.addEventListener('click', handleSendWithSearch);
         userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendWithSearch(); }
         });
         userInput.addEventListener('input', function () {
             this.style.height = 'auto';
@@ -1472,7 +1417,6 @@
             }).catch(() => alert('复制失败，请手动复制'));
         }
 
-        // ====================== 全局 Tokens 统计 ======================
         async function getGlobalTokens() {
             const { data, error } = await supabaseClient.from('global_token_stats').select('total_tokens').eq('id', 1).single();
             if (error) return 0;
