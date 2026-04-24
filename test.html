@@ -2,242 +2,348 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hourglass Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ΩMEN CLOUD | 订阅分发</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* --- 1. 继承主页视觉基因 --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #fae8ff 100%);
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            color: #1a1a1a;
+            margin: 0;
             min-height: 100vh;
-            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
         }
+
+        /* --- 2. 玻璃拟态卡片容器 --- */
         .glass-card {
-            background: rgba(255, 255, 255, 0.4);
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.7) !important;
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 24px;
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            border-radius: 32px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .sidebar-item-active {
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
+
+        /* 水印装饰（参考主页 ETGOHOME 风格） */
+        .glass-card::after {
+            content: "";
+            position: absolute;
+            right: -50px;
+            top: -50px;
+            width: 200px;
+            height: 200px;
+            background: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/ETGOHOMELOGO.png') no-repeat center;
+            background-size: contain;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* --- 3. 头部标题 --- */
+        .header-section h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #900207; /* 继承主页的深红色主题 */
+            margin: 0 0 5px 0;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        /* --- 4. 节点状态网格 --- */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .status-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .status-label { font-size: 10px; color: #999; margin-bottom: 4px; }
+        .status-value { font-size: 13px; font-weight: 700; color: #333; }
+
+        /* --- 5. 交互按钮（核心功能） --- */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #900207;
+            color: white;
+            box-shadow: 0 4px 15px rgba(144, 2, 7, 0.2);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-outline {
+            background: rgba(120, 120, 128, 0.1);
+            color: #007aff; /* 继承主页 nav-btn 的蓝色 */
+            border: 0.5px solid rgba(0, 122, 255, 0.2);
+        }
+
+        /* --- 6. 底部版权 --- */
+        .footer {
+            margin-top: 25px;
+            font-size: 11px;
+            color: rgba(0,0,0,0.3);
+            line-height: 1.6;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <div class="max-w-7xl mx-auto flex gap-6">
-        
-        <aside class="w-64 hidden lg:block">
-            <div class="flex items-center gap-3 px-4 mb-10">
-                <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-white">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-                <span class="text-xl font-bold text-gray-800">Hourglass</span>
+    <div class="glass-card">
+        <div class="header-section">
+            <h1>ΩMEN CLOUD</h1>
+            <div class="subtitle">Secure Reality Protocol</div>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-item">
+                <div class="status-label">节点地区</div>
+                <div class="status-value">新加坡 / 联通优化</div>
             </div>
-
-            <nav class="space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 sidebar-item-active text-gray-900 font-medium">
-                    <i class="fas fa-th-large w-5"></i> Dashboard
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                    <i class="far fa-calendar-alt w-5"></i> Appointments
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                    <i class="far fa-envelope w-5"></i> Messages
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                    <i class="fas fa-pills w-5"></i> Pharmacy
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                    <i class="fas fa-flask w-5"></i> Laboratory
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                    <i class="fas fa-bed w-5"></i> Inpatient
-                </a>
-                <div class="pt-10">
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                        <i class="far fa-heart w-5"></i> Support
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
-                        <i class="fas fa-cog w-5"></i> Settings
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <main class="flex-1">
-            <header class="mb-6">
-                <h1 class="text-3xl font-semibold text-gray-800">Welcome</h1>
-            </header>
-
-            <div class="glass-card p-0 overflow-hidden mb-8 relative">
-                <div class="flex flex-col md:flex-row">
-                    <div class="p-8 md:w-3/5">
-                        <p class="text-gray-500 mb-1">Your Appointment</p>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Dr. Haylie Philips</h2>
-                        <div class="inline-flex items-center gap-4 bg-black/5 backdrop-blur-md rounded-full px-4 py-2 text-sm text-gray-700">
-                            <span><i class="far fa-calendar mr-2"></i>Monday, 06 Oct 2025 · 07:45</span>
-                            <span><i class="fas fa-id-badge mr-2"></i>A-03 · HP-061025-003</span>
-                        </div>
-                    </div>
-                    <div class="md:w-2/5 h-48 md:h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=800');">
-                        </div>
-                </div>
+            <div class="status-item">
+                <div class="status-label">实时延迟</div>
+                <div class="status-value" id="ping">测量中...</div>
             </div>
+        </div>
 
-            <div class="flex justify-between items-center mb-10 px-2 overflow-x-auto gap-4">
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-pills"></i></div>
-                    <span class="text-xs text-gray-600">Pharmacy</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-ticket-alt"></i></div>
-                    <span class="text-xs text-gray-600">My Queue</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-book-medical"></i></div>
-                    <span class="text-xs text-gray-600">Book</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-user-md"></i></div>
-                    <span class="text-xs text-gray-600">Doctors</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="far fa-calendar-check"></i></div>
-                    <span class="text-xs text-gray-600">Schedule</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-ellipsis-h"></i></div>
-                    <span class="text-xs text-gray-600">More</span>
-                </div>
-            </div>
+        <div class="btn-group">
+            <a href="https://你的域名/sub/xxxx" class="btn btn-primary">
+                <i data-lucide="zap" size="18"></i>一键导入 Mihomo / Clash
+            </a>
+            <a href="https://你的域名/sub/xxxx" class="btn btn-outline">
+                <i data-lucide="copy" size="18"></i>复制 V2Ray 订阅链接
+            </a>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Health Tips</h3>
-                    <div class="space-y-4">
-                        <div class="glass-card p-4 flex gap-4 items-center">
-                            <div class="w-16 h-16 rounded-xl bg-blue-100 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1544145945-f904253db0ad?auto=format&fit=crop&q=80&w=200" class="object-cover w-full h-full" alt="water">
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-800">Stay Hydrated</h4>
-                                <p class="text-xs text-gray-500">Drink enough water to support energy and focus.</p>
-                            </div>
-                        </div>
-                        <div class="glass-card p-4 flex gap-4 items-center">
-                            <div class="w-16 h-16 rounded-xl bg-orange-100 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&q=80&w=200" class="object-cover w-full h-full" alt="exercise">
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-800">Move Every Hour</h4>
-                                <p class="text-xs text-gray-500">Stand up and stretch briefly to keep your body active.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold text-gray-800">Result & History</h3>
-                        <div class="flex gap-2">
-                            <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-400"><i class="fas fa-chevron-left text-xs"></i></button>
-                            <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-800"><i class="fas fa-chevron-right text-xs"></i></button>
-                        </div>
-                    </div>
-                    <div class="glass-card p-6 space-y-6">
-                        <div class="flex justify-between items-start border-l-2 border-green-400 pl-4">
-                            <div>
-                                <p class="text-[10px] text-gray-400 uppercase">Diagnosis Terakhir</p>
-                                <h4 class="font-bold text-gray-800">Flu Ringan</h4>
-                            </div>
-                            <span class="text-[10px] text-gray-400">12 Okt 2025</span>
-                        </div>
-                        <div class="flex justify-between items-start border-l-2 border-purple-400 pl-4">
-                            <div>
-                                <p class="text-[10px] text-gray-400 uppercase">Obat</p>
-                                <h4 class="font-bold text-gray-800">Paracetamol 500mg (5 hari)</h4>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-start border-l-2 border-blue-400 pl-4">
-                            <div>
-                                <p class="text-[10px] text-gray-400 uppercase">Hasil Lab</p>
-                                <h4 class="font-bold text-gray-800">CBC — Normal</h4>
-                            </div>
-                            <span class="text-[10px] text-gray-400">06 Sep 2025</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <aside class="w-80 hidden xl:block">
-            <div class="glass-card p-6 mb-6">
-                <h3 class="text-lg font-semibold mb-4">Find a doctor</h3>
-                <div class="relative mb-6">
-                    <input type="text" placeholder="Cari di sini..." class="w-full bg-white/50 border-none rounded-xl py-3 px-4 pl-10 focus:ring-2 ring-purple-300 outline-none">
-                    <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
-                </div>
-                
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
-                        <div class="text-gray-600"><i class="fas fa-plus"></i></div>
-                        <span class="text-[10px]">General</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
-                        <div class="text-gray-600"><i class="fas fa-baby"></i></div>
-                        <span class="text-[10px]">Pediatrics</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
-                        <div class="text-gray-600"><i class="far fa-heart"></i></div>
-                        <span class="text-[10px]">OB-GYN</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
-                        <div class="text-gray-600"><i class="fas fa-heartbeat"></i></div>
-                        <span class="text-[10px]">Cardiology</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
-                        <div class="text-gray-600"><i class="fas fa-brain"></i></div>
-                        <span class="text-[10px]">Mental Health</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
-                        <div class="text-gray-600"><i class="fas fa-biohazard"></i></div>
-                        <span class="text-[10px]">Infectious</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card p-6">
-                <h3 class="text-lg font-semibold mb-4">Appointment queue</h3>
-                <div class="bg-white/80 rounded-2xl p-4 mb-4">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-400">Kardiologi</p>
-                            <p class="font-bold text-gray-800">Dr. James Carter</p>
-                        </div>
-                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <div class="flex-1 bg-white/40 rounded-xl p-3 text-center">
-                        <p class="text-[10px] text-gray-400 uppercase">Queue</p>
-                        <p class="font-bold">C15</p>
-                    </div>
-                    <div class="flex-1 bg-white/40 rounded-xl p-3 text-center">
-                        <p class="text-[10px] text-gray-400 uppercase">Urutan</p>
-                        <p class="font-bold">4 dari 18</p>
-                    </div>
-                    <div class="flex-1 bg-white/40 rounded-xl p-3 text-center">
-                        <p class="text-[10px] text-gray-400 uppercase">ETA</p>
-                        <p class="font-bold">16:10</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
+        <div class="footer">
+            一人 丨 一猫 丨 一首歌<br>
+            © 2026 Omen. All Rights Reserved.
+        </div>
     </div>
 
+    <script>
+        // 初始化图标
+        lucide.createIcons();
+
+        // 模拟延迟显示
+        setTimeout(() => {
+            document.getElementById('ping').innerText = '42ms';
+        }, 1500);
+
+        // 简单的点击反馈
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                console.log('Action Triggered');
+            });
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ΩMEN CLOUD | 订阅分发</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* --- 1. 继承主页视觉基因 --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            color: #1a1a1a;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+        }
+
+        /* --- 2. 玻璃拟态卡片容器 --- */
+        .glass-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            border-radius: 32px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 水印装饰（参考主页 ETGOHOME 风格） */
+        .glass-card::after {
+            content: "";
+            position: absolute;
+            right: -50px;
+            top: -50px;
+            width: 200px;
+            height: 200px;
+            background: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/ETGOHOMELOGO.png') no-repeat center;
+            background-size: contain;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* --- 3. 头部标题 --- */
+        .header-section h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #900207; /* 继承主页的深红色主题 */
+            margin: 0 0 5px 0;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        /* --- 4. 节点状态网格 --- */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .status-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .status-label { font-size: 10px; color: #999; margin-bottom: 4px; }
+        .status-value { font-size: 13px; font-weight: 700; color: #333; }
+
+        /* --- 5. 交互按钮（核心功能） --- */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #900207;
+            color: white;
+            box-shadow: 0 4px 15px rgba(144, 2, 7, 0.2);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-outline {
+            background: rgba(120, 120, 128, 0.1);
+            color: #007aff; /* 继承主页 nav-btn 的蓝色 */
+            border: 0.5px solid rgba(0, 122, 255, 0.2);
+        }
+
+        /* --- 6. 底部版权 --- */
+        .footer {
+            margin-top: 25px;
+            font-size: 11px;
+            color: rgba(0,0,0,0.3);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <div class="header-section">
+            <h1>ΩMEN CLOUD</h1>
+            <div class="subtitle">Secure Reality Protocol</div>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-item">
+                <div class="status-label">节点地区</div>
+                <div class="status-value">新加坡 / 联通优化</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">实时延迟</div>
+                <div class="status-value" id="ping">测量中...</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <a href="https://你的域名/sub/xxxx" class="btn btn-primary">
+                <i data-lucide="zap" size="18"></i>一键导入 Mihomo / Clash
+            </a>
+            <a href="https://你的域名/sub/xxxx" class="btn btn-outline">
+                <i data-lucide="copy" size="18"></i>复制 V2Ray 订阅链接
+            </a>
+        </div>
+
+        <div class="footer">
+            一人 丨 一猫 丨 一首歌<br>
+            © 2026 Omen. All Rights Reserved.
+        </div>
+    </div>
+
+    <script>
+        // 初始化图标
+        lucide.createIcons();
+
+        // 模拟延迟显示
+        setTimeout(() => {
+            document.getElementById('ping').innerText = '42ms';
+        }, 1500);
+
+        // 简单的点击反馈
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                console.log('Action Triggered');
+            });
+        });
+    </script>
 </body>
 </html>
