@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>工具库 · 技术栈全景</title>
-    <link rel="stylesheet" href="css/common.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>导航·工具集</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* --- 全局基础样式（与 index 一致的浅色背景）--- */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -16,19 +13,20 @@
 
         body {
             margin: 0;
-            min-height: 100vh;
+            height: 100vh;
             background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
             color: #1a1a1a;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            padding: 0 16px 50px 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* 导航栏（毛玻璃风格） */
+        /* ---------- 毛玻璃导航栏 (与主页风格一致) ---------- */
         .timeline-header {
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            margin: 0 0 24px 0;
+            flex-shrink: 0;
+            margin: 16px 16px 0 16px;
             background: transparent;
             backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
             border-radius: 34px;
@@ -39,10 +37,9 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            flex-wrap: wrap;
-            overflow: hidden;
+            position: relative;
+            z-index: 10;
         }
-
         .displacement-layer {
             position: absolute;
             bottom: 0;
@@ -51,46 +48,9 @@
             height: 8px;
             background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
             pointer-events: none;
-            transition: transform 0.05s linear;
-            z-index: 2;
             border-radius: 0 0 34px 34px;
         }
-
-        .displacement-layer::before,
-        .displacement-layer::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 6px;
-            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
-            pointer-events: none;
-        }
-
-        .displacement-layer::before {
-            left: 0;
-            border-radius: 34px 0 0 0;
-        }
-
-        .displacement-layer::after {
-            right: 0;
-            border-radius: 0 34px 0 0;
-        }
-
-        .timeline-header::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
-            filter: blur(4px);
-            mix-blend-mode: overlay;
-            pointer-events: none;
-            transform: translateZ(-1px) scale(1.02);
-        }
-
-        .back-btn-inline,
-        .nav-btn {
+        .back-btn-inline {
             background: rgba(120, 120, 128, 0.2);
             backdrop-filter: blur(15px);
             border: 0.5px solid rgba(255, 255, 255, 0.8);
@@ -101,31 +61,24 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-            flex-shrink: 0;
             color: #007aff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            flex-shrink: 0;
         }
-
-        .back-btn-inline:hover,
-        .nav-btn:hover {
+        .back-btn-inline:hover {
             background: rgba(120, 120, 128, 0.35);
             transform: scale(0.96);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
-
-        .back-btn-inline svg,
-        .nav-btn svg {
+        .back-btn-inline svg {
             stroke: currentColor;
             width: 22px;
             height: 22px;
         }
-
         .header-title {
             flex: 1;
             text-align: center;
         }
-
         .header-title h1 {
             margin: 0;
             font-size: 1.5rem;
@@ -135,7 +88,6 @@
             -webkit-background-clip: text;
             color: transparent;
         }
-
         .header-title .sub {
             font-size: 0.75rem;
             opacity: 0.6;
@@ -143,674 +95,549 @@
             margin-top: 4px;
             color: #666;
         }
-
-        /* 右侧占位保持对称 */
         .nav-group {
             min-width: 88px;
             display: flex;
             justify-content: flex-end;
         }
-
         @media (max-width: 768px) {
-            body {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
             .timeline-header {
-                top: 12px;
-                margin-bottom: 32px;
+                margin: 12px 12px 0 12px;
                 padding: 8px 16px;
                 border-radius: 28px;
             }
-
-            .back-btn-inline,
-            .nav-btn {
+            .back-btn-inline {
                 width: 40px;
                 height: 40px;
             }
-
             .header-title h1 {
                 font-size: 1.2rem;
             }
-
             .nav-group {
                 min-width: 92px;
             }
         }
 
-        /* 下拉菜单 */
-        .dropdown-menu {
-            display: none;
-            position: fixed;
-            top: calc(env(safe-area-inset-top, 20px) + 80px);
-            left: calc(env(safe-area-inset-left, 20px) + 20px);
-            width: 150px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
-            padding: 8px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-            transform: scale(0.4) translate(-30px, -30px);
-            opacity: 0;
-            transform-origin: top left;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 9999;
+        /* ---------- 滑动容器 ---------- */
+        .swipe-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            margin: 12px 16px 0 16px;
+            border-radius: 32px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .swipe-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            will-change: transform;
+        }
+        .page {
+            width: 100%;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 16px 20px 30px 20px;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+        .page::-webkit-scrollbar {
+            width: 4px;
+        }
+        .page::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .page::-webkit-scrollbar-thumb {
+            background: #ffcc00;
+            border-radius: 4px;
         }
 
-        .dropdown-menu.active {
-            display: block;
-            transform: scale(1) translate(0, 0);
-            opacity: 1;
+        /* 卡片通用样式 (毛玻璃) */
+        .tech-card, .link-card, .tool-card, .external-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 28px;
+            padding: 18px 20px;
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
+            margin-bottom: 16px;
         }
-
-        .menu-item {
+        .tech-card:hover, .link-card:hover, .tool-card:hover, .external-card:hover {
+            transform: translateY(-3px);
+            border-color: #ffcc00;
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+        .card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
-            color: #1a1a1a;
-            text-decoration: none;
-            font-size: 15px;
-            border-radius: 16px;
-            transition: 0.2s;
+            gap: 14px;
+            margin-bottom: 12px;
         }
-
-        .menu-item:hover {
-            background: rgba(128, 128, 128, 0.1);
-        }
-
-        /* ===== 选项卡样式（无缝切换核心） ===== */
-        .tab-bar {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin: 0 0 28px 0;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 48px;
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #2c2c2e;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-            letter-spacing: 0.5px;
-        }
-
-        .tab-btn i {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            display: inline-block;
-            vertical-align: middle;
-            stroke-width: 1.8;
-        }
-
-        .tab-btn.active {
-            background: #ffcc00;
-            border-color: rgba(255, 204, 0, 0.6);
-            color: #1a1a1a;
-            box-shadow: 0 6px 14px rgba(255, 204, 0, 0.25);
-        }
-
-        .tab-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.85);
-            border-color: #ffcc00;
-            transform: translateY(-2px);
-        }
-
-        /* 视图容器（切换核心） */
-        .view-container {
-            width: 100%;
-            transition: opacity 0.2s ease;
-        }
-
-        .view {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        .view.active-view {
-            display: block;
-            opacity: 1;
-        }
-
-        /* 技术卡片网格（复用上个版本样式） */
-        .tech-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin: 32px 0 20px 0;
-            padding-left: 12px;
-            border-left: 4px solid #ffcc00;
-            letter-spacing: -0.3px;
-            color: #1a1a1a;
-        }
-
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .tech-card,
-        .tool-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 28px;
-            padding: 20px 18px;
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        .tech-card:hover,
-        .tool-card:hover {
-            transform: translateY(-6px);
-            border-color: #ffcc00;
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.1);
-        }
-
         .card-icon {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             background: rgba(255, 204, 0, 0.15);
             border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
         }
-
         .card-icon i {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             stroke: #ffcc00;
             stroke-width: 1.7;
         }
-
-        .tech-name,
-        .tool-name {
-            font-size: 1.25rem;
+        .card-title {
+            font-size: 1.2rem;
             font-weight: 700;
-            margin: 12px 0 6px;
-            letter-spacing: -0.2px;
             color: #1a1a1a;
+            margin: 0;
         }
-
-        .tech-desc,
-        .tool-desc {
+        .card-desc {
             font-size: 0.85rem;
-            line-height: 1.45;
             color: #4a4a4e;
-            opacity: 0.85;
+            line-height: 1.45;
+            margin: 8px 0 0;
         }
-
         .badge-group {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 14px;
+            margin-top: 12px;
         }
-
         .badge {
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 30px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 40px;
             padding: 4px 12px;
             font-size: 0.7rem;
             font-weight: 500;
-            color: #2c2c2e;
+            color: #3a3a3c;
         }
-
-        .tool-entry-link {
-            display: inline-block;
-            margin-top: 18px;
-            background: rgba(255, 204, 0, 0.2);
-            border-radius: 40px;
-            padding: 8px 18px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #e6a017;
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 20px 0 14px 0;
+            padding-left: 12px;
+            border-left: 4px solid #ffcc00;
+        }
+        .external-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             text-decoration: none;
-            transition: 0.2s;
-            border: 0.5px solid rgba(230, 160, 23, 0.3);
+            color: inherit;
+            width: 100%;
         }
-
-        .tool-entry-link:hover {
-            background: #ffcc00;
-            color: #1a1a1a;
-            transform: scale(0.97);
+        .link-url {
+            font-size: 0.7rem;
+            color: #888;
+            word-break: break-all;
+            margin-top: 6px;
         }
-
-        hr {
-            margin: 20px 0;
-            border: none;
-            height: 1px;
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .footer-note {
-            margin-top: 60px;
-            font-size: 12px;
-            opacity: 0.5;
-            text-align: center;
-            color: #1a1a1a;
-        }
-
-        .tools-grid {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .tool-card {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tool-badge {
-            background: rgba(230, 160, 23, 0.15);
-            color: #e6a017;
-            border-radius: 30px;
-            padding: 4px 12px;
+        .btn-outline {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 6px 14px;
+            border-radius: 40px;
             font-size: 0.7rem;
             font-weight: 600;
-            align-self: flex-start;
+            color: #e6a017;
+            transition: 0.2s;
+        }
+        .btn-outline:hover {
+            background: #ffcc00;
+            color: #1a1a1a;
+        }
+
+        /* ---------- 底部标签栏 (毛玻璃统一风格) ---------- */
+        .bottom-tab-bar {
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(30px);
+            border-top: 0.5px solid rgba(0, 0, 0, 0.08);
+            border-radius: 32px 32px 0 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 16px 18px;
+            margin: 8px 12px 12px 12px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02);
+            z-index: 20;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            flex: 1;
+            cursor: pointer;
+            padding: 6px 0;
+            border-radius: 30px;
+            transition: all 0.2s ease;
+            color: #8e8e93;
+        }
+        .tab-item i {
+            width: 24px;
+            height: 24px;
+            stroke-width: 1.8;
+            transition: all 0.2s;
+        }
+        .tab-item span {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .tab-item.active {
+            color: #ffcc00;
+            background: rgba(255, 204, 0, 0.12);
+        }
+        .tab-item.active i {
+            stroke: #ffcc00;
+            fill: rgba(255, 204, 0, 0.15);
+        }
+        @media (max-width: 640px) {
+            .swipe-container {
+                margin: 8px 12px 0 12px;
+            }
+            .bottom-tab-bar {
+                padding: 6px 12px 14px;
+                margin: 4px 12px 12px 12px;
+            }
+            .tab-item i {
+                width: 22px;
+                height: 22px;
+            }
+            .tab-item span {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* 友情链接专用网格 */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
             margin-top: 8px;
+        }
+        .mini-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 14px 10px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .mini-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            border-color: #ffcc00;
+        }
+        .mini-card i {
+            width: 28px;
+            height: 28px;
+            stroke: #ffcc00;
+            margin-bottom: 6px;
+        }
+        .footer-note {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 28px;
+            padding-bottom: 6px;
         }
     </style>
 </head>
-
 <body>
 
-    <!-- 导航栏（复用全局风格） -->
-    <div class="timeline-header" id="timelineHeader">
-        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
-        <button class="back-btn-inline" onclick="history.back()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M15 18l-6-6 6-6" />
-            </svg>
-        </button>
-        <div class="header-title">
-            <h1>技术/工具</h1>
-            <span class="sub">陪伴我创造的伙伴们</span>
-        </div>
-        <div class="nav-group" style="display: flex; gap: 12px;">
-            <button id="scrollTopBtn" class="nav-btn" onclick="scrollToTop()">
-                <i data-lucide="chevron-up"></i>
-            </button>
-            <!-- 如果还需要额外占位保持对称，可再留一个透明占位 -->
-        </div>
-        <div class="displacement-layer"></div>
+<!-- 顶部毛玻璃导航栏（与主页一致，带返回+标题+右侧预留） -->
+<div class="timeline-header" id="timelineHeader">
+    <button class="back-btn-inline" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M15 18l-6-6 6-6" />
+        </svg>
+    </button>
+    <div class="header-title">
+        <h1>技术/工具/链接</h1>
+        <span class="sub">陪伴我创造的伙伴们</span>
     </div>
+    <div class="nav-group"></div>
+    <div class="displacement-layer"></div>
+</div>
 
-    <!-- 下拉菜单 -->
-    <div class="dropdown-menu" id="dropdown-menu">
-        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
-        <a href="moments.html" class="menu-item">
-            <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
-                <path
-                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
-                <path d="M31 7V24" />
-                <path d="M16.6357 6.63599L30.7779 20.7781" />
-                <path d="M7 17H24" />
-                <path d="M20.3643 17.636L6.22212 31.7781" />
-                <path d="M17 25V42" />
-                <path d="M17.6357 27.636L31.7779 41.7781" />
-                <path d="M24 31L42 31" />
-                <path d="M42.3643 16.636L28.2221 30.7781" />
-                <path
-                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
-            </svg>
-            朋友圈
-        </a>
-        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
-        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
-        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
-        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
-        <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>更新日志</a>
-    </div>
-
-    <!-- 选项卡切换栏 -->
-    <div class="tab-bar">
-        <div class="tab-btn active" data-view="tech">
-            <i data-lucide="cpu"></i> 技术栈全景
+<!-- 可滑动页面容器 -->
+<div class="swipe-container" id="swipeContainer">
+    <div class="swipe-wrapper" id="swipeWrapper">
+        <!-- 页面1：技术栈内容（整合原技术栈全景） -->
+        <div class="page" data-index="0">
+            <div class="section-title">🌐 前端核心</div>
+            <div class="tech-card">
+                <div class="card-header"><div class="card-icon"><i data-lucide="code-2"></i></div><div class="card-title">HTML5 / CSS3</div></div>
+                <div class="card-desc">语义化 + 弹性布局，浅色毛玻璃体系，零框架原生构建。</div>
+                <div class="badge-group"><span class="badge">语义标签</span><span class="badge">Grid/Flex</span><span class="badge">响应式</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="card-header"><div class="card-icon"><i data-lucide="file-js"></i></div><div class="card-title">JavaScript (ES6+)</div></div>
+                <div class="card-desc">驱动流式API、Canvas粒子、本地存储与异步交互。</div>
+                <div class="badge-group"><span class="badge">Async/Await</span><span class="badge">Fetch API</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="card-header"><div class="card-icon"><i data-lucide="layout-template"></i></div><div class="card-title">Lucide 图标库</div></div>
+                <div class="card-desc">统一矢量图标，轻盈且高度可定制。</div>
+                <div class="badge-group"><span class="badge">CDN注入</span><span class="badge">动态渲染</span></div>
+            </div>
+            <div class="section-title">⚙️ 云后端 & 数据库</div>
+            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="database"></i></div><div class="card-title">Supabase</div></div><div class="card-desc">PostgreSQL数据库、RLS安全策略、RPC函数，支撑配置与Token统计。</div><div class="badge-group"><span class="badge">BaaS</span><span class="badge">实时订阅</span></div></div>
+            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="cloud"></i></div><div class="card-title">腾讯云 COS</div></div><div class="card-desc">对象存储 + CDN加速，图片/视频上传与分发。</div><div class="badge-group"><span class="badge">SDK集成</span><span class="badge">批量管理</span></div></div>
+            <div class="section-title">🤖 AI模型引擎</div>
+            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="sparkles"></i></div><div class="card-title">DeepSeek-V3.2 / V2.5</div></div><div class="card-desc">流式翻译/对话主力，用量统计与性价比兼顾。</div><div class="badge-group"><span class="badge">128K上下文</span><span class="badge">硅基流动</span></div></div>
+            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="microchip"></i></div><div class="card-title">通义千问 Qwen3.5 / MiniMax</div></div><div class="card-desc">多尺寸开源模型，国内优质语义理解。</div></div>
+            <div class="section-title">💾 本地存储 & 特效</div>
+            <div class="tech-card"><div class="card-header"><div class="card-icon"><i data-lucide="hard-drive"></i></div><div class="card-title">IndexedDB + localStorage</div></div><div class="card-desc">Token明细记录、点赞状态持久化，Canvas爱心雨粒子。</div></div>
+            <div class="footer-note">🛠️ 纯静态全栈 · 技术沉淀展示</div>
         </div>
-        <div class="tab-btn" data-view="tools">
-            <i data-lucide="wrench"></i> 实用工具
-        </div>
-    </div>
 
-    <!-- 视图容器：技术栈视图（默认显示） -->
-    <div class="view-container">
-        <div id="techView" class="view active-view">
-            <div class="tech-container">
-                <!-- 前端核心 -->
-                <div class="section-title">🌐 前端基础</div>
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="code-2"></i></div>
-                        <div class="tech-name">HTML5 / CSS3</div>
-                        <div class="tech-desc">语义化标记 + 弹性布局，浅色毛玻璃视觉体系，所有页面均为原生构建，无框架依赖。</div>
-                        <div class="badge-group"><span class="badge">语义标签</span><span class="badge">CSS
-                                Grid/Flex</span><span class="badge">响应式</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="file-js"></i></div>
-                        <div class="tech-name">JavaScript (ES6+)</div>
-                        <div class="tech-desc">全站原生JS驱动，负责动态交互、流式API调用、Canvas粒子特效、本地存储及异步数据流。</div>
-                        <div class="badge-group"><span class="badge">Async/Await</span><span class="badge">Fetch
-                                API</span><span class="badge">模块化</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="layout-template"></i></div>
-                        <div class="tech-name">Lucide 图标库</div>
-                        <div class="tech-desc">提供高一致性矢量图标，导航、点赞、上传等场景广泛使用，轻盈且可定制。</div>
-                        <div class="badge-group"><span class="badge">CDN</span><span class="badge">动态注入</span></div>
-                    </div>
-                </div>
-
-                <!-- 后端 & BaaS -->
-                <div class="section-title">⚙️ 云后端 & 数据库</div>
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="database"></i></div>
-                        <div class="tech-name">Supabase</div>
-                        <div class="tech-desc">开源BaaS平台，提供PostgreSQL数据库、行级安全策略、实时订阅及RPC函数，支撑站点配置、动态存储、Token统计与访客记录。
-                        </div>
-                        <div class="badge-group"><span class="badge">PostgreSQL</span><span
-                                class="badge">RLS</span><span class="badge">RPC调用</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="cloud"></i></div>
-                        <div class="tech-name">腾讯云 COS</div>
-                        <div class="tech-desc">对象存储服务，搭配COS JS SDK V5，实现朋友圈图片/视频、相册文件、用户头像等的高效上传和CDN加速分发。</div>
-                        <div class="badge-group"><span class="badge">SDK集成</span><span class="badge">CDN加速</span><span
-                                class="badge">批量管理</span></div>
-                    </div>
-                </div>
-
-                <!-- AI 模型 -->
-                <div class="section-title">🤖 AI 模型 & 大语言引擎</div>
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="sparkles"></i></div>
-                        <div class="tech-name">DeepSeek-V3.2 / V2.5</div>
-                        <div class="tech-desc">对话与翻译主力模型，通过硅基流动API调用，支持流式响应及Token用量统计，兼顾性能与成本。</div>
-                        <div class="badge-group"><span class="badge">128K上下文</span><span class="badge">推理优化</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="microchip"></i></div>
-                        <div class="tech-name">通义千问 Qwen3.5</div>
-                        <div class="tech-desc">多尺寸开源大模型，集成至AI对话模块，提供高质量中文理解与生成能力。</div>
-                        <div class="badge-group"><span class="badge">397B MoE</span><span class="badge">多语言</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="zap"></i></div>
-                        <div class="tech-name">MiniMax-M2.5 / 豆包</div>
-                        <div class="tech-desc">MiniMax及火山引擎豆包模型，丰富对话选择，适配不同场景需求。</div>
-                        <div class="badge-group"><span class="badge">火山引擎</span><span class="badge">多模态</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="globe"></i></div>
-                        <div class="tech-name">GPT-OSS-120b</div>
-                        <div class="tech-desc">基于OpenAI API接入的开源级模型，拓展AI助手阵营，保留实验性能力。</div>
-                        <div class="badge-group"><span class="badge">OpenAI兼容</span><span class="badge">高参数规模</span>
-                        </div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="message-square"></i></div>
-                        <div class="tech-name">硅基流动 API</div>
-                        <div class="tech-desc">一站式大模型托管平台，统一调用DeepSeek、Qwen、MiniMax等，并实现流式翻译/对话与用量统计。</div>
-                        <div class="badge-group"><span class="badge">统一网关</span><span class="badge">usage统计</span></div>
-                    </div>
-                </div>
-
-                <!-- 本地存储 & 客户端 -->
-                <div class="section-title">💾 本地存储 & 客户端技术</div>
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="hard-drive"></i></div>
-                        <div class="tech-name">IndexedDB</div>
-                        <div class="tech-desc">用于Token消耗明细的本地持久化，记录每一次翻译/对话请求的token用量，支持离线查询与分析。</div>
-                        <div class="badge-group"><span class="badge">异步事务</span><span class="badge">大容量存储</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="bookmark"></i></div>
-                        <div class="tech-name">localStorage</div>
-                        <div class="tech-desc">存储朋友圈点赞状态以及用户轻量偏好，无后端交互实现即时互动反馈。</div>
-                        <div class="badge-group"><span class="badge">键值对</span><span class="badge">跨页面同步</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="image"></i></div>
-                        <div class="tech-name">Canvas 粒子特效</div>
-                        <div class="tech-desc">朋友圈点赞时生成动态彩色圆形粒子流，高性能动画引擎，提升交互趣味性。</div>
-                        <div class="badge-group"><span class="badge">requestAnimationFrame</span><span
-                                class="badge">性能优化</span></div>
-                    </div>
-                </div>
-
-                <!-- 开发与设计 -->
-                <div class="section-title">🧰 开发工具 & 设计体系</div>
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="palette"></i></div>
-                        <div class="tech-name">毛玻璃设计语言</div>
-                        <div class="tech-desc">全站统一使用backdrop-filter blur、半透背景、细腻阴影，营造层次感与融冰美学。</div>
-                        <div class="badge-group"><span class="badge">backdrop-filter</span><span
-                                class="badge">玻璃态</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="git-branch"></i></div>
-                        <div class="tech-name">原生敏捷开发</div>
-                        <div class="tech-desc">无打包工具链，直接编写HTML/CSS/JS，快速迭代，服务器仅需静态托管即可运行。</div>
-                        <div class="badge-group"><span class="badge">零构建</span><span class="badge">轻量部署</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="smartphone"></i></div>
-                        <div class="tech-name">移动端优先适配</div>
-                        <div class="tech-desc">响应式断点、视口优化，触摸事件与滚动控制完整覆盖，手机/平板体验流畅。</div>
-                        <div class="badge-group"><span class="badge">touch事件</span><span class="badge">vw/vh单位</span>
-                        </div>
-                    </div>
-                </div>
-
-                <hr>
-                <div class="tech-grid" style="margin-top: 8px;">
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="infinity"></i></div>
-                        <div class="tech-name">流式交互架构</div>
-                        <div class="tech-desc">AI对话与翻译均采用Server-Sent Events风格流式传输，实时展示生成内容，降低等待感知。</div>
-                        <div class="badge-group"><span class="badge">ReadableStream</span><span
-                                class="badge">逐字渲染</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="shield"></i></div>
-                        <div class="tech-name">Supabase RPC 安全体系</div>
-                        <div class="tech-desc">管理后台密码验证、配置更新、token累加等敏感操作通过数据库函数执行，保障数据边界。</div>
-                        <div class="badge-group"><span class="badge">行级安全</span><span class="badge">函数封装</span></div>
-                    </div>
-                    <div class="tech-card">
-                        <div class="card-icon"><i data-lucide="tags"></i></div>
-                        <div class="tech-name">多模型路由</div>
-                        <div class="tech-desc">根据用户选择动态切换硅基流动/火山引擎/OpenAI端点，统一抽象层支持后续扩展。</div>
-                        <div class="badge-group"><span class="badge">适配器模式</span><span class="badge">密钥隔离</span></div>
-                    </div>
+        <!-- 页面2：友情链接（完全基于 links.html 风格） -->
+        <div class="page" data-index="1">
+            <div style="margin-bottom: 8px;">
+                <div class="section-title" style="margin-top: 0;">🔗 友情链接</div>
+                <div class="links-grid">
+                    <a href="https://ai.google/" target="_blank" rel="noopener noreferrer" class="mini-card"><i data-lucide="bot"></i><div style="font-weight:500;">Gemini</div><div class="link-url">Google AI</div></a>
+                    <a href="https://www.deepseek.com/" target="_blank" class="mini-card"><i data-lucide="brain"></i><div>DeepSeek</div><div class="link-url">开源推理</div></a>
+                    <a href="https://cloud.tencent.com/" target="_blank" class="mini-card"><i data-lucide="cloud"></i><div>腾讯云</div><div class="link-url">COS/CDN</div></a>
+                    <a href="https://github.com/" target="_blank" class="mini-card"><i data-lucide="github"></i><div>GitHub</div><div class="link-url">开源社区</div></a>
+                    <a href="https://supabase.com/" target="_blank" class="mini-card"><i data-lucide="database"></i><div>Supabase</div><div class="link-url">BaaS平台</div></a>
+                    <a href="https://iconpark.oceanengine.com/home" target="_blank" class="mini-card"><i data-lucide="icons"></i><div>Iconpark</div><div class="link-url">图标库</div></a>
+                    <a href="https://lucide.dev/" target="_blank" class="mini-card"><i data-lucide="sparkle"></i><div>Lucide</div><div class="link-url">Feather衍生</div></a>
+                    <a href="https://www.ffmpeg.org/" target="_blank" class="mini-card"><i data-lucide="video"></i><div>FFmpeg</div><div class="link-url">多媒体处理</div></a>
+                    <a href="https://handbrake.fr/" target="_blank" class="mini-card"><i data-lucide="settings"></i><div>HandBrake</div><div class="link-url">开源转码</div></a>
+                    <a href="https://www.volcengine.com/" target="_blank" class="mini-card"><i data-lucide="zap"></i><div>火山引擎</div><div class="link-url">豆包模型</div></a>
+                    <a href="https://www.siliconflow.com/" target="_blank" class="mini-card"><i data-lucide="cpu"></i><div>SiliconFlow</div><div class="link-url">模型托管</div></a>
                 </div>
             </div>
+            <div class="section-title">📖 技术文档</div>
+            <div class="links-grid">
+                <a href="https://platform.deepseek.com/usage" target="_blank" class="mini-card"><i data-lucide="scroll"></i><div>DeepSeek开放平台</div></a>
+                <a href="https://docs.openclaw.ai/zh-CN" target="_blank" class="mini-card"><i data-lucide="claw"></i><div>OpenClaw</div><div class="link-url">AI智能体网关</div></a>
+                <a href="https://www.cherry-ai.com/" target="_blank" class="mini-card"><i data-lucide="sparkles"></i><div>CherryStudio</div><div class="link-url">桌面AI应用</div></a>
+            </div>
+            <div class="footer-note">✨ 感谢生态支持 | 友情互联</div>
         </div>
 
-        <!-- 实用工具视图（原tools.html融合，可扩展） -->
-        <div id="toolsView" class="view">
-            <div class="tools-grid">
-                <!-- 二筒翻译官（核心工具） -->
-                <div class="tool-card">
-                    <div class="card-icon"><i data-lucide="languages"></i></div>
-                    <div class="tool-name">二筒翻译官</div>
-                    <div class="tool-desc">依托AI大模型打造的定制对话式翻译，支持中↔英、中↔菲律宾语、中↔文言文双向互译，并可选择日常、学术、幽默等7种风格，流式实时输出翻译结果。</div>
-                    <div class="badge-group">
-                        <span class="badge">流式响应</span>
-                        <span class="badge">多语言引擎</span>
-                        <span class="badge">风格定制</span>
-                    </div>
-                    <a href="translate.html" class="tool-entry-link">🚀 打开翻译官</a>
-                </div>
-
-                <!-- 未来扩展预留（占位，体现工具集合） -->
-                <div class="tool-card">
-                    <div class="card-icon"><i data-lucide="bot"></i></div>
-                    <div class="tool-name">AI 对话助手</div>
-                    <div class="tool-desc">集成DeepSeek-V3.2、Qwen、MiniMax、豆包、GPT-OSS多模型，支持流式对话与Token统计，随时切换对话风格。</div>
-                    <div class="badge-group">
-                        <span class="badge">多模型切换</span>
-                        <span class="badge">Token统计</span>
-                        <span class="badge">长上下文</span>
-                    </div>
-                    <a href="AIBot.html" class="tool-entry-link">💬 开始对话</a>
-                </div>
-
-                <!-- 时光照相馆入口（视觉工具） -->
-                <div class="tool-card">
-                    <div class="card-icon"><i data-lucide="clock"></i></div>
-                    <div class="tool-name">时光照相馆</div>
-                    <div class="tool-desc">年轮光影 · 老街坊弄堂影像集，支持全屏浏览、缩放、左右滑动切换，记录岁月痕迹。</div>
-                    <div class="badge-group">
-                        <span class="badge">触摸手势</span>
-                        <span class="badge">图片预览</span>
-                        <span class="badge">历史存档</span>
-                    </div>
-                    <a href="timeline.html" class="tool-entry-link">📸 进入时光馆</a>
-                </div>
-
-                <!-- 工具箱占位提示（未来更多） -->
-                <div class="tool-card" style="opacity: 0.75;">
-                    <div class="card-icon"><i data-lucide="package"></i></div>
-                    <div class="tool-name">更多工具即将到来</div>
-                    <div class="tool-desc">后续将集成图片压缩、二维码生成、JSON格式化、Markdown编辑器等实用功能，持续丰富工具箱。</div>
-                    <div class="tool-badge">敬请期待</div>
-                </div>
+        <!-- 页面3：实用工具（整合原 tools.html 并扩充） -->
+        <div class="page" data-index="2">
+            <div class="tool-card">
+                <div class="card-header"><div class="card-icon"><i data-lucide="languages"></i></div><div class="card-title">二筒翻译官</div></div>
+                <div class="card-desc">AI对话式翻译，支持中↔英、中↔菲、中↔文言文，7种翻译风格，流式输出纯净结果。</div>
+                <div class="badge-group"><span class="badge">多语向</span><span class="badge">风格定制</span><span class="badge">实时Tokens统计</span></div>
+                <a href="translate.html" class="btn-outline" style="display: inline-block; margin-top: 14px;">🚀 打开翻译官 →</a>
             </div>
-            <div class="footer-note" style="margin-top: 40px;">
-                🧰
+            <div class="tool-card">
+                <div class="card-header"><div class="card-icon"><i data-lucide="bot"></i></div><div class="card-title">AI 对话助手</div></div>
+                <div class="card-desc">DeepSeek / Qwen / MiniMax / 豆包 / GPT-OSS 多模型切换，支持流式对话与滚动控制。</div>
+                <div class="badge-group"><span class="badge">多模型路由</span><span class="badge">Token计费展示</span></div>
+                <a href="AIBot.html" class="btn-outline" style="display: inline-block; margin-top: 14px;">💬 开始对话</a>
             </div>
+            <div class="tool-card">
+                <div class="card-header"><div class="card-icon"><i data-lucide="clock"></i></div><div class="card-title">时光照相馆</div></div>
+                <div class="card-desc">年轮光影 · 老旧影像集，支持全屏手势缩放、左右滑动浏览，沉浸式回忆。</div>
+                <div class="badge-group"><span class="badge">触摸优化</span><span class="badge">图片预览</span></div>
+                <a href="timeline.html" class="btn-outline" style="display: inline-block; margin-top: 14px;">📸 进入时光馆</a>
+            </div>
+            <div class="footer-note">🔧 更多工具（图片压缩/转换等）即将集成</div>
+        </div>
+
+        <!-- 页面4：站外链接（用户指定的所有外部资源） -->
+        <div class="page" data-index="3">
+            <div class="section-title" style="margin-top: 4px;">🌍 推荐站外链接</div>
+            <div class="external-card">
+                <a href="https://feiniaoyun.xyz/#/register?code=hsJyiKTS" target="_blank" rel="noopener noreferrer" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="cloud" style="width:24px; stroke:#ffcc00;"></i><div><strong>飞鸟云</strong><div class="link-url">feiniaoyun.xyz</div></div></div>
+                    <span class="btn-outline">访问</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://x2.xueshan.shop/#/register?code=J4ez7EYv" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="mountain-snow" style="width:24px; stroke:#ffcc00;"></i><div><strong>雪山机场</strong><div class="link-url">xueshan.shop</div></div></div>
+                    <span class="btn-outline">访问</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://iplark.com/check" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="shield-check" style="width:24px;"></i><div><strong>IP质量检测</strong><div class="link-url">iplark.com/check</div></div></div>
+                    <span class="btn-outline">检测</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://www.clashverge.dev/index.html" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="zap" style="width:24px;"></i><div><strong>Clash Verge</strong><div class="link-url">clashverge.dev</div></div></div>
+                    <span class="btn-outline">官网</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://www.seagm.com/zh-cn" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="gift" style="width:24px;"></i><div><strong>礼品卡商店</strong><div class="link-url">SEAGM</div></div></div>
+                    <span class="btn-outline">前往</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://xueshan.liminalnet.com/web/index.html#!/home" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="tv" style="width:24px;"></i><div><strong>Emby 影音</strong><div class="link-url">雪山媒体库</div></div></div>
+                    <span class="btn-outline">进入</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://www.siliconflow.cn/" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="cpu" style="width:24px;"></i><div><strong>硅基流动(国内)</strong><div class="link-url">siliconflow.cn</div></div></div>
+                    <span class="btn-outline">API</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://www.siliconflow.com/" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="globe" style="width:24px;"></i><div><strong>硅基流动(国际)</strong><div class="link-url">siliconflow.com</div></div></div>
+                    <span class="btn-outline">访问</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://serper.dev/" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="search" style="width:24px;"></i><div><strong>AI联网接口 Serper</strong><div class="link-url">serper.dev</div></div></div>
+                    <span class="btn-outline">申请Key</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://slimpic.toolooz.com/" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="image" style="width:24px;"></i><div><strong>图片压缩 Slimpic</strong><div class="link-url">slimpic.toolooz.com</div></div></div>
+                    <span class="btn-outline">压缩</span>
+                </a>
+            </div>
+            <div class="external-card">
+                <a href="https://convertio.co/zh/" target="_blank" class="external-link">
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="refresh-cw" style="width:24px;"></i><div><strong>图片格式转换</strong><div class="link-url">convertio.co</div></div></div>
+                    <span class="btn-outline">转换</span>
+                </a>
+            </div>
+            <div class="footer-note">🔰 所有外部链接均在新标签页打开，请注意信息安全</div>
         </div>
     </div>
+</div>
 
-    <div class="footer-note" style="margin-top: 30px;">
-        🛠️ 技术展示 + 生产力工具
-    </div>
+<!-- 底部标签栏（毛玻璃 + 滑动/点击联动） -->
+<div class="bottom-tab-bar" id="bottomTabBar">
+    <button class="tab-item active" data-tab="0"><i data-lucide="cpu"></i><span>技术栈</span></button>
+    <button class="tab-item" data-tab="1"><i data-lucide="link-2"></i><span>友情链接</span></button>
+    <button class="tab-item" data-tab="2"><i data-lucide="wrench"></i><span>工具箱</span></button>
+    <button class="tab-item" data-tab="3"><i data-lucide="external-link"></i><span>站外链接</span></button>
+</div>
 
-    <script>
-        // 导航栏动态阴影（与主页一致）
-        const header = document.getElementById('timelineHeader');
-        let ticking = false;
-        function updateHeaderShadow() {
-            if (!header) return;
-            const scrollY = window.scrollY;
-            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
-            const blur = 12 + wave * 16;
-            const yOffset = 4 + wave * 8;
-            const highlight = 0.7 + wave * 0.3;
-            header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
-            ticking = false;
-        }
-        window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
-        updateHeaderShadow();
+<script>
+    // 导航栏动态微光影（与主页保持一致）
+    const headerEl = document.getElementById('timelineHeader');
+    let ticking = false;
+    function updateHeaderShadow() {
+        if (!headerEl) return;
+        const scrollY = window.scrollY;
+        const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+        const blur = 12 + wave * 16;
+        const yOffset = 4 + wave * 8;
+        const highlight = 0.7 + wave * 0.3;
+        headerEl.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
+        ticking = false;
+    }
+    window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
+    updateHeaderShadow();
 
-        function initEdgeDistortion() {
-            const headerEl = document.querySelector('.timeline-header');
-            const layer = document.querySelector('.displacement-layer');
-            if (!headerEl || !layer) return;
-            let tick = false;
-            window.addEventListener('scroll', () => {
-                if (!tick) {
-                    requestAnimationFrame(() => {
-                        const i = (Math.sin(window.scrollY * 0.03) + 1) / 2;
-                        layer.style.transform = `translateY(${2 + i * 3}px)`;
-                        tick = false;
-                    });
-                    tick = true;
-                }
-            });
-        }
-        initEdgeDistortion();
-
-        // 菜单切换
-        function toggleMenu(e) {
-            e.stopPropagation();
-            document.getElementById('dropdown-menu').classList.toggle('active');
-        }
-        window.onclick = (e) => {
-            const menu = document.getElementById('dropdown-menu');
-            const trigger = document.getElementById('menu-trigger');
-            if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
-        };
-
-        // ========= 选项卡无缝切换逻辑 =========
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const techView = document.getElementById('techView');
-        const toolsView = document.getElementById('toolsView');
-
-        function switchView(viewId) {
-            // 切换视图显示
-            if (viewId === 'tech') {
-                techView.classList.add('active-view');
-                toolsView.classList.remove('active-view');
-            } else {
-                toolsView.classList.add('active-view');
-                techView.classList.remove('active-view');
+    // displacement-layer 效果
+    function initEdgeDistortion() {
+        const headerDom = document.querySelector('.timeline-header');
+        const layer = document.querySelector('.displacement-layer');
+        if (!headerDom || !layer) return;
+        let tickFlag = false;
+        window.addEventListener('scroll', () => {
+            if (!tickFlag) {
+                requestAnimationFrame(() => {
+                    const intensity = (Math.sin(window.scrollY * 0.03) + 1) / 2;
+                    layer.style.transform = `translateY(${2 + intensity * 3}px)`;
+                    tickFlag = false;
+                });
+                tickFlag = true;
             }
-            // 更新按钮激活样式
-            tabBtns.forEach(btn => {
-                if (btn.getAttribute('data-view') === viewId) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-            // 重新绘制 lucide 图标（防止动态添加后图标未渲染）
-            setTimeout(() => {
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            }, 10);
-        }
-
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const viewId = btn.getAttribute('data-view');
-                if (viewId) switchView(viewId);
-            });
         });
+    }
+    initEdgeDistortion();
 
-        // 初始化所有 Lucide 图标
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+    /* ---------- 滑动切换 + 底部标签联动 ---------- */
+    const wrapper = document.getElementById('swipeWrapper');
+    const container = document.getElementById('swipeContainer');
+    const tabs = document.querySelectorAll('.tab-item');
+    let startX = 0, currentX = 0, isSwiping = false;
+    let currentIndex = 0;
+    const totalPages = document.querySelectorAll('.page').length;
+
+    function switchToPage(index, smooth = true) {
+        if (index < 0) index = 0;
+        if (index >= totalPages) index = totalPages - 1;
+        if (index === currentIndex) return;
+        currentIndex = index;
+        const offset = -currentIndex * 100;
+        wrapper.style.transition = smooth ? 'transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1)' : 'none';
+        wrapper.style.transform = `translateX(${offset}%)`;
+        // 更新底部标签高亮
+        tabs.forEach((tab, i) => {
+            if (i === currentIndex) tab.classList.add('active');
+            else tab.classList.remove('active');
         });
-        lucide.createIcons();
+    }
 
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-    </script>
-    <script src="js/modal.js"></script>
+    // 监听底部点击
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const idx = parseInt(tab.getAttribute('data-tab'), 10);
+            if (!isNaN(idx)) switchToPage(idx, true);
+        });
+    });
+
+    // 触摸滑动逻辑
+    container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isSwiping = true;
+        wrapper.style.transition = 'none';
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isSwiping) return;
+        currentX = e.touches[0].clientX;
+        const diff = currentX - startX;
+        const maxDrag = window.innerWidth * 0.25;
+        let newOffset = -currentIndex * 100 + (diff / window.innerWidth) * 100;
+        if (Math.abs(diff) > maxDrag) newOffset = newOffset > 0 ? maxDrag / window.innerWidth * 100 : -maxDrag / window.innerWidth * 100;
+        wrapper.style.transform = `translateX(${newOffset}%)`;
+    }, { passive: false });
+
+    container.addEventListener('touchend', (e) => {
+        if (!isSwiping) return;
+        isSwiping = false;
+        const diff = currentX - startX;
+        const threshold = window.innerWidth * 0.12;
+        let targetIndex = currentIndex;
+        if (diff > threshold && currentIndex > 0) targetIndex = currentIndex - 1;
+        else if (diff < -threshold && currentIndex < totalPages - 1) targetIndex = currentIndex + 1;
+        switchToPage(targetIndex, true);
+        startX = 0; currentX = 0;
+    });
+
+    // 确保所有Lucide图标渲染
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
+    window.addEventListener('resize', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        switchToPage(currentIndex, false);
+    });
+</script>
 </body>
-
 </html>
