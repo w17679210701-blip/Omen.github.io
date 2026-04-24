@@ -2,674 +2,242 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HI OMEN · 沉浸空间</title>
-    <link rel="apple-touch-icon" href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png">
-    <meta name="apple-mobile-web-app-title" content="HIOMEN">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-startup-image" href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png">
-    <link rel="stylesheet" href="css/common.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourglass Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ---------- 基础样式（移动端优先，与原文一致） ---------- */
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        html.is-loading, body.is-loading {
-            overflow: hidden !important;
-            height: 100% !important;
-            width: 100% !important;
-            position: fixed;
-        }
         body {
-            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
-            color: #1a1a1a;
-            margin: 0;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #fae8ff 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
-            padding: 0 20px 50px 20px;
-            transition: background 0.8s ease, color 0.5s ease;
-            position: relative;
-        }
-        /* 背景视频容器（仅PC端显示） */
-        .bg-video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        .bg-video-container video {
-            min-width: 100%;
-            min-height: 100%;
-            object-fit: cover;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            will-change: transform;
-        }
-        /* 背景渐现动画遮罩 */
-        .bg-video-container::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.3);
-            z-index: 1;
-            animation: bgReveal 1.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-        }
-        @keyframes bgReveal {
-            0% { clip-path: inset(0 100% 0 0); }
-            100% { clip-path: inset(0 0 0 0); }
-        }
-        /* 导航栏、公告栏、主容器统一宽度规则（移动端默认） */
-        .timeline-header, .notice-bar, .main-container {
-            width: 100%;
-            max-width: 440px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        /* 导航栏容器（移动端样式保留） */
-        .timeline-header {
-            position: sticky;
-            top: 20px;
-            z-index: 101;
-            margin-bottom: 20px;
-            background: transparent;
-            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
-            border-radius: 34px;
-            border: 0.5px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            overflow: hidden;
-        }
-        .displacement-layer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 8px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
-            pointer-events: none;
-            transition: transform 0.05s linear;
-            z-index: 2;
-            border-radius: 0 0 34px 34px;
-        }
-        .nav-btn {
-            background: rgba(120, 120, 128, 0.2);
-            backdrop-filter: blur(15px);
-            border: 0.5px solid rgba(255, 255, 255, 0.8);
-            border-radius: 30px;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-            flex-shrink: 0;
-            color: #007aff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        }
-        .header-title {
-            flex: 1;
-            text-align: center;
-        }
-        .header-title h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        .header-title .sub {
-            font-size: 0.75rem;
-            opacity: 0.6;
-            display: block;
-            margin-top: 4px;
-            color: #666;
-        }
-        @media (max-width: 768px) {
-            body { padding-left: 12px; padding-right: 12px; }
-            .timeline-header { top: 12px; margin-bottom: 12px; padding: 8px 16px; border-radius: 28px; }
-            .notice-bar { margin-bottom: 12px; }
-            .nav-btn { width: 40px; height: 40px; }
-            .header-title h1 { font-size: 1.2rem; }
-        }
-        .flip-wrapper {
-            perspective: 1000px;
-            cursor: pointer;
-        }
-        .flip-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-            transform: rotateY(0deg);
-        }
-        .flip-front, .flip-back {
-            position: absolute;
-            inset: 0;
-            backface-visibility: hidden;
-        }
-        .flip-back { transform: rotateY(180deg); }
-        .notice-bar {
-            height: 42px;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            background: rgba(255, 255, 255, 0.6) !important;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            overflow: hidden;
-        }
-        .notice-content {
-            white-space: nowrap;
-            display: inline-block;
-            animation: marquee 35s linear infinite;
-            font-size: 13px;
-            color: #1a1a1a !important;
-            font-weight: 500;
-        }
-        @keyframes marquee {
-            0% { transform: translateX(25%); }
-            100% { transform: translateX(-100%); }
-        }
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            opacity: 1 !important;
-            transform: translateY(20px);
-            transition: 0.8s ease;
+            font-family: 'Inter', sans-serif;
         }
         .glass-card {
+            background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 24px !important;
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.7) !important;
-            color: #1a1a1a !important;
-            border: 1px solid rgba(0, 0, 0, 0.1) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
         }
-        .avatar-halo {
-            position: relative;
-            padding: 3px;
-            border-radius: 50%;
-            border: 2px solid #900207;
-            animation: glowPulse 3s infinite;
-            margin-bottom: 20px !important;
-        }
-        @keyframes glowPulse { 0%,100%{ box-shadow:0 0 10px #900207; } 50%{ box-shadow:0 0 25px #900207; } }
-        .avatar-box { width:100px; height:100px; border-radius:50%; overflow:hidden; }
-        .avatar-box img { width:100%; height:100%; object-fit:cover; }
-        .profile-name {
-            font-size:1.8rem; font-weight:bold; margin-bottom:30px; letter-spacing:2px; color:#900207;
-        }
-        .contact-group {
-            display: flex; gap:15px; width:100%; justify-content:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;
-        }
-        .contact-btn {
-            width:45px; height:45px; border-radius:50%; background:rgba(255,255,255,0.05);
-            display:flex; align-items:center; justify-content:center; transition:0.3s; text-decoration:none; color:inherit;
-        }
-        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .clock-card { height: 120px; }
-        .status-dot {
-            width:6px; height:6px; background:#00ff88; border-radius:50%; box-shadow:0 0 5px #00ff88;
-            animation:blink 1.5s infinite;
-        }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-        #loader {
-            position:fixed; top:0; left:0; width:100vw; height:100vh; background:linear-gradient(135deg,#0a0a0a 0%,#1a1a1f 50%,#0a0a0a 100%);
-            z-index:99999; display:flex; align-items:center; justify-content:center; transition:opacity 0.5s;
-        }
-        .loader-text {
-            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-            color:#ff4d4d; letter-spacing:8px; font-weight:900; font-size:1.2rem; animation:pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1);} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.05);} }
-        .dropdown-menu {
-            display:none; position:absolute; top:30px; left:0; width:150px; background:rgba(255,255,255,0.85); backdrop-filter:blur(25px);
-            border-radius:20px; padding:8px; box-shadow:0 12px 40px rgba(0,0,0,0.15); transform:scale(0.4) translate(-30px,-30px);
-            opacity:0; transform-origin:top left; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); z-index:9999;
-        }
-        .dropdown-menu.active { display:block; transform:scale(1) translate(0,0); opacity:1; }
-        .menu-item { display:flex; align-items:center; gap:12px; padding:12px 14px; text-decoration:none; font-size:15px; border-radius:16px; transition:0.2s; color:#1a1a1a; }
-        .menu-item:hover { background:rgba(128,128,128,0.1); }
-        .mail-modal {
-            display:none; position:fixed; bottom:90px; left:50%; transform:translateX(-50%) scale(0.8);
-            width:280px; background:rgba(255,255,255,0.95); backdrop-filter:blur(25px); border-radius:24px; padding:12px;
-            z-index:3000; opacity:0; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .mail-modal.active { display:block; transform:translateX(-50%) scale(1); opacity:1; }
-        .mail-item {
-            display:flex; flex-direction:column; padding:12px 16px; border-radius:16px; cursor:pointer; position:relative;
-        }
-        .mail-item:active { transform:scale(0.97); }
-        .copy-icon { position:absolute; right:16px; top:50%; transform:translateY(-50%); width:14px; height:14px; opacity:0.3; }
-        .copy-success .mail-address { color:#34c759; }
-        .glass-card.profile-card-large {
-            position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-            padding:40px 20px 25px 20px !important;
-        }
-        .glass-card.profile-card-large::after {
-            content:""; position:absolute; right:-70px; top:-20px; width:300px; height:300px;
-            background:url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/ETGOHOMELOGO.png') no-repeat center;
-            background-size:contain; opacity:0.4; pointer-events:none; z-index:1;
-        }
-        .moments-preview-card {
-            background:rgba(255,255,255,0.7) !important; display:block; text-decoration:none; color:inherit;
-            padding:20px; margin-top:20px; transition:transform 0.3s ease;
-        }
-        .moments-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .moments-user { display:flex; align-items:center; gap:10px; }
-        .mini-avatar { width:30px; height:30px; border-radius:6px; border:1px solid rgba(255,0,0,0.3); }
-        .nickname { font-weight:bold; font-size:14px; color:#900207; }
-        .moments-text {
-            font-size:14px; line-height:1.4; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-        }
-        .content-img { width:100%; max-height:250px; object-fit:cover; border-radius:12px; margin-top:15px; }
-        #latest-moment { position:relative; overflow:hidden; }
-        #latest-moment::after {
-            content:""; position:absolute; top:-95px; left:50px; width:100%; height:100%;
-            background:url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/ETLOGOR.png') no-repeat center;
-            background-size:200px; opacity:0.4; pointer-events:none; z-index:1;
-        }
-        .ai-card {
-            width:100%; height:140px; border-radius:32px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-            margin:0; margin-bottom:-15px; position:relative; overflow:hidden;
-            background-image: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/hxbg.webp'), linear-gradient(#900207, #900207);
-            background-size: cover, cover; background-position: center; background-repeat: no-repeat;
-            box-shadow:0 8px 20px rgba(144,2,7,0.3);
-        }
-        .ai-card::before {
-            content:""; position:absolute; inset:0; pointer-events:none;
-            background-image: radial-gradient(2px 2px at 15% 20%, #fff, transparent), radial-gradient(3px 3px at 70% 45%, #ffd700, transparent),
-                radial-gradient(1.5px 1.5px at 85% 80%, #fff, transparent), radial-gradient(2.5px 2.5px at 40% 60%, #ffaa66, transparent),
-                radial-gradient(2px 2px at 95% 15%, #fff, transparent), radial-gradient(1.8px 1.8px at 50% 90%, #ffd700, transparent),
-                radial-gradient(3px 3px at 5% 55%, #fff, transparent), radial-gradient(2px 2px at 60% 10%, #ffaa66, transparent);
-            background-repeat: no-repeat; opacity:0; animation:starTwinkle 2.5s ease-in-out infinite alternate;
-        }
-        @keyframes starTwinkle {
-            0% { opacity:0.2; background-size:0px,0px,0px,0px,0px,0px,0px,0px; }
-            100% { opacity:1; background-size:12px,16px,8px,14px,12px,10px,18px,12px; }
-        }
-        .ai-text {
-            font-size:1.3rem; font-weight:600; white-space:nowrap; color:#fff; letter-spacing:2px; position:relative; z-index:2;
-            text-shadow:0 1px 2px rgba(0,0,0,0.3);
-        }
-        @media (max-width:560px) { .ai-text { font-size:1rem; white-space:normal; text-align:center; padding:0 12px; } }
-
-        /* ========== PC端专属样式 (宽度 >= 1024px) ========== */
-        @media (min-width: 1024px) {
-            body {
-                background: #000;  /* 背景由视频接管 */
-                padding: 0;
-                align-items: flex-start;  /* 左对齐整体内容 */
-            }
-            /* 背景视频容器显示 */
-            .bg-video-container {
-                display: block;
-            }
-            /* 导航栏和公告栏：居中占满一行 */
-            .timeline-header, .notice-bar {
-                max-width: 1200px;
-                width: 90%;
-                margin-left: auto;
-                margin-right: auto;
-                background: rgba(255, 255, 255, 0.75) !important;
-                backdrop-filter: blur(20px);
-                border-radius: 48px;
-                margin-top: 20px;
-            }
-            .notice-bar {
-                width: 90%;
-                max-width: 1200px;
-                margin: 20px auto;
-            }
-            /* 卡片主容器：靠左，固定宽度，开启grid自适应 */
-            .main-container {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                gap: 28px;
-                width: 85%;
-                max-width: 1400px;
-                margin-left: 5%;
-                margin-right: auto;
-                transform: none;
-                opacity: 1;
-            }
-            /* 所有直接卡片以及 grid-row 内部卡片强制宽高比，并允许滚动 */
-            .main-container > *,
-            .grid-row > * {
-                aspect-ratio: 4 / 3;
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-            /* 特定卡片使用 1:1 比例 */
-            .ai-card,
-            .clock-card,
-            .grid-row > a[href="photo.html"],
-            a.glass-card[onclick*="askAndRecordName"] {
-                aspect-ratio: 1 / 1 !important;
-            }
-            /* 个人名片特殊处理：保持4:3，内容滚动 */
-            .profile-card-large {
-                aspect-ratio: 4 / 3;
-                padding: 20px !important;
-            }
-            /* 朋友圈预览卡片同时适用4:3 */
-            .moments-preview-card {
-                aspect-ratio: 4 / 3;
-                overflow-y: auto;
-            }
-            /* grid-row 本身不设比例，其子项单独控制 */
-            .grid-row {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            /* 为所有卡片添加入场轮盘滚动动画 */
-            .main-container > * {
-                animation: wheelRollIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) backwards;
-                opacity: 0;
-                animation-fill-mode: forwards;
-            }
-            /* 错落延迟 */
-            .main-container > *:nth-child(1) { animation-delay: 0.05s; }
-            .main-container > *:nth-child(2) { animation-delay: 0.15s; }
-            .main-container > *:nth-child(3) { animation-delay: 0.25s; }
-            .main-container > *:nth-child(4) { animation-delay: 0.35s; }
-            .main-container > *:nth-child(5) { animation-delay: 0.45s; }
-            .main-container > *:nth-child(6) { animation-delay: 0.55s; }
-            .main-container > *:nth-child(7) { animation-delay: 0.65s; }
-            @keyframes wheelRollIn {
-                0% {
-                    opacity: 0;
-                    transform: translateX(-80px) rotate(-8deg);
-                    filter: blur(6px);
-                }
-                100% {
-                    opacity: 1;
-                    transform: translateX(0) rotate(0deg);
-                    filter: blur(0);
-                }
-            }
-            /* 卡片内滚动条美化 */
-            .main-container > *::-webkit-scrollbar,
-            .grid-row > *::-webkit-scrollbar {
-                width: 4px;
-                background: rgba(0,0,0,0.1);
-                border-radius: 4px;
-            }
-            .main-container > *::-webkit-scrollbar-thumb {
-                background: #900207;
-                border-radius: 4px;
-            }
-            /* 移动端隐藏背景视频容器（避免干扰） */
-            .bg-video-container {
-                display: block;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            /* 移动端隐藏背景视频 */
-            .bg-video-container {
-                display: none;
-            }
-            /* 恢复移动端原有卡片比例（无强制aspect-ratio） */
-            .main-container > *,
-            .grid-row > * {
-                aspect-ratio: auto;
-                overflow: visible;
-            }
+        .sidebar-item-active {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
         }
     </style>
 </head>
-<body class="is-loading">
-    <!-- PC端全屏背景视频 -->
-    <div class="bg-video-container">
-        <video autoplay loop muted playsinline preload="auto">
-            <source src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/pcbgvideo.mp4" type="video/mp4">
-        </video>
-    </div>
+<body class="p-4 md:p-8">
 
-    <div class="timeline-header" id="timelineHeader">
-        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)">
-            <i data-lucide="menu"></i>
-        </button>
-        <div class="header-title">
-            <h1>主页</h1>
-            <span class="sub">想骑摩托想到发疯</span>
-        </div>
-        <a href="test.html" class="nav-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z" />
-            </svg>
-        </a>
-        <div class="displacement-layer"></div>
-    </div>
-    <div id="loader"><div class="loader-text">LOADING</div></div>
-    <div class="dropdown-menu" id="dropdown-menu">
-        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
-        <a href="moments.html" class="menu-item"><svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"/><path d="M31 7V24"/><path d="M16.6357 6.63599L30.7779 20.7781"/><path d="M7 17H24"/><path d="M20.3643 17.636L6.22212 31.7781"/><path d="M17 25V42"/><path d="M17.6357 27.636L31.7779 41.7781"/><path d="M24 31L42 31"/><path d="M42.3643 16.636L28.2221 30.7781"/><path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z"/></svg>朋友圈</a>
-        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台</a>
-        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
-        <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>log</a>
-        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
-        <div class="menu-item" style="cursor:default; opacity:0.7;"><i data-lucide="tag" size="18"></i>V2.1.4</div>
-    </div>
-    <div class="notice-bar"><div class="notice-content" id="notice-content">📢 热烈祝贺！！！恭喜七筒干完一碗饭！！！七筒今天干了一碗饭！！真是了不起！</div></div>
-
-    <div id="main-content" class="main-container">
-        <div class="glass-card profile-card-large">
-            <div class="avatar-halo"><div class="avatar-box"><img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg" alt="Avatar"></div></div>
-            <div class="profile-name">Omen</div>
-            <div class="contact-group">
-                <div class="contact-btn" onclick="location.href='moments.html'"><svg width="24" height="24" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"/><path d="M31 7V24"/><path d="M16.6357 6.63599L30.7779 20.7781"/><path d="M7 17H24"/><path d="M20.3643 17.636L6.22212 31.7781"/><path d="M17 25V42"/><path d="M17.6357 27.636L31.7779 41.7781"/><path d="M24 31L42 31"/><path d="M42.3643 16.636L28.2221 30.7781"/><path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z"/></svg></div>
-                <div class="contact-btn" id="wechat-btn" onclick="toggleWechatModal(event)"><svg width="24" height="24" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path fill-rule="evenodd" d="M36.9974 21.7112C36.8434 13.0079 29.7401 6 21 6 12.1634 6 5 13.1634 5 22c0 4.1701 1.5953 7.9676 4.2089 10.8154L8.0104 40.0257l15.1146-3.0558c3.1347 1.0423 6.093 1.3029 8.875 0.7817"/><path d="M36.9974 21.7112C36.8434 13.0079 29.7401 6 21 6"/><path d="M15.125 20.4667c1.2426 0 2.25-1.0148 2.25-2.2667 0-1.2518-1.0074-2.2667-2.25-2.2667s-2.25 1.0149-2.25 2.2667c0 1.2519 1.0074 2.2667 2.25 2.2667zM24.125 20.4667c1.2426 0 2.25-1.0148 2.25-2.2667 0-1.2518-1.0074-2.2667-2.25-2.2667s-2.25 1.0149-2.25 2.2667c0 1.2519 1.0074 2.2667 2.25 2.2667z"/><path d="M38.7618 39.9293C37.0135 41.2302 34.8467 42 32.5 42 26.701 42 22 37.299 22 31.5c0-5.799 4.701-10.5 10.5-10.5 5.799 0 10.5 4.701 10.5 10.5 0 1.5997-0.3577 3.1159-0.9976 4.4728"/><path d="M38.7618 39.9293 43 42l-1.2392-6.0272"/><path d="M35.6875 30.7999c-0.932 0-1.6875-0.7611-1.6875-1.7s0.7555-1.7 1.6875-1.7 1.6875 0.7611 1.6875 1.7-0.7555 1.7-1.6875 1.7zM28.9375 30.7999c-0.932 0-1.6875-0.7611-1.6875-1.7s0.7555-1.7 1.6875-1.7 1.6875 0.7611 1.6875 1.7-0.7555 1.7-1.6875 1.7z"/></svg></div>
-                <a href="https://t.me/OmenG82_Pro" target="_blank" class="contact-btn"><svg width="24" height="24" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path d="M41.4193 7.30899c0 0 3.8853-1.515 3.5615 2.16429-.1079 1.515-1.0792 6.8174-1.8347 12.5528l-2.5902 16.9896c0 0-.2158 2.4889-2.1585 2.9218-1.9427.4329-4.8566-1.5149-5.3963-1.9478-.4317-.3246-8.0943-5.1943-10.7925-7.575-.7555-.6493-1.6189-1.9479.1079-3.4629l11.3322-10.8214c1.2951-1.2986 2.5902-4.3286-2.8062-0.6493L15.7331 27.7616c0 0-1.7268 1.0821-4.9645 0.1082l-7.0151-2.1643c0 0-2.5902-1.6233 1.8347-3.2466 10.7925-5.0861 24.0673-10.2804 35.8311-15.15z" fill="currentColor"/></svg></a>
-                <div class="contact-btn" onclick="toggleMailModal(event)"><svg width="24" height="24" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path d="M44 24V9H24H4V24V39H24"/><path d="M44 34L30 34"/><path d="M39 29L44 34L39 39"/><path d="M4 9L24 24L44 9"/></svg></div>
-                <a href="https://instagram.com/OmenYi701" target="_blank" class="contact-btn"><svg width="24" height="24" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path d="M34 6H14C9.58172 6 6 9.58172 6 14V34C6 38.4183 9.58172 42 14 42H34C38.4183 42 42 38.4183 42 34V14C42 9.58172 38.4183 6 34 6Z"/><path d="M24 32C28.4183 32 32 28.4183 32 24C32 19.5817 28.4183 16 24 16C19.5817 16 16 19.5817 16 24C16 28.4183 19.5817 32 24 32Z"/><path d="M35 15C36.1046 15 37 14.1046 37 13C37 11.8954 36.1046 11 35 11C33.8954 11 33 11.8954 33 13C33 14.1046 33.8954 15 35 15Z"/></svg></a>
+    <div class="max-w-7xl mx-auto flex gap-6">
+        
+        <aside class="w-64 hidden lg:block">
+            <div class="flex items-center gap-3 px-4 mb-10">
+                <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <span class="text-xl font-bold text-gray-800">Hourglass</span>
             </div>
-            <div class="mail-modal" id="mail-modal">
-                <div class="mail-item" onclick="copyText('w17679210701@gmail.com', this)"><span class="mail-label">Gmail</span><span class="mail-address">w17679210701@gmail.com</span><i data-lucide="copy" class="copy-icon"></i></div>
-                <div class="mail-item" onclick="copyText('1710037239@qq.com', this)"><span class="mail-label">QQ Mail</span><span class="mail-address">1710037239@qq.com</span><i data-lucide="copy" class="copy-icon"></i></div>
+
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 sidebar-item-active text-gray-900 font-medium">
+                    <i class="fas fa-th-large w-5"></i> Dashboard
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                    <i class="far fa-calendar-alt w-5"></i> Appointments
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                    <i class="far fa-envelope w-5"></i> Messages
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                    <i class="fas fa-pills w-5"></i> Pharmacy
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                    <i class="fas fa-flask w-5"></i> Laboratory
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                    <i class="fas fa-bed w-5"></i> Inpatient
+                </a>
+                <div class="pt-10">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                        <i class="far fa-heart w-5"></i> Support
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-800">
+                        <i class="fas fa-cog w-5"></i> Settings
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="flex-1">
+            <header class="mb-6">
+                <h1 class="text-3xl font-semibold text-gray-800">Welcome</h1>
+            </header>
+
+            <div class="glass-card p-0 overflow-hidden mb-8 relative">
+                <div class="flex flex-col md:flex-row">
+                    <div class="p-8 md:w-3/5">
+                        <p class="text-gray-500 mb-1">Your Appointment</p>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Dr. Haylie Philips</h2>
+                        <div class="inline-flex items-center gap-4 bg-black/5 backdrop-blur-md rounded-full px-4 py-2 text-sm text-gray-700">
+                            <span><i class="far fa-calendar mr-2"></i>Monday, 06 Oct 2025 · 07:45</span>
+                            <span><i class="fas fa-id-badge mr-2"></i>A-03 · HP-061025-003</span>
+                        </div>
+                    </div>
+                    <div class="md:w-2/5 h-48 md:h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=800');">
+                        </div>
+                </div>
             </div>
-            <div class="mail-modal" id="wechat-modal"><div class="mail-item" onclick="copyText('July1_Cnc_Y', this)"><span class="mail-label">微信号</span><span class="mail-address">July1_Cnc_Y</span><i data-lucide="copy" class="copy-icon"></i></div></div>
-        </div>
 
-        <div class="ai-card" id="aiCard" onclick="window.location.href='tools.html'"><div class="ai-text">技术栈 / 工具库 / AI</div></div>
-        <a href="moments.html" class="glass-card moments-preview-card" id="latest-moment" onclick="event.stopPropagation();">
-            <div class="moments-header"><div class="moments-user"><img src="images/avatar.jpg" alt="头像" class="mini-avatar"><span class="nickname">Omen（Yitong）</span></div><span class="moments-time" id="moment-time">加载中...</span></div>
-            <div class="moments-content"><p class="moments-text" id="moment-text">正在同步最新动态...</p><div class="moments-media" id="moment-media"></div></div>
-            <div class="moments-footer"><span class="view-detail">点击查看更多 →</span></div>
-        </a>
+            <div class="flex justify-between items-center mb-10 px-2 overflow-x-auto gap-4">
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-pills"></i></div>
+                    <span class="text-xs text-gray-600">Pharmacy</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-ticket-alt"></i></div>
+                    <span class="text-xs text-gray-600">My Queue</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-book-medical"></i></div>
+                    <span class="text-xs text-gray-600">Book</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-user-md"></i></div>
+                    <span class="text-xs text-gray-600">Doctors</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="far fa-calendar-check"></i></div>
+                    <span class="text-xs text-gray-600">Schedule</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 glass-card flex items-center justify-center text-lg"><i class="fas fa-ellipsis-h"></i></div>
+                    <span class="text-xs text-gray-600">More</span>
+                </div>
+            </div>
 
-        <div class="grid-row">
-            <a href="photo.html" class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-decoration:none; color:inherit; gap:10px;" onclick="event.stopPropagation();"><i data-lucide="image" color="#ffcc00"></i><span style="font-size:12px; letter-spacing:2px;">相册</span></a>
-            <div class="flip-wrapper clock-card" onclick="handleFlip(this)"><div class="flip-inner"><div class="flip-front glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;"><span style="font-size:10px; opacity:0.5;">当前时间</span><div id="live-clock" style="font-family:monospace; font-weight:bold; color:#ffcc00;">00:00:00.000</div><div style="display:flex; align-items:center; gap:8px;"><div class="status-dot"></div><span style="font-size:12px;">系统运行中</span></div></div><div class="flip-back glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;"><span style="font-size:10px;">网站已运行</span><div id="runtime-timer" style="font-family:monospace; font-weight:bold; color:#ffcc00;">0天 00时 00分 00秒</div><div style="margin-top:8px; font-size:10px;">累计访问量</div><div id="visit-count" style="font-weight:bold;">加载中...</div></div></div></div>
-        </div>
-        <a href="javascript:void(0);" class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-decoration:none; color:inherit; margin-top:0;" onclick="askAndRecordName(event)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffcc00"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg><span style="font-size:12px; letter-spacing:2px;">时光照相馆</span></a>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Health Tips</h3>
+                    <div class="space-y-4">
+                        <div class="glass-card p-4 flex gap-4 items-center">
+                            <div class="w-16 h-16 rounded-xl bg-blue-100 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1544145945-f904253db0ad?auto=format&fit=crop&q=80&w=200" class="object-cover w-full h-full" alt="water">
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Stay Hydrated</h4>
+                                <p class="text-xs text-gray-500">Drink enough water to support energy and focus.</p>
+                            </div>
+                        </div>
+                        <div class="glass-card p-4 flex gap-4 items-center">
+                            <div class="w-16 h-16 rounded-xl bg-orange-100 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&q=80&w=200" class="object-cover w-full h-full" alt="exercise">
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Move Every Hour</h4>
+                                <p class="text-xs text-gray-500">Stand up and stretch briefly to keep your body active.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Result & History</h3>
+                        <div class="flex gap-2">
+                            <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-400"><i class="fas fa-chevron-left text-xs"></i></button>
+                            <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-800"><i class="fas fa-chevron-right text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6 space-y-6">
+                        <div class="flex justify-between items-start border-l-2 border-green-400 pl-4">
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase">Diagnosis Terakhir</p>
+                                <h4 class="font-bold text-gray-800">Flu Ringan</h4>
+                            </div>
+                            <span class="text-[10px] text-gray-400">12 Okt 2025</span>
+                        </div>
+                        <div class="flex justify-between items-start border-l-2 border-purple-400 pl-4">
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase">Obat</p>
+                                <h4 class="font-bold text-gray-800">Paracetamol 500mg (5 hari)</h4>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-start border-l-2 border-blue-400 pl-4">
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase">Hasil Lab</p>
+                                <h4 class="font-bold text-gray-800">CBC — Normal</h4>
+                            </div>
+                            <span class="text-[10px] text-gray-400">06 Sep 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="w-80 hidden xl:block">
+            <div class="glass-card p-6 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Find a doctor</h3>
+                <div class="relative mb-6">
+                    <input type="text" placeholder="Cari di sini..." class="w-full bg-white/50 border-none rounded-xl py-3 px-4 pl-10 focus:ring-2 ring-purple-300 outline-none">
+                    <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
+                        <div class="text-gray-600"><i class="fas fa-plus"></i></div>
+                        <span class="text-[10px]">General</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
+                        <div class="text-gray-600"><i class="fas fa-baby"></i></div>
+                        <span class="text-[10px]">Pediatrics</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
+                        <div class="text-gray-600"><i class="far fa-heart"></i></div>
+                        <span class="text-[10px]">OB-GYN</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
+                        <div class="text-gray-600"><i class="fas fa-heartbeat"></i></div>
+                        <span class="text-[10px]">Cardiology</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
+                        <div class="text-gray-600"><i class="fas fa-brain"></i></div>
+                        <span class="text-[10px]">Mental Health</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-white/50 transition">
+                        <div class="text-gray-600"><i class="fas fa-biohazard"></i></div>
+                        <span class="text-[10px]">Infectious</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-semibold mb-4">Appointment queue</h3>
+                <div class="bg-white/80 rounded-2xl p-4 mb-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-gray-400">Kardiologi</p>
+                            <p class="font-bold text-gray-800">Dr. James Carter</p>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <div class="flex-1 bg-white/40 rounded-xl p-3 text-center">
+                        <p class="text-[10px] text-gray-400 uppercase">Queue</p>
+                        <p class="font-bold">C15</p>
+                    </div>
+                    <div class="flex-1 bg-white/40 rounded-xl p-3 text-center">
+                        <p class="text-[10px] text-gray-400 uppercase">Urutan</p>
+                        <p class="font-bold">4 dari 18</p>
+                    </div>
+                    <div class="flex-1 bg-white/40 rounded-xl p-3 text-center">
+                        <p class="text-[10px] text-gray-400 uppercase">ETA</p>
+                        <p class="font-bold">16:10</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
     </div>
 
-    <script>
-        // 保留原有一切JS功能，未作任何功能性删改，仅增加背景视频/布局样式
-        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
-        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
-        window.db = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
-
-        function handleFlip(el) {
-            const inner = el.querySelector('.flip-inner');
-            let rotation = parseInt(el.getAttribute('data-rotation')) || 0;
-            rotation += 180;
-            inner.style.transform = `rotateY(${rotation}deg)`;
-            el.setAttribute('data-rotation', rotation);
-        }
-        function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('active'); }
-        function toggleMailModal(e) { e.stopPropagation(); document.getElementById('mail-modal').classList.toggle('active'); }
-        function toggleWechatModal(e) { e.stopPropagation(); document.getElementById('wechat-modal').classList.toggle('active'); }
-        async function copyText(text, element) {
-            try {
-                await navigator.clipboard.writeText(text);
-                element.classList.add('copy-success');
-                const addrEl = element.querySelector('.mail-address');
-                const orig = addrEl.innerText;
-                addrEl.innerText = "已复制到剪贴板！";
-                setTimeout(() => { element.classList.remove('copy-success'); addrEl.innerText = orig; }, 1500);
-            } catch(err) { alert('复制失败'); }
-        }
-        const showPage = () => {
-            const loader = document.getElementById('loader');
-            if(loader) { loader.classList.add('fade-out'); setTimeout(()=>{ loader.style.display='none'; },300); }
-            document.documentElement.classList.remove('is-loading');
-            document.body.classList.remove('is-loading');
-            const main = document.getElementById('main-content');
-            if(main) { main.style.opacity = "1"; main.style.transform = "translateY(0)"; }
-        };
-        function updateRuntime() {
-            const startDate = new Date(2026,2,24,13,30,0);
-            const diff = new Date() - startDate;
-            const days = Math.floor(diff/864e5);
-            const hours = Math.floor((diff%864e5)/36e5);
-            const minutes = Math.floor((diff%36e5)/6e4);
-            const seconds = Math.floor((diff%6e4)/1e3);
-            const el = document.getElementById('runtime-timer');
-            if(el) el.innerHTML = `${days}天 ${String(hours).padStart(2,'0')}时 ${String(minutes).padStart(2,'0')}分 ${String(seconds).padStart(2,'0')}秒`;
-        }
-        function timeAgo(date) { /* 原样保留 */ const sec = Math.floor((new Date()-date)/1000); if(sec<0) return '刚刚'; const intervals=[{label:'年',secs:31536000},{label:'月',secs:2592000},{label:'天',secs:86400},{label:'小时',secs:3600},{label:'分钟',secs:60},{label:'秒',secs:1}]; for(let i of intervals) if(sec>=i.secs) return `${Math.floor(sec/i.secs)}${i.label}前`; return '刚刚'; }
-        async function loadLatestMoment() {
-            if(!window.db) return;
-            try {
-                const { data } = await window.db.from('moments').select('*').order('created_at',{ascending:false}).limit(1).single();
-                if(data) {
-                    document.getElementById('moment-text').innerText = data.content || '暂无动态';
-                    document.getElementById('moment-time').innerText = timeAgo(new Date(data.created_at));
-                    const media = document.getElementById('moment-media');
-                    if(data.video_url) media.innerHTML = `<video src="${data.video_url}" controls preload="metadata" style="width:100%; max-height:200px; border-radius:12px;"></video>`;
-                    else if(data.images?.length) media.innerHTML = `<img src="${data.images[0]}" style="width:100%; border-radius:12px;">`;
-                    else if(data.image_url) media.innerHTML = `<img src="${data.image_url}" style="width:100%; border-radius:12px;">`;
-                    else media.innerHTML = '';
-                }
-            } catch(e) { console.error(e); }
-        }
-        window.customPrompt = window.customPrompt || ((msg)=>Promise.resolve(prompt(msg)));
-        window.customAlert = window.customAlert || ((msg)=>{ alert(msg); return Promise.resolve(); });
-        async function askAndRecordName(event) {
-            event.preventDefault();
-            const name = prompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
-            if(name === null) return;
-            if(name.trim() === "") { alert("名字不能为空，请重新输入～"); return; }
-            const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-            try {
-                await supabase.from('timeline_visitors').insert([{ name: name.trim(), visited_at: new Date().toISOString() }]);
-            } catch(e) { console.error(e); alert("记录失败，但您仍可进入相册"); }
-            window.location.href = "timeline.html";
-        }
-        async function updateVisitCount() {
-            if(!window.db) return;
-            try {
-                const { data } = await window.db.rpc('increment_pv');
-                if(data) document.getElementById('visit-count').innerText = data;
-                else {
-                    const { data: cur } = await window.db.from('site_stats').select('pv').eq('id',1).single();
-                    if(cur) { await window.db.from('site_stats').update({ pv: cur.pv+1 }).eq('id',1); document.getElementById('visit-count').innerText = cur.pv+1; }
-                }
-            } catch(e) { document.getElementById('visit-count').innerText = '--'; }
-        }
-        async function loadSiteConfig() {
-            if(!window.db) return;
-            const { data } = await window.db.from('site_config').select('key,value');
-            if(data) {
-                const config = {};
-                data.forEach(c=>config[c.key]=c.value);
-                const navSub = document.querySelector('.timeline-header .header-title .sub');
-                if(navSub) navSub.innerText = config.home_subtitle || '想骑摩托想到发疯';
-                const notice = document.getElementById('notice-content');
-                if(notice) notice.innerText = config.home_notice || '📢 欢迎来到 OMEN 的空间！';
-                const avatar = document.querySelector('.avatar-box img');
-                if(avatar) avatar.src = config.home_avatar || 'images/avatar.jpg';
-                const name = document.querySelector('.profile-name');
-                if(name) name.innerText = config.home_name || 'Omen';
-            }
-            lucide.createIcons();
-        }
-        const header = document.getElementById('timelineHeader');
-        let ticking=false;
-        function updateHeaderShadow() {
-            if(!header) return;
-            const scrollY = window.scrollY;
-            const wave = Math.sin(scrollY*0.02)*0.5+0.5;
-            const blur = 12+wave*16;
-            const yOffset = 4+wave*8;
-            const highlight = 0.7+wave*0.3;
-            header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,${highlight}), inset 0 -1px 0 rgba(0,0,0,0.05)`;
-            ticking=false;
-        }
-        window.addEventListener('scroll',()=>{ if(!ticking){ requestAnimationFrame(updateHeaderShadow); ticking=true; } });
-        updateHeaderShadow();
-        function initEdgeDistortion() {
-            const headerEl = document.querySelector('.timeline-header'), displace = document.querySelector('.displacement-layer');
-            if(!headerEl||!displace) return;
-            let tick=false;
-            function updateDisplace(){ const y=window.scrollY; const intensity=y>0?(Math.sin(y*0.03)+1)/2:0; displace.style.transform=`translateY(${2+intensity*3}px)`; tick=false; }
-            window.addEventListener('scroll',()=>{ if(!tick){ requestAnimationFrame(updateDisplace); tick=true; } });
-            updateDisplace();
-        }
-        initEdgeDistortion();
-        window.onload = () => {
-            loadSiteConfig();
-            const loaderText = document.querySelector('.loader-text');
-            if(loaderText) loaderText.style.color = ['#ff69b4','#ff4d4d'][Math.floor(Math.random()*2)];
-            lucide.createIcons();
-            const clockEl = document.getElementById('live-clock');
-            function runLiveTimers(){
-                const now=new Date();
-                if(clockEl) clockEl.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
-                requestAnimationFrame(runLiveTimers);
-            }
-            runLiveTimers();
-            setInterval(updateRuntime,1000);
-            updateVisitCount();
-            updateRuntime();
-            setTimeout(showPage,200);
-            loadLatestMoment();
-            lucide.createIcons();
-        };
-        window.onclick = function(e) {
-            const menu = document.getElementById('dropdown-menu');
-            const trigger = document.getElementById('menu-trigger');
-            if(menu && trigger && !trigger.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('active');
-        };
-    </script>
 </body>
 </html>

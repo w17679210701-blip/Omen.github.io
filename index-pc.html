@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>HI OMEN · 沉浸空间</title>
+    <!-- 应用图标 -->
+    <link rel="apple-touch-icon" href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png">
+    <meta name="apple-mobile-web-app-title" content="HIOMEN">
+    <link rel="stylesheet" href="css/common.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #0a0a0a;  /* 视频未加载时的后备 */
+            color: #1a1a1a;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            padding: 0 0 60px 0;
+        }
+
+        /* ----- 全屏背景视频（渐现动画）----- */
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            pointer-events: none;
+        }
+        .bg-video::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            z-index: -1;
+        }
+        /* 渐现动画容器（视频上方叠加半透明层） */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: -1;
+            animation: bgReveal 1.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+        @keyframes bgReveal {
+            0% { clip-path: inset(0 100% 0 0); background: rgba(0,0,0,0.6);}
+            100% { clip-path: inset(0 0 0 0); background: rgba(0,0,0,0.2);}
+        }
+
+        /* ----- 顶部导航栏（居中占满）----- */
+        .timeline-header {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            max-width: 1200px;
+            width: 85%;
+            margin: 20px auto 30px auto;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            border: 0.5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: box-shadow 0.2s;
+        }
+        .nav-btn {
+            background: rgba(120, 120, 128, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #007aff;
+            transition: 0.2s;
+        }
+        .nav-btn:hover {
+            background: rgba(120, 120, 128, 0.4);
+            transform: scale(0.96);
+        }
+        .header-title {
+            text-align: center;
+        }
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* ----- 公告栏（居中占满）----- */
+        .notice-bar {
+            max-width: 1200px;
+            width: 85%;
+            margin: 0 auto 30px auto;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(18px);
+            border-radius: 60px;
+            padding: 12px 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            border: 0.5px solid rgba(255,255,255,0.6);
+        }
+        .notice-content {
+            display: inline-block;
+            animation: marquee 35s linear infinite;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(20%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ----- 卡片主容器：靠左两列网格，占屏幕70%宽度 ----- */
+        .main-container {
+            width: 70%;
+            min-width: 860px;
+            margin-left: 5%;
+            margin-right: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 10px;
+        }
+
+        /* 基础卡片样式（毛玻璃圆角） */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.78) !important;
+            backdrop-filter: blur(12px);
+            border-radius: 32px !important;
+            border: 0.5px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.08);
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            padding: 24px 20px;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 个人资料卡片特殊布局 */
+        .profile-card-large {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-card-large::after {
+            content: "";
+            position: absolute;
+            right: -60px;
+            top: -30px;
+            width: 240px;
+            height: 240px;
+            background: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/ETGOHOMELOGO.png') no-repeat center;
+            background-size: contain;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .avatar-halo {
+            border: 2px solid #900207;
+            border-radius: 50%;
+            padding: 4px;
+            animation: glowPulse 3s infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes glowPulse {
+            0%,100% { box-shadow: 0 0 8px #900207; }
+            50% { box-shadow: 0 0 22px #900207; }
+        }
+        .avatar-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 12px 0 20px;
+            color: #900207;
+        }
+        .contact-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 20px;
+            width: 100%;
+        }
+        .contact-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .contact-btn:hover {
+            background: rgba(0,0,0,0.15);
+            transform: scale(1.05);
+        }
+
+        /* AI 卡片（星光闪烁保留） */
+        .ai-card {
+            background-image: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/hxbg.webp'), linear-gradient(#900207, #900207);
+            background-size: cover, cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            min-height: 160px;
+        }
+        .ai-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(2px 2px at 15% 20%, #fff, transparent),
+                              radial-gradient(3px 3px at 70% 45%, #ffd700, transparent),
+                              radial-gradient(2px 2px at 95% 15%, #fff, transparent),
+                              radial-gradient(3px 3px at 40% 80%, #ffaa66, transparent);
+            background-repeat: no-repeat;
+            opacity: 0;
+            animation: starTwinkle 2.8s infinite alternate;
+        }
+        @keyframes starTwinkle {
+            0% { opacity: 0.2; background-size: 0px,0px,0px,0px; }
+            100% { opacity: 1; background-size: 14px,18px,12px,16px; }
+        }
+        .ai-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            letter-spacing: 2px;
+            z-index: 2;
+        }
+
+        /* 朋友圈预览卡片 */
+        .moments-preview-card {
+            text-decoration: none;
+            color: inherit;
+        }
+        .moments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .moments-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mini-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid #900207;
+        }
+        .nickname {
+            font-weight: bold;
+            font-size: 15px;
+            color: #900207;
+        }
+        .moments-time {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+        .moments-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 10px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .moments-media img, .moments-media video {
+            width: 100%;
+            border-radius: 20px;
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        /* 相册+时钟 网格布局 */
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .flip-wrapper {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s;
+            transform-style: preserve-3d;
+        }
+        .flip-front, .flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .flip-back {
+            transform: rotateY(180deg);
+        }
+        .clock-card {
+            min-height: 150px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+        /* 时光照相馆卡片 */
+        .time-capsule-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        /* 卡片入场动画（左侧淡入滑动） */
+        .main-container > * {
+            animation: slideInLeft 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) backwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        .main-container > *:nth-child(1) { animation-delay: 0.02s; }
+        .main-container > *:nth-child(2) { animation-delay: 0.1s; }
+        .main-container > *:nth-child(3) { animation-delay: 0.18s; }
+        .main-container > *:nth-child(4) { animation-delay: 0.26s; }
+        .main-container > *:nth-child(5) { animation-delay: 0.34s; }
+        .main-container > *:nth-child(6) { animation-delay: 0.42s; }
+        .main-container > *:nth-child(7) { animation-delay: 0.5s; }
+        @keyframes slideInLeft {
+            0% { opacity: 0; transform: translateX(-40px); filter: blur(4px);}
+            100% { opacity: 1; transform: translateX(0); filter: blur(0);}
+        }
+
+        /* 其他辅助样式 */
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: 90px;
+            left: 30px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 12px;
+            z-index: 1000;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+        }
+        .dropdown-menu.active { display: block; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: #1a1a1a;
+            border-radius: 20px;
+        }
+        .menu-item:hover { background: rgba(0,0,0,0.05); }
+        .mail-modal {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 16px;
+            z-index: 1001;
+        }
+        .mail-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 20px;
+        }
+        .copy-icon { width: 14px; margin-left: 8px; }
+        #loader {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: #0a0a0a;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s;
+        }
+        .loader-text {
+            color: #ff4d4d;
+            font-weight: bold;
+            letter-spacing: 4px;
+            animation: pulse 1.2s infinite;
+        }
+        .fade-out { opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <video class="bg-video" autoplay loop muted playsinline>
+        <source src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/pcbgvideo.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+
+    <div id="loader"><div class="loader-text">LOADING</div></div>
+
+    <div class="timeline-header" id="timelineHeader">
+        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
+        <div class="header-title"><h1>主页</h1><span class="sub">沉浸 · 极简</span></div>
+        <a href="index-pc.html" class="nav-btn"><svg width="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z"/></svg></a>
+        <div class="displacement-layer"></div>
+    </div>
+
+    <div class="notice-bar"><div class="notice-content" id="notice-content">📢 热烈祝贺！！！恭喜七筒干完一碗饭！！！七筒今天干了一碗饭！！真是了不起！</div></div>
+
+    <div class="main-container" id="main-content">
+        <!-- 个人资料卡片 -->
+        <div class="glass-card profile-card-large">
+            <div class="avatar-halo"><div class="avatar-box"><img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg" alt="Avatar"></div></div>
+            <div class="profile-name">Omen</div>
+            <div class="contact-group">
+                <div class="contact-btn" onclick="location.href='moments.html'"><i data-lucide="heart"></i></div>
+                <div class="contact-btn" id="wechat-btn" onclick="toggleWechatModal(event)"><i data-lucide="message-circle"></i></div>
+                <a href="https://t.me/OmenG82_Pro" target="_blank" class="contact-btn"><i data-lucide="send"></i></a>
+                <div class="contact-btn" onclick="toggleMailModal(event)"><i data-lucide="mail"></i></div>
+                <a href="https://instagram.com/OmenYi701" target="_blank" class="contact-btn"><i data-lucide="instagram"></i></a>
+            </div>
+        </div>
+
+        <!-- AI 卡片 -->
+        <div class="glass-card ai-card" id="aiCard" onclick="window.location.href='tools.html'">
+            <div class="ai-text">技术栈 / 工具库 / AI</div>
+        </div>
+
+        <!-- 朋友圈预览卡片 -->
+        <a href="moments.html" class="glass-card moments-preview-card" id="latest-moment">
+            <div class="moments-header"><div class="moments-user"><img src="images/avatar.jpg" alt="avatar" class="mini-avatar"><span class="nickname">Omen（Yitong）</span></div><span class="moments-time" id="moment-time">加载中...</span></div>
+            <div class="moments-content"><p class="moments-text" id="moment-text">正在同步最新动态...</p><div class="moments-media" id="moment-media"></div></div>
+            <div class="moments-footer"><span class="view-detail">点击查看更多 →</span></div>
+        </a>
+
+        <!-- 相册+时钟 两小卡 -->
+        <div class="grid-row">
+            <a href="photo.html" class="glass-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; gap: 12px;"><i data-lucide="image" size="32" color="#ffcc00"></i><span style="font-weight: 500;">相册</span></a>
+            <div class="flip-wrapper clock-card" onclick="handleFlip(this)">
+                <div class="flip-inner">
+                    <div class="flip-front glass-card"><span style="font-size:12px;">当前时间</span><div id="live-clock" style="font-family:monospace; font-size:1.2rem; font-weight:bold; color:#c99c00;">00:00:00</div><div style="display:flex; gap:6px;"><div class="status-dot"></div><span>运行中</span></div></div>
+                    <div class="flip-back glass-card"><span>网站已运行</span><div id="runtime-timer" style="font-weight:bold;">0天 00时</div><div style="margin-top:6px;">访问量 <span id="visit-count">--</span></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时光照相馆卡片 -->
+        <a href="javascript:void(0);" class="glass-card time-capsule-card" onclick="askAndRecordName(event)">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ffcc00"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+            <span style="font-size: 14px; font-weight: 500;">时光照相馆</span>
+        </a>
+    </div>
+
+    <!-- 下拉菜单 & 弹窗 -->
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index-pc.html" class="menu-item"><i data-lucide="home"></i>主页</a>
+        <a href="moments.html" class="menu-item"><i data-lucide="image"></i>朋友圈</a>
+        <a href="admin.html" class="menu-item"><i data-lucide="settings"></i>后台</a>
+        <a href="links.html" class="menu-item"><i data-lucide="link"></i>友情链接</a>
+        <a href="log.html" class="menu-item"><i data-lucide="file-text"></i>log</a>
+        <div class="menu-item"><i data-lucide="tag"></i>V2.2.0</div>
+    </div>
+    <div class="mail-modal" id="mail-modal">
+        <div class="mail-item" onclick="copyText('w17679210701@gmail.com',this)"><span>Gmail</span><span>w17679210701@gmail.com</span><i data-lucide="copy" class="copy-icon"></i></div>
+        <div class="mail-item" onclick="copyText('1710037239@qq.com',this)"><span>QQ Mail</span><span>1710037239@qq.com</span><i data-lucide="copy" class="copy-icon"></i></div>
+    </div>
+    <div class="mail-modal" id="wechat-modal" style="width: auto;">
+        <div class="mail-item" onclick="copyText('July1_Cnc_Y',this)"><span>微信号</span><span>July1_Cnc_Y</span><i data-lucide="copy" class="copy-icon"></i></div>
+    </div>
+
+    <script>
+        // Supabase 初始化
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        window.db = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 全局函数
+        function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('active'); }
+        function toggleMailModal(e) { e.stopPropagation(); document.getElementById('mail-modal').classList.toggle('active'); }
+        function toggleWechatModal(e) { e.stopPropagation(); document.getElementById('wechat-modal').classList.toggle('active'); }
+        async function copyText(text, el) { 
+            await navigator.clipboard.writeText(text); 
+            const addr = el.querySelector(':last-child'); 
+            const orig = addr.innerText; 
+            addr.innerText = "已复制"; 
+            setTimeout(()=> addr.innerText = orig, 1200);
+        }
+        function handleFlip(el) { 
+            const inner = el.querySelector('.flip-inner'); 
+            let rot = parseInt(el.dataset.rotation)||0; 
+            rot+=180; 
+            inner.style.transform = `rotateY(${rot}deg)`; 
+            el.dataset.rotation = rot;
+        }
+        function updateRuntime() {
+            const start = new Date(2026,2,24,13,30,0);
+            const diff = new Date() - start;
+            const days = Math.floor(diff/864e5);
+            const hours = Math.floor((diff%864e5)/36e5);
+            const mins = Math.floor((diff%36e5)/6e4);
+            const secs = Math.floor((diff%6e4)/1e3);
+            document.getElementById('runtime-timer').innerHTML = `${days}天 ${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        }
+        setInterval(updateRuntime,1000);
+        function updateClock() {
+            const d = new Date();
+            document.getElementById('live-clock').innerHTML = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}.${d.getMilliseconds().toString().padStart(3,'0')}`;
+            requestAnimationFrame(updateClock);
+        }
+        updateClock();
+
+        async function loadLatestMoment() {
+            if(!window.db) return;
+            const { data } = await window.db.from('moments').select('*').order('created_at',{ascending:false}).limit(1).single();
+            if(data){
+                document.getElementById('moment-text').innerText = data.content||'暂无动态';
+                document.getElementById('moment-time').innerText = timeAgo(new Date(data.created_at));
+                const media = document.getElementById('moment-media');
+                if(data.video_url) media.innerHTML = `<video src="${data.video_url}" controls preload="metadata" style="width:100%; border-radius:16px;"></video>`;
+                else if(data.images?.length) media.innerHTML = `<img src="${data.images[0]}" style="width:100%; border-radius:16px;">`;
+                else if(data.image_url) media.innerHTML = `<img src="${data.image_url}" style="width:100%; border-radius:16px;">`;
+                else media.innerHTML = '';
+            }
+        }
+        function timeAgo(date) {
+            const sec = Math.floor((new Date()-date)/1000);
+            if(sec<0) return '刚刚';
+            const intervals = [{label:'天',secs:86400},{label:'小时',secs:3600},{label:'分钟',secs:60}];
+            for(let i of intervals) if(sec>=i.secs) return `${Math.floor(sec/i.secs)}${i.label}前`;
+            return '刚刚';
+        }
+        async function updateVisitCount() {
+            try {
+                const { data } = await window.db.rpc('increment_pv');
+                document.getElementById('visit-count').innerText = data||'--';
+            } catch(e){ document.getElementById('visit-count').innerText = '72'; }
+        }
+        updateVisitCount();
+        loadLatestMoment();
+
+        async function askAndRecordName(e) {
+            e.preventDefault();
+            const name = prompt("📝 欢迎进入时光照相馆\n\n请问你是谁？");
+            if(!name || name.trim()==="") return;
+            await window.db.from('timeline_visitors').insert([{ name: name.trim(), visited_at: new Date().toISOString() }]);
+            window.location.href = "timeline.html";
+        }
+
+        async function loadSiteConfig() {
+            const { data } = await window.db.from('site_config').select('key,value');
+            if(data){
+                const cfg = Object.fromEntries(data.map(i=>[i.key,i.value]));
+                document.getElementById('notice-content').innerText = cfg.home_notice || '📢 欢迎来到 OMEN 的空间！';
+                document.querySelector('.profile-name').innerText = cfg.home_name || 'Omen';
+                document.querySelector('.timeline-header .sub').innerText = cfg.home_subtitle || '沉浸 · 极简';
+                const avatar = document.querySelector('.avatar-box img');
+                if(avatar) avatar.src = cfg.home_avatar || 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg';
+            }
+            lucide.createIcons();
+        }
+        loadSiteConfig();
+
+        const showPage = () => {
+            const loader = document.getElementById('loader');
+            if(loader) { loader.classList.add('fade-out'); setTimeout(()=>loader.style.display='none',400); }
+            document.body.classList.remove('is-loading');
+        };
+        setTimeout(showPage, 300);
+
+        window.onclick = (e) => {
+            const menu = document.getElementById('dropdown-menu');
+            const trigger = document.getElementById('menu-trigger');
+            if(menu && trigger && !trigger.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('active');
+        };
+    </script>
+</body>
+</html>
