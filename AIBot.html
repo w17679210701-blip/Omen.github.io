@@ -866,6 +866,19 @@
             transform: scale(0.96);
         }
 
+        /* R1 模型提醒弹窗内容左对齐 */
+        #confirmModelModal .confirm-modal-content {
+            text-align: left;
+        }
+
+        #confirmModelModal .confirm-modal-content p {
+            text-align: left;
+        }
+
+        #confirmModelModal .confirm-modal-buttons {
+            text-align: center;
+        }
+
         .model-info-btn i {
             width: 14px;
             height: 14px;
@@ -1490,6 +1503,22 @@
             const selectedModel = hiddenModelSelect.value;
             let enhancedMessage = text || (imagesToSend.length > 0 ? "请描述这张图片" : "");
 
+            // ====================== 模型时间锁（仅限 deepseek-v4-flash 和 deepseek-v4-pro） ======================
+            const lockedModels = ['deepseek-v4-flash', 'deepseek-v4-pro'];
+            if (lockedModels.includes(hiddenModelSelect.value)) {
+                const now = new Date();
+                const hours = now.getHours();
+                // 允许时间段：10:00 ~ 21:00（包含边界）
+                const isAllowedTime = hours >= 10 && hours <= 21;
+                if (!isAllowedTime) {
+                    const pwd = prompt('当前时间（' + now.toLocaleTimeString() + '）不可使用此模型，请输入密码：');
+                    if (pwd !== 'yt990701') {
+                        alert('密码错误，已取消发送。');
+                        return;  // 阻止发送
+                    }
+                }
+            }
+
             // 只有当开关开启且没有图片时才搜索
             const shouldSearch = webSearchEnabled && imagesToSend.length === 0;
             if (shouldSearch) {
@@ -1573,23 +1602,23 @@
         const modelInfoMap = {
             'deepseek-ai/DeepSeek-V3.2': {
                 name: 'DeepSeek-V3.2',
-                desc: '最新旗舰模型，671B 参数，160K 上下文。擅长对话、翻译、代码生成，推理速度快。',
-                features: ['对话', '翻译', '代码生成']
+                desc: 'DeepSeek-V3.2是深度求索（DeepSeek）公司于2025年12月正式发布的旗舰级大语言模型，面向日常问答、通用Agent任务及复杂推理场景优化。',
+                features: ['架构创新', 'DeepSeek稀疏注意力', '开源策略']
             },
             'Pro/deepseek-ai/DeepSeek-R1': {
                 name: 'DeepSeek-R1 (推理模型)',
-                desc: '强化学习驱动的深度推理模型，擅长数学、逻辑、复杂问题分析。回答前会进行后台深度思考，耗时较长。',
-                features: ['深度思考', '数学推理', '代码验证']
+                desc: 'DeepSeek-R1是DeepSeek于2025年1月发布的开源推理大模型，在数学、编程和推理等多个任务上达到与OpenAI o1相当的水平，同时将API调用成本降低了90-95%。',
+                features: ['推理深度增强', '编程能力', '幻觉率显著降低']
             },
             'doubao-seed-2-0-pro-260215': {
                 name: '豆包 Seed 2.0 Pro',
-                desc: '火山引擎提供的高效对话模型，响应速度快，支持多轮交互，对中文优化好。',
-                features: ['快速回复', '多轮对话', '中文优化']
+                desc: '2026年2月14日，字节跳动Seed团队正式发布Seed 2.0系列大模型，其中Seed 2.0 Pro作为旗舰版本，定位为最高精度的推理和Agent模型，在数学、编程、多模态理解和复杂工作流执行方面均展现出世界级水准。',
+                features: ['数学推理', '多模态理解', '中文优化']
             },
             'Qwen/Qwen3-VL-32B-Instruct': {
                 name: 'Qwen3-VL-32B (视觉识别)',
-                desc: '多模态模型，支持图像识别、图文问答、OCR 等。可以上传或粘贴图片进行识别。',
-                features: ['图像理解', 'OCR', '视觉推理']
+                desc: 'Qwen3-VL-32B-Instruct是阿里巴巴通义千问团队开发的多模态大模型，拥有320亿参数规模，是Qwen3系列中最高精度的稠密视觉语言模型。该模型支持文本和图像输入，在视觉问答、文档解析、图表表格提取等任务上表现优异。',
+                features: ['高分辨率视觉理解', '基准表现', '超长上下文']
             },
             'deepseek-v4-flash': {
                 name: 'DeepSeek-V4-Flash 极速响应 · 高效轻量',
@@ -1633,7 +1662,7 @@
             contentDiv.innerHTML = `
             <h4 style="margin:0 0 8px 0; color:#e6a017;">${info.name}</h4>
             <p style="margin:6px 0; line-height:1.5;">${info.desc}</p>
-            <p style="margin:6px 0;"><strong>主要能力：</strong> ${info.features.join('、')}</p>
+            <p style="margin:6px 0;"><strong>核心能力：</strong> ${info.features.join('、')}</p>
             <p style="font-size:0.75rem; color:#666; margin-top:10px;">当前使用的模型版本</p>
         `;
             modelInfoModal.style.display = 'flex';
