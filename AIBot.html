@@ -191,22 +191,27 @@
                 border-radius: 28px;
                 flex-wrap: nowrap;
             }
+
             .nav-btn-text {
                 padding: 0 12px;
                 height: 40px;
                 font-size: 0.75rem;
             }
+
             .back-btn-inline,
             .nav-btn {
                 width: 40px;
                 height: 40px;
             }
+
             .header-title h1 {
                 font-size: 1.2rem;
             }
+
             .nav-group {
                 min-width: 92px;
             }
+
             .header-title .sub {
                 font-size: 0.7rem;
                 margin-top: 2px;
@@ -536,6 +541,7 @@
             flex-shrink: 0;
             color: #8e8e93;
         }
+
         .upload-btn:hover {
             background: rgba(0, 0, 0, 0.08);
             color: #e6a017;
@@ -558,15 +564,18 @@
             flex-shrink: 0;
             color: #8e8e93;
         }
+
         .toggle-switch:hover {
             background: rgba(0, 0, 0, 0.08);
             transform: scale(0.96);
         }
+
         .toggle-switch.active {
             background: rgba(230, 160, 23, 0.2);
             border-color: rgba(230, 160, 23, 0.5);
             color: #e6a017;
         }
+
         .toggle-switch svg {
             width: 20px;
             height: 20px;
@@ -624,28 +633,36 @@
             .chat-container {
                 margin: 12px 12px 12px 12px;
             }
+
             .message {
                 max-width: 95%;
             }
+
             .config-bar {
                 padding: 8px 16px;
                 gap: 8px;
             }
+
             .custom-select-trigger {
                 font-size: 0.75rem;
                 padding: 4px 24px 4px 12px;
             }
+
             .input-area {
                 padding: 8px 12px 16px;
             }
+
             .bubble {
                 font-size: 0.85rem;
             }
+
             .preview-item {
                 width: 50px;
                 height: 50px;
             }
-            .upload-btn, .toggle-switch {
+
+            .upload-btn,
+            .toggle-switch {
                 width: 32px;
                 height: 32px;
             }
@@ -824,6 +841,36 @@
                 padding: 20px;
             }
         }
+
+        .model-info-btn-wrapper {
+            text-align: center;
+            margin: 8px 0 4px 0;
+            width: 100%;
+        }
+
+        .model-info-btn {
+            background: transparent;
+            border: 1px solid #900207;
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #900207;
+            cursor: pointer;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .model-info-btn:hover {
+            background: rgba(144, 2, 7, 0.1);
+            transform: scale(0.96);
+        }
+
+        .model-info-btn i {
+            width: 14px;
+            height: 14px;
+            stroke-width: 2;
+        }
     </style>
 </head>
 
@@ -837,7 +884,8 @@
         </button>
         <div class="header-title">
             <h1>AiBot</h1>
-            <span id="totalTokensDisplaySub" class="sub" style="cursor: pointer;" onclick="showTokensInfo()">累计消耗Tokens: 0</span>
+            <span id="totalTokensDisplaySub" class="sub" style="cursor: pointer;" onclick="showTokensInfo()">累计消耗Tokens:
+                0</span>
         </div>
         <div class="nav-group">
             <button class="nav-btn-text" onclick="window.location.href='translate.html'">
@@ -851,12 +899,18 @@
         <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
         <a href="moments.html" class="menu-item">
             <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
-                <path d="M31 7V24" /><path d="M16.6357 6.63599L30.7779 20.7781" /><path d="M7 17H24" />
-                <path d="M20.3643 17.636L6.22212 31.7781" /><path d="M17 25V42" />
-                <path d="M17.6357 27.636L31.7779 41.7781" /><path d="M24 31L42 31" />
+                <path
+                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" />
+                <path d="M16.6357 6.63599L30.7779 20.7781" />
+                <path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" />
+                <path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" />
+                <path d="M24 31L42 31" />
                 <path d="M42.3643 16.636L28.2221 30.7781" />
-                <path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+                <path
+                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
             </svg>
             朋友圈
         </a>
@@ -875,7 +929,10 @@
                     <div class="custom-select-option" data-value="deepseek-ai/DeepSeek-V3.2">DeepSeek-V3.2</div>
                     <div class="custom-select-option" data-value="Pro/deepseek-ai/DeepSeek-R1">DeepSeek-R1 (推理模型)</div>
                     <div class="custom-select-option" data-value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</div>
-                    <div class="custom-select-option" data-value="Qwen/Qwen3-VL-32B-Instruct">Qwen3-VL-32B-Instruct (视觉识别)</div>
+                    <div class="custom-select-option" data-value="Qwen/Qwen3-VL-32B-Instruct">
+                        Qwen3-VL-32B-Instruct(视觉识别)</div>
+                    <div class="custom-select-option" data-value="deepseek-v4-flash">DeepSeek-V4-Flash(10AM~9PM)</div>
+                    <div class="custom-select-option" data-value="deepseek-v4-pro">DeepSeek-V4-Pro(10AM~9PM)</div>
                 </div>
             </div>
             <select id="modelSelect" class="hidden-native">
@@ -883,16 +940,25 @@
                 <option value="Pro/deepseek-ai/DeepSeek-R1">DeepSeek-R1 (推理模型)</option>
                 <option value="doubao-seed-2-0-pro-260215">豆包 Seed 2.0 Pro</option>
                 <option value="Qwen/Qwen3-VL-32B-Instruct">Qwen3-VL-32B-Instruct (视觉识别)</option>
+                <option value="deepseek-v4-flash">DeepSeek-V4-Flash(10AM~9PM)</option>
+                <option value="deepseek-v4-pro">DeepSeek-V4-Pro(10AM~9PM)</option>
             </select>
         </div>
 
         <div class="messages-area" id="messagesArea">
-            <div class="message assistant">
+            <div class="message assistant" id="welcomeMessage">
                 <div class="avatar">
                     <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png"
                         style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                 </div>
                 <div class="bubble">你好！我是 AiBot。支持纯文本模型和多模态视觉模型。右下角圆形按钮是联网开关，开启后每次提问都会联网获取最新信息（如实时汇率、新闻等）。</div>
+            </div>
+            <!-- 按钮放在气泡下方，与气泡对齐（留出头像空间） -->
+            <div class="model-info-btn-wrapper" style="text-align: center; margin: 8px 0 4px 0;">
+                <button id="showModelInfoBtn" class="model-info-btn"
+                    style="background: transparent; border: 1px solid #900207; border-radius: 20px; padding: 4px 16px; font-size: 0.7rem; font-weight: 500; color: #900207; cursor: pointer; display: inline-block;">
+                    模型介绍
+                </button>
             </div>
         </div>
 
@@ -929,16 +995,31 @@
             <h3>Tokens 消耗说明</h3>
             <div class="tokens-modal-section">
                 <h4>📏 换算参考</h4>
-                <ul><li>1 token ≈ 0.75 个英文单词</li><li>1 token ≈ 0.6 个汉字</li><li>1 token ≈ 1 个数字/标点符号</li><li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li></ul>
+                <ul>
+                    <li>1 token ≈ 0.75 个英文单词</li>
+                    <li>1 token ≈ 0.6 个汉字</li>
+                    <li>1 token ≈ 1 个数字/标点符号</li>
+                    <li>例：1000 tokens ≈ 750 英文单词 或 600 汉字</li>
+                </ul>
             </div>
             <div class="tokens-modal-section">
                 <h4>⚙️ 哪些内容会消耗 Tokens？</h4>
-                <ul><li>📤 你发送的消息（用户输入）</li><li>🤖 AI 返回的回答（模型输出）</li><li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li></ul>
+                <ul>
+                    <li>📤 你发送的消息（用户输入）</li>
+                    <li>🤖 AI 返回的回答（模型输出）</li>
+                    <li>📜 系统提示词（固定指令，每次请求约 100–150 tokens）</li>
+                </ul>
                 <p class="note">※ 每次对话/翻译请求都会包含系统提示词，因此即使只发两个字，也会消耗约 100+ tokens。</p>
             </div>
             <div class="tokens-modal-section">
                 <h4>📊 统计范围</h4>
-                <ul><li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li><li>✅ AI 对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong></li><li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li></ul>
+                <ul>
+                    <li>✅ 翻译模型：<strong>DeepSeek-V2.5</strong>（当前翻译模型）</li>
+                    <li>✅ AI
+                        对话模型：<strong>DeepSeek-V3.2</strong>、<strong>Qwen3.5-397B-A17B</strong>、<strong>MiniMax-M2.5</strong>
+                    </li>
+                    <li>❌ 不统计：豆包 Seed 2.0 Pro、GPT-OSS-120b（未接入统计）</li>
+                </ul>
             </div>
             <button class="tokens-modal-close-btn">关闭</button>
         </div>
@@ -946,7 +1027,8 @@
 
     <div id="confirmModelModal" class="confirm-modal" style="display: none;">
         <div class="confirm-modal-content">
-            <p><strong>DeepSeek-R1 是深度推理模型</strong><br><br>该模型在回答之前会进行完整的后台深度思考，该过程不会在前端显示，因此整个回答时间会比较长。<br><br>⚠️ 这不是模型无响应，而是它在后端进行深度思考，思考完成后才会在前端输出内容。</p>
+            <p><strong>DeepSeek-R1 是深度推理模型</strong><br><br>该模型在回答之前会进行完整的后台深度思考，该过程不会在前端显示，因此整个回答时间会比较长。<br><br>⚠️
+                这不是模型无响应，而是它在后端进行深度思考，思考完成后才会在前端输出内容。</p>
             <div class="confirm-modal-buttons">
                 <button id="confirmSwitchBtn">确定切换</button>
                 <button id="cancelSwitchBtn">不换了</button>
@@ -1030,6 +1112,9 @@
             if (menu && trigger && !trigger.contains(e.target)) menu.classList.remove('active');
         };
 
+
+        const TENCENT_DEEPSEEK_API_KEY = 'sk-LtI0r33Ynw8k9w4kn064lSrAq5MLNOXD36eT65IIHeQwa8ni';
+        const TENCENT_DEEPSEEK_API_URL = 'https://tokenhub.tencentmaas.com/v1/chat/completions';
         const SILICONFLOW_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
         const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
         const VOLC_ACCESS_KEY = 'ark-9e858f30-24eb-4bd2-a47b-96e89b29628b-d8fa4';
@@ -1231,6 +1316,9 @@
             let apiUrl, apiKey, requestBody;
             const isVolcanic = modelValue === 'doubao-seed-2-0-pro-260215';
             const isMultimodal = modelValue === 'Qwen/Qwen3-VL-32B-Instruct';
+            // 新增：判断腾讯云 DeepSeek V4 模型
+            const isTencentDS = modelValue === 'deepseek-v4-flash' || modelValue === 'deepseek-v4-pro';
+
             let messagesContent;
             if (isMultimodal && images.length > 0) {
                 const contentParts = [{ type: "text", text: userPrompt || "请描述这张图片" }];
@@ -1241,15 +1329,31 @@
             } else {
                 messagesContent = userPrompt;
             }
+
             if (isVolcanic) {
                 apiUrl = VOLC_API_URL;
                 apiKey = VOLC_ACCESS_KEY;
                 requestBody = { model: modelValue, messages: [{ role: 'user', content: messagesContent }], temperature: 0.7, max_tokens: 4096, stream: true };
-            } else {
+            }
+            else if (isTencentDS) {
+                apiUrl = TENCENT_DEEPSEEK_API_URL;
+                apiKey = TENCENT_DEEPSEEK_API_KEY;
+                requestBody = {
+                    model: modelValue,  // "deepseek-v4-flash" 或 "deepseek-v4-pro"
+                    messages: [{ role: 'user', content: messagesContent }],
+                    temperature: 0.7,
+                    max_tokens: 4096,
+                    stream: true,
+                    stream_options: { include_usage: true }  // 可选，TokenHub 可能支持
+                };
+            }
+            else {
+                // 硅基流动模型
                 apiUrl = SILICONFLOW_API_URL;
                 apiKey = SILICONFLOW_API_KEY;
                 requestBody = { model: modelValue, messages: [{ role: 'user', content: messagesContent }], temperature: 0.7, max_tokens: 4096, stream: true, stream_options: { include_usage: true } };
             }
+
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -1257,12 +1361,14 @@
             });
             if (!response.ok) throw new Error(`API 请求失败 (${response.status}): ${await response.text()}`);
             if (!response.body) throw new Error('当前浏览器不支持流式响应');
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let fullContent = '';
             let usageRecorded = false;
             const { textSpan, messageDiv } = addMessage('assistant', '⏳ 生成中...', null, true);
             if (thinkingMsg) { thinkingMsg.remove(); thinkingMsg = null; }
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
@@ -1275,21 +1381,38 @@
                         try {
                             const parsed = JSON.parse(data);
                             const delta = parsed.choices[0]?.delta?.content;
-                            if (delta) { fullContent += delta; textSpan.innerHTML = fullContent.replace(/\n/g, '<br>'); scrollToBottom(); }
+                            if (delta) {
+                                fullContent += delta;
+                                textSpan.innerHTML = fullContent.replace(/\n/g, '<br>');
+                                scrollToBottom();
+                            }
+                            // 统计 tokens（仅硅基流动和腾讯云如果支持）
                             if (parsed.usage && !usageRecorded && !isVolcanic) {
                                 usageRecorded = true;
                                 const usage = parsed.usage;
                                 const newTotal = await addGlobalTokens(usage.total_tokens);
                                 if (newTotal !== null) document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${newTotal}`;
-                                await addRequestRecord({ type: '对话', model: modelValue, input: userPrompt, output: fullContent, input_tokens: usage.prompt_tokens || 0, output_tokens: usage.completion_tokens || 0, total_tokens: usage.total_tokens || 0 });
+                                await addRequestRecord({
+                                    type: '对话',
+                                    model: modelValue,
+                                    input: userPrompt,
+                                    output: fullContent,
+                                    input_tokens: usage.prompt_tokens || 0,
+                                    output_tokens: usage.completion_tokens || 0,
+                                    total_tokens: usage.total_tokens || 0
+                                });
                             }
                         } catch (e) { }
                     }
                 }
             }
+
             messageDiv.remove();
-            if (fullContent.trim()) addMessage('assistant', fullContent, null, false);
-            else addMessage('assistant', '抱歉，没有收到有效回复。', null, false);
+            if (fullContent.trim()) {
+                addMessage('assistant', fullContent, null, false);
+            } else {
+                addMessage('assistant', '抱歉，没有收到有效回复。', null, false);
+            }
         }
 
         let thinkingMsg = null;
@@ -1445,6 +1568,83 @@
             }
         });
         if (supabaseClient) updateTotalTokensDisplay();
+
+        // ========== 模型介绍弹窗 ==========
+        const modelInfoMap = {
+            'deepseek-ai/DeepSeek-V3.2': {
+                name: 'DeepSeek-V3.2',
+                desc: '最新旗舰模型，671B 参数，160K 上下文。擅长对话、翻译、代码生成，推理速度快。',
+                features: ['对话', '翻译', '代码生成']
+            },
+            'Pro/deepseek-ai/DeepSeek-R1': {
+                name: 'DeepSeek-R1 (推理模型)',
+                desc: '强化学习驱动的深度推理模型，擅长数学、逻辑、复杂问题分析。回答前会进行后台深度思考，耗时较长。',
+                features: ['深度思考', '数学推理', '代码验证']
+            },
+            'doubao-seed-2-0-pro-260215': {
+                name: '豆包 Seed 2.0 Pro',
+                desc: '火山引擎提供的高效对话模型，响应速度快，支持多轮交互，对中文优化好。',
+                features: ['快速回复', '多轮对话', '中文优化']
+            },
+            'Qwen/Qwen3-VL-32B-Instruct': {
+                name: 'Qwen3-VL-32B (视觉识别)',
+                desc: '多模态模型，支持图像识别、图文问答、OCR 等。可以上传或粘贴图片进行识别。',
+                features: ['图像理解', 'OCR', '视觉推理']
+            },
+            'deepseek-v4-flash': {
+                name: 'DeepSeek-V4-Flash 极速响应 · 高效轻量',
+                desc: 'DeepSeek-V4-Flash 是为追求低延迟、高吞吐量的实时交互场景设计的轻量级模型。它在保持优秀理解与生成能力的同时，大幅优化了推理速度与资源占用。',
+                features: ['毫秒级响应', '高并发支持', '上下文 128K', '成本经济']
+            },
+            'deepseek-v4-pro': {
+                name: 'DeepSeek-V4-Pro 深度思考 · 专业精准',
+                desc: 'DeepSeek-V4-Pro 是系列中的高性能旗舰版本，在复杂推理、专业知识、代码生成与长文本理解上达到顶尖水平。它通过更深的网络结构和更精细的训练策略，实现了对复杂任务的精准把握。',
+                features: ['卓越推理能力', '代码专家', '超长上下文 1M', '工具调用与智能体']
+            }
+        };
+
+        // 创建弹窗（如果尚未存在）
+        let modelInfoModal = document.getElementById('modelInfoModal');
+        if (!modelInfoModal) {
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'modelInfoModal';
+            modalDiv.className = 'confirm-modal';
+            modalDiv.style.display = 'none';
+            modalDiv.innerHTML = `
+            <div class="confirm-modal-content" style="max-width: 320px;">
+                <div class="model-info-content" id="modelInfoContent" style="text-align: left;"></div>
+                <div class="confirm-modal-buttons" style="margin-top: 20px;">
+                    <button id="closeModelInfoBtn">关闭</button>
+                </div>
+            </div>
+        `;
+            document.body.appendChild(modalDiv);
+            // 添加关闭事件
+            const closeBtn = modalDiv.querySelector('#closeModelInfoBtn');
+            closeBtn.addEventListener('click', () => { modalDiv.style.display = 'none'; });
+            modalDiv.addEventListener('click', (e) => { if (e.target === modalDiv) modalDiv.style.display = 'none'; });
+            modelInfoModal = modalDiv;
+        }
+
+        function showModelInfo() {
+            const selectedValue = hiddenModelSelect.value;
+            const info = modelInfoMap[selectedValue] || modelInfoMap['deepseek-ai/DeepSeek-V3.2'];
+            const contentDiv = document.getElementById('modelInfoContent');
+            contentDiv.innerHTML = `
+            <h4 style="margin:0 0 8px 0; color:#e6a017;">${info.name}</h4>
+            <p style="margin:6px 0; line-height:1.5;">${info.desc}</p>
+            <p style="margin:6px 0;"><strong>主要能力：</strong> ${info.features.join('、')}</p>
+            <p style="font-size:0.75rem; color:#666; margin-top:10px;">当前使用的模型版本</p>
+        `;
+            modelInfoModal.style.display = 'flex';
+        }
+
+        // 绑定按钮事件（等待 DOM 加载完成）
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('showModelInfoBtn');
+            if (btn) btn.addEventListener('click', showModelInfo);
+            lucide.createIcons();  // 确保重新渲染新增的图标
+        });
     </script>
 </body>
 
