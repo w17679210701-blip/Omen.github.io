@@ -716,23 +716,17 @@
             <div class="custom-select" data-select-id="styleSelect">
                 <div class="custom-select-trigger">日常风格</div>
                 <div class="custom-select-dropdown">
-                    <div class="custom-select-option" data-value="标准">标准风格</div>
                     <div class="custom-select-option" data-value="口语">日常风格</div>
                     <div class="custom-select-option" data-value="正式">商务风格</div>
                     <div class="custom-select-option" data-value="学术">学术风格</div>
-                    <div class="custom-select-option" data-value="文学">文艺风格</div>
                     <div class="custom-select-option" data-value="幽默">幽默风格</div>
-                    <div class="custom-select-option" data-value="简洁">简洁风格</div>
                 </div>
             </div>
             <select id="styleSelect" class="hidden-native">
-                <option value="标准">标准风格</option>
                 <option value="口语" selected>日常风格</option>
-                <option value="正式">正式/商务风格</option>
+                <option value="正式">商务风格</option>
                 <option value="学术">学术风格</option>
-                <option value="文学">文学/文艺风格</option>
                 <option value="幽默">幽默风格</option>
-                <option value="简洁">简洁风格</option>
             </select>
 
             <div class="custom-select" data-select-id="modelSelect">
@@ -752,7 +746,7 @@
                     <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png"
                         style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                 </div>
-                <div class="bubble">你好！我是 AiBot的翻译模型。可以在顶部选择你要翻译的模式和风格，把你想要翻译的内容发给我吧～</div>
+                <div class="bubble">你好！我是二筒翻译机器人。可以在顶部选择你要翻译的模式和风格，把你想要翻译的内容发给我吧～</div>
             </div>
         </div>
 
@@ -926,12 +920,10 @@
 
         async function translateWithSiliconFlowStream(text, mode, style, modelValue) {
             const styleMap = {
-                '标准': '自然的、标准的翻译',
-                '口语': '保留用户原文的说话语气，用日常口语表达，但必须准确传达原意。“能…吗”请用“Can you…?”。', '正式': '正式的、商务场合的风格，用词严谨礼貌',
+                '口语': '保留用户原文的说话语气，用日常口语表达，但必须准确传达原意。“能…吗”请用“Can you…?”。',
+                '正式': '正式的、商务场合的风格，用词严谨礼貌',
                 '学术': '学术论文风格，用词专业、结构清晰',
-                '文学': '文学性的、富有文采的风格，可以适当使用修辞',
-                '幽默': '幽默诙谐的风格，翻译时加入一点趣味性',
-                '简洁': '简洁明了、通俗易懂的风格，避免复杂词汇'
+                '幽默': '幽默诙谐的风格，翻译时加入一点趣味性'
             };
             const styleInstruction = styleMap[style] || styleMap['标准'];
 
@@ -960,11 +952,9 @@
                     sourceLang = '中文'; targetLang = '英文';
             }
 
-            const systemPrompt = `你是一个专业且自然的翻译器。用户输入的就是要翻译的文本。请将用户提供的${sourceLang}文本翻译成${targetLang}，翻译要求：${styleInstruction}。
-
-【语气要求】请仔细识别用户原文中的语气（疑问、感叹、反问、幽默、讽刺、认真、温柔、愤怒等），并在翻译结果中完整保留这种语气。对于“能…吗”这类句式，请优先使用“Can you…?”表示能力或允许，而不是“Will you…?”或“Are you going to…?”。使用目标语言中最自然的表达方式，不要直译，不要添加任何解释。
-
-【输出格式】只输出翻译后的文字，不要输出"翻译："、"Please translate:"、引号、括号、原文、任何标记或多余字符。`;
+            const systemPrompt = `翻译器。将${sourceLang}译成${targetLang}，要求：${styleInstruction}。
+严格保持原文语气：疑问句必须译成疑问句（结尾用“？”），陈述句译成陈述句，祈使句译成祈使句。
+只输出译文。`;
 
             const userMessage = `请翻译：${text}`;
             const modelId = getModelId(modelValue);
@@ -1033,6 +1023,21 @@
             let finalResult = fullContent.trim();
             finalResult = finalResult.replace(/^(翻译|请翻译|把这段话翻译成|翻译一下)[：:]\s*/i, '').replace(/^Please translate[：:]\s*/i, '').replace(/^“翻译[：:]”\s*/, '');
             messageDiv.remove();
+            // 检测原文是否为疑问句（有问号或疑问词前置）
+            const isQuestion = text.includes('?') || /^(can|could|will|would|do|does|did|are|is|am|may|might|should)/i.test(text.trim());
+            if (isQuestion) {
+                // 如果译文末尾没有问号，添加“？”
+                if (!finalResult.includes('？') && !finalResult.includes('?')) {
+                    finalResult = finalResult.replace(/[。！]$/, '') + '？';
+                }
+                // 如果译文以“请”开头（典型的祈使句），强制转换为“你能...吗？”形式
+                if (finalResult.trim().startsWith('请')) {
+                    // 简单转换：去掉“请”，末尾加“吗？” 
+                    let converted = finalResult.trim().replace(/^请/, '');
+                    converted = converted.replace(/[。？]$/, '') + '吗？';
+                    finalResult = converted;
+                }
+            }
             addMessage('assistant', finalResult || '抱歉，没有收到有效回复。');
         }
 
