@@ -2,9 +2,21 @@
 <html lang="zh-CN">
 
 <head>
+    <script>
+        (function () {
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+            if (isMobile) {
+                // 获取当前相对路径（去掉 /pc/ 前缀）
+                var currentPath = window.location.pathname;
+                var mobilePath = currentPath.replace(/^\/pc/, '/m');
+                window.location.replace(mobilePath);
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>HI OMEN · PC 桌面版（左侧固定）</title>
+    <link rel="alternate" media="only screen and (max-width: 640px)" href="https://hiomen.cn/mobile/index.html">
     <link rel="apple-touch-icon"
         href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png">
     <script src="https://unpkg.com/lucide@latest"></script>
