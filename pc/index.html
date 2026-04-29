@@ -5,11 +5,10 @@
     <script>
         (function () {
             var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+            // 如果是移动端，跳转到 /m/ 对应页面
             if (isMobile) {
-                // 获取当前相对路径（去掉 /pc/ 前缀）
-                var currentPath = window.location.pathname;
-                var mobilePath = currentPath.replace(/^\/pc/, '/mobile');
-                window.location.replace(mobilePath);
+                var newPath = window.location.pathname.replace('/pc/', '/m/');
+                window.location.replace(newPath);
             }
         })();
     </script>
