@@ -6,7 +6,7 @@
             // 检测移动端
             var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
             // 跳转目标路径（保留当前路径，但根目录特殊处理）
-            var targetPath = isMobile ? '/m/index.html' : '/pc/index.html';
+            var targetPath = isMobile ? '/mobile/index.html' : '/pc/index.html';
             // 立即替换历史记录，防止后退循环
             window.location.replace(targetPath);
         })();
