@@ -8,7 +8,7 @@
             if (!isMobile) {
                 // 获取当前相对路径（去掉 /m/ 前缀）
                 var currentPath = window.location.pathname;
-                var pcPath = currentPath.replace(/^\/m/, '/pc');
+                var pcPath = currentPath.replace(/^\/mobile/, '/pc');
                 window.location.replace(pcPath);
             }
         })();
