@@ -30,7 +30,7 @@
     <link rel="apple-touch-startup-image"
         href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo.png">
 
-    <link rel="stylesheet" href="css/common.css">
+    <!-- <link rel="stylesheet" href="css/common.css"> -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -65,7 +65,6 @@
 
         /* 导航栏、公告栏、主容器统一宽度规则 */
         .timeline-header,
-        .notice-bar,
         .main-container {
             width: 100%;
             max-width: 1200px;
@@ -157,7 +156,7 @@
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
             flex-shrink: 0;
-            color: #007aff;
+            color: #990207;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
@@ -209,10 +208,6 @@
                 margin-bottom: 12px;
                 padding: 8px 16px;
                 border-radius: 28px;
-            }
-
-            .notice-bar {
-                margin-bottom: 12px;
             }
 
             .nav-btn {
@@ -279,45 +274,6 @@
             letter-spacing: 4px;
         }
 
-        .notice-bar {
-            height: 42px;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            background: rgba(255, 255, 255, 0.6) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            overflow: hidden;
-            position: relative;
-            z-index: 100;
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-        }
-
-        .notice-content {
-            white-space: nowrap;
-            display: inline-block;
-            animation: marquee 35s linear infinite;
-            font-size: 13px;
-            color: #1a1a1a !important;
-            font-weight: 500;
-        }
-
-        @keyframes marquee {
-            0% {
-                transform: translateX(25%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
         .main-container {
             display: flex;
             flex-direction: column;
@@ -325,6 +281,88 @@
             opacity: 1 !important;
             transform: translateY(20px);
             transition: 0.8s ease;
+        }
+
+        /* 系统状态卡片网格布局 */
+        /* 系统状态卡片 - 全新设计 */
+        .system-status-card {
+            padding: 4px 0 8px 0 !important;
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(12px);
+        }
+
+        .status-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 8px 20px;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        .status-value {
+            font-weight: 600;
+            font-family: 'SF Mono', 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #1a1a1a;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        /* 特殊状态标识 - 在线圆点 */
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .system-status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #2ecc71;
+            animation: pulse-green 1.5s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                opacity: 0.6;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* 延迟和加载用时特殊高亮 */
+        .latency-value,
+        .load-value {
+            font-weight: 700;
+            color: #900207;
         }
 
         .glass-card {
@@ -383,7 +421,7 @@
         .profile-name {
             font-size: 1.8rem;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 0px;
             letter-spacing: 2px;
             color: #900207;
         }
@@ -676,6 +714,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-top: 15px;
         }
 
         /* 朋友圈预览卡片 */
@@ -855,8 +894,9 @@
             transition: transform 0.2s ease;
 
             /* 背景：指定图片 + 深红色底色 */
-            background-image: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/hxbg.webp'), linear-gradient(#900207, #900207);
-            /* linear-gradient(#900207, #900207) */
+            /* background-image: url('https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/hxbg.webp'), linear-gradient(#900207, #900207); */
+            /* linear-gradient：(#900207, #900207)； */
+            background: #900207;
             background-size: cover, cover;
             background-position: center, center;
             background-repeat: no-repeat;
@@ -929,11 +969,141 @@
                 padding: 0 12px;
             }
         }
+
+        /* 三筒云卡片 */
+        .santong-cloud-card {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .santong-cloud-card::after {
+            content: "三筒云";
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #900207;
+            opacity: 0.12;
+            pointer-events: none;
+            /* 让水印不干扰按钮点击 */
+            white-space: nowrap;
+            font-family: system-ui, -apple-system, sans-serif;
+            z-index: 0;
+        }
+
+        .cloud-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cloud-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border: 0.5px solid rgba(0, 0, 0, 0.08);
+            border-radius: 60px;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .cloud-btn:active {
+            transform: scale(0.96);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* 复制成功气泡提示 */
+        .copy-toast {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 40px;
+            z-index: 10000;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: toastFadeIn 0.2s ease;
+            pointer-events: none;
+        }
+
+        .copy-toast.fade-out {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes toastFadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .logo-btn {
+            background: rgba(120, 120, 128, 0.2);
+            backdrop-filter: blur(15px);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            animation: autoRotate 7s linear infinite;
+        }
+
+        @keyframes autoRotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .logo-btn:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 
 <body class="is-loading">
     <div class="timeline-header" id="timelineHeader">
+        <a href="#" class="nav-btn logo-btn" id="logoBtn" onclick="return false;">
+            <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo1.png" alt="Logo"
+                class="nav-logo">
+        </a>
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)">
             <i data-lucide="menu"></i>
         </button>
@@ -953,8 +1123,8 @@
     </div>
     <!-- 下拉菜单 -->
     <div class="dropdown-menu" id="dropdown-menu">
-        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
-        <a href="moments.html" class="menu-item">
+        <!-- <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a> -->
+        <!-- <a href="moments.html" class="menu-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48" fill="none"
                 stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <path
@@ -971,18 +1141,15 @@
                     d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
             </svg>
             朋友圈
-        </a>
+        </a> -->
         <!-- <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a> -->
         <!-- <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a> -->
+        <a href="tools.html" class="menu-item"><i data-lucide="link" size="18"></i>导航站</a>
         <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台</a>
-        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
         <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>log</a>
         <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
         <div class="menu-item" style="cursor: default; opacity: 0.7;"><i data-lucide="tag" size="18"></i>V2.1.4</div>
 
-    </div>
-    <div class="notice-bar">
-        <div class="notice-content" id="notice-content">📢 热烈祝贺！！！恭喜七筒干完一碗饭！！！七筒今天干了一碗饭！！真是了不起！</div>
     </div>
 
     <div id="main-content" class="main-container">
@@ -1013,7 +1180,7 @@
                     </svg>
                 </div>
                 <!-- 微信按钮 -->
-                <div class="contact-btn" id="wechat-btn" onclick="toggleWechatModal(event)">
+                <div class="contact-btn" onclick="copyToClipboard('July1_Cnc_Y', event)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1046,7 +1213,7 @@
                     </svg>
                 </a>
                 <!-- 邮箱按钮 -->
-                <div class="contact-btn" onclick="toggleMailModal(event)">
+                <div class="contact-btn" onclick="copyToClipboard('w17679210701@gmail.com', event)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="none"
                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M44 24V9H24H4V24V39H24" />
@@ -1093,14 +1260,15 @@
         </div>
 
         <!-- 科幻粒子卡片（AI 入口） -->
-        <div class="ai-card" id="aiCard" onclick="window.location.href='tools.html'">
-            <div class="ai-text">技术栈 / 工具库 / AI</div>
+        <div class="ai-card" id="aiCard" onclick="window.location.href='AI Space.html'">
+            <div class="ai-text">✨ 二筒AI机器人 ✨</div>
         </div>
         <a href="moments.html" class="glass-card moments-preview-card" id="latest-moment"
             onclick="event.stopPropagation();">
             <div class="moments-header">
                 <div class="moments-user">
-                    <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg" alt="头像" class="mini-avatar">
+                    <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg"
+                        alt="头像" class="mini-avatar">
                     <span class="nickname">Omen（Yitong）</span>
                 </div>
                 <span class="moments-time" id="moment-time">加载中...</span>
@@ -1114,57 +1282,48 @@
             </div>
         </a>
 
-        <div class="grid-row">
-            <a href="photo.html" class="glass-card"
-                style="height: 120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-decoration:none; color:inherit; gap:10px;"
-                onclick="event.stopPropagation();">
-                <i data-lucide="image" color="#ffcc00"></i>
-                <span style="font-size:12px; letter-spacing:2px;">相册</span>
-            </a>
-            <div class="flip-wrapper clock-card" onclick="handleFlip(this)">
-                <div class="flip-inner">
-                    <div class="flip-front glass-card"
-                        style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
-                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">当前时间</span>
-                        <div id="live-clock"
-                            style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #ffcc00;">
-                            00:00:00.000</div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="status-dot"></div><span style="font-size:12px;">系统运行中</span>
-                        </div>
-                    </div>
-                    <div class="flip-back glass-card"
-                        style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
-                        <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">网站已运行</span>
-                        <div id="runtime-timer"
-                            style="font-family: monospace; font-size: 0.95rem; font-weight: bold; color: #ffcc00; text-align: center;">
-                            0天 00时 00分 00秒
-                        </div>
-                        <div style="margin-top: 8px; font-size: 10px; opacity: 0.5;">累计访问量</div>
-                        <div id="visit-count"
-                            style="font-family: monospace; font-size: 0.9rem; font-weight: bold; color: #ffcc00;">
-                            加载中...
-                        </div>
-                    </div>
+        <!-- 系统状态卡片（新样式） -->
+        <div class="glass-card system-status-card">
+            <div class="status-grid">
+                <div class="status-row">
+                    <span class="status-label">🕒 实时时间</span>
+                    <span class="status-value" id="status-live-clock">--:--:--</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">⚙️ 系统运行状态</span>
+                    <span class="status-value system-status" id="system-status">在线</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">📡 服务器延迟</span>
+                    <span class="status-value latency-value" id="server-latency">测量中...</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">⏱️ 本次加载用时</span>
+                    <span class="status-value load-value" id="load-time">计算中...</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">📅 网站已运行</span>
+                    <span class="status-value" id="status-runtime">0天 00时 00分 00秒</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">👀 累计访问量</span>
+                    <span class="status-value" id="status-visit-count">--</span>
                 </div>
             </div>
         </div>
-        <a href="javascript:void(0);" class="glass-card"
-            style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: inherit; margin-top: 15px; margin-bottom: -15px; margin-top: 0;"
-            onclick="askAndRecordName(event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path>
-            </svg>
-            <span style="font-size: 12px; letter-spacing: 2px;">时光照相馆</span>
-        </a>
+        <!-- 三筒云卡片 -->
+        <div class="glass-card santong-cloud-card">
+            <div class="cloud-buttons">
+                <div class="cloud-btn" data-link="#">📁 私人云盘</div>
+                <div class="cloud-btn" data-link="#">📸 时光相册</div>
+                <div class="cloud-btn" data-link="#">🌩️ Ωmen-Cloud</div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <script>
+        const pageStartTime = performance.timing ? performance.timing.navigationStart : Date.now();
         const html = document.documentElement;
         const body = document.body;
         const themeToggle = document.getElementById('theme-toggle');
@@ -1214,6 +1373,34 @@
             } catch (err) { alert('复制失败'); }
         }
 
+        // 复制到剪贴板 + 小气泡提示
+        function copyToClipboard(text, event) {
+            event.stopPropagation();  // 防止事件冒泡
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('复制成功 ✓');
+            }).catch(() => {
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        // 显示气泡提示（自动消失）
+        function showToast(msg) {
+            // 移除已有的 toast 避免重叠
+            const existingToast = document.querySelector('.copy-toast');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+
+            // 显示后 1.2 秒移除
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 1200);
+        }
+
         const showPage = () => {
             const loader = document.getElementById('loader');
             if (loader) {
@@ -1237,8 +1424,14 @@
             const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
             const minutes = Math.floor((diff / (1000 * 60)) % 60);
             const seconds = Math.floor((diff / 1000) % 60);
-            const el = document.getElementById('runtime-timer');
-            if (el) el.innerHTML = `${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
+            const runtimeStr = `${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
+
+            // 更新原卡片
+            const runtimeEl = document.getElementById('runtime-timer');
+            if (runtimeEl) runtimeEl.innerHTML = runtimeStr;
+            // 更新新增状态卡片的运行时长
+            const statusRuntime = document.getElementById('status-runtime');
+            if (statusRuntime) statusRuntime.innerText = runtimeStr;
         }
 
         function timeAgo(date) {
@@ -1348,20 +1541,28 @@
             if (!window.db) return;
             try {
                 const { data, error } = await window.db.rpc('increment_pv');
+                let newCount = '--';
                 if (error) {
-                    console.warn('RPC not found, using fallback');
                     const { data: current } = await window.db.from('site_stats').select('pv').eq('id', 1).single();
                     if (current) {
-                        const newPv = current.pv + 1;
-                        await window.db.from('site_stats').update({ pv: newPv }).eq('id', 1);
-                        document.getElementById('visit-count').innerText = newPv;
+                        newCount = current.pv + 1;
+                        await window.db.from('site_stats').update({ pv: newCount }).eq('id', 1);
                     }
                 } else {
-                    document.getElementById('visit-count').innerText = data;
+                    newCount = data;
                 }
+                // 更新原卡片
+                const visitEl = document.getElementById('visit-count');
+                if (visitEl) visitEl.innerText = newCount;
+                // 更新新增卡片
+                const statusVisit = document.getElementById('status-visit-count');
+                if (statusVisit) statusVisit.innerText = newCount;
             } catch (err) {
                 console.error('访问量更新失败', err);
-                document.getElementById('visit-count').innerText = '--';
+                const visitEl = document.getElementById('visit-count');
+                if (visitEl) visitEl.innerText = '--';
+                const statusVisit = document.getElementById('status-visit-count');
+                if (statusVisit) statusVisit.innerText = '--';
             }
         }
 
@@ -1383,8 +1584,6 @@
             const navSubtitleEl = document.querySelector('.timeline-header .header-title .sub');
             if (navSubtitleEl) navSubtitleEl.innerText = config.home_subtitle || '想骑摩托想到发疯';
 
-            const noticeEl = document.getElementById('notice-content');
-            if (noticeEl) noticeEl.innerText = config.home_notice || '📢 欢迎来到 OMEN 的空间！';
             const avatarEl = document.querySelector('.avatar-box img');
             if (avatarEl) avatarEl.src = config.home_avatar || 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg';
             const nameEl = document.querySelector('.profile-name');
@@ -1450,23 +1649,16 @@
             const targetTime = new Date("2026-03-24T13:00:00").getTime();
             function runLiveTimers() {
                 const now = new Date();
-                if (clockEl) {
-                    const h = String(now.getHours()).padStart(2, '0'),
-                        m = String(now.getMinutes()).padStart(2, '0'),
-                        s = String(now.getSeconds()).padStart(2, '0'),
-                        ms = String(now.getMilliseconds()).padStart(3, '0');
-                    clockEl.textContent = `${h}:${m}:${s}.${ms}`;
-                }
-                if (countdownEl) {
-                    const diff = targetTime - now.getTime();
-                    if (diff > 0) {
-                        const h = String(Math.floor(diff / 3600000)).padStart(2, '0'),
-                            m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
-                            s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
-                            ms = String(diff % 1000).padStart(3, '0');
-                        countdownEl.textContent = `${h}:${m}:${s}.${ms}`;
-                    } else { countdownEl.textContent = "TIME UP!"; }
-                }
+                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}`;
+
+                // 直接更新新卡片中的实时时间
+                const statusClock = document.getElementById('status-live-clock');
+                if (statusClock) statusClock.textContent = timeStr;
+
+                // 如果原卡片还存在，也更新（兼容旧版）
+                const originalClock = document.getElementById('live-clock');
+                if (originalClock) originalClock.textContent = timeStr;
+
                 requestAnimationFrame(runLiveTimers);
             }
             runLiveTimers();
@@ -1474,9 +1666,50 @@
             updateVisitCount();
             updateRuntime();
             setTimeout(showPage, 200);
+            async function measureServerLatency() {
+                const start = performance.now();
+                try {
+                    // 选择 GitHub 的一个轻量 API 端点，返回纯文本，体积小，支持跨域
+                    await fetch('https://api.github.com/zen', { method: 'HEAD', cache: 'no-cache' });
+                    const latency = Math.round(performance.now() - start);
+                    document.getElementById('server-latency').innerText = `${latency} ms`;
+                } catch (e) {
+                    document.getElementById('server-latency').innerText = '测量失败';
+                }
+            }
+            measureServerLatency();
+
+            // 2. 计算本次页面加载用时
+            const pageStartTime = performance.timing ? performance.timing.navigationStart : performance.now();
+            window.addEventListener('load', () => {
+                const loadEnd = performance.timing ? performance.timing.loadEventEnd : performance.now();
+                const loadMs = Math.round(loadEnd - pageStartTime);
+                const loadTimeEl = document.getElementById('load-time');
+                if (loadTimeEl) loadTimeEl.innerText = `${loadMs} ms`;
+            });
             if (typeof loadLatestMoment === 'function') loadLatestMoment();
             lucide.createIcons();
+
+            const navEntry = performance.getEntriesByType('navigation')[0];
+            if (navEntry) {
+                document.getElementById('load-time').innerText = `${Math.round(navEntry.loadEventEnd - navEntry.startTime)} ms`;
+            } else {
+                // fallback
+                const loadTime = (performance.timing ? performance.timing.loadEventEnd - performance.timing.navigationStart : 0);
+                document.getElementById('load-time').innerText = `${loadTime} ms`;
+            }
         };
+
+        async function measureServerLatency() {
+            const start = performance.now();
+            try {
+                await window.db.from('site_config').select('key', { head: true, limit: 1 });
+                const latency = Math.round(performance.now() - start);
+                document.getElementById('server-latency').innerText = `${latency} ms`;
+            } catch (e) {
+                document.getElementById('server-latency').innerText = '测量失败';
+            }
+        }
 
         window.onclick = function (e) {
             const menu = document.getElementById('dropdown-menu');
