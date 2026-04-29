@@ -1100,7 +1100,7 @@
             onclick="event.stopPropagation();">
             <div class="moments-header">
                 <div class="moments-user">
-                    <img src="images/avatar.jpg" alt="头像" class="mini-avatar">
+                    <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg" alt="头像" class="mini-avatar">
                     <span class="nickname">Omen（Yitong）</span>
                 </div>
                 <span class="moments-time" id="moment-time">加载中...</span>
@@ -1386,7 +1386,7 @@
             const noticeEl = document.getElementById('notice-content');
             if (noticeEl) noticeEl.innerText = config.home_notice || '📢 欢迎来到 OMEN 的空间！';
             const avatarEl = document.querySelector('.avatar-box img');
-            if (avatarEl) avatarEl.src = config.home_avatar || 'images/avatar.jpg';
+            if (avatarEl) avatarEl.src = config.home_avatar || 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/avatar.jpg';
             const nameEl = document.querySelector('.profile-name');
             if (nameEl) nameEl.innerText = config.home_name || 'Omen';
         }
