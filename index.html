@@ -3,14 +3,17 @@
 <head>
     <script>
         (function() {
+            // 1. 检测是否为移动设备
             var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+            // 2. 设定跳转目标
             var target = isMobile ? '/m/index.html' : '/pc/index.html';
-            // 防止已经处在正确目录下还跳转
+            // 3. 【关键】检查是否已经在正确的目录，避免无限循环
             if (!window.location.pathname.startsWith(isMobile ? '/m/' : '/pc/')) {
                 window.location.replace(target);
             }
         })();
     </script>
+    <meta name="robots" content="noindex, follow">
 </head>
 <body>Redirecting...</body>
 </html>
