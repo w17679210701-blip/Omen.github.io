@@ -39,7 +39,7 @@
             height: 100%;
         }
 
-        /* 导航栏保持原样：左右 margin 16px，宽度自适应 */
+        /* 导航栏 */
         .timeline-header {
             flex-shrink: 0;
             margin: 16px 16px 0 16px;
@@ -60,11 +60,7 @@
         .timeline-header::after {
             display: none;
         }
-        .displacement-layer {
-            display: none;
-        }
 
-        /* 左侧按钮容器 - 顺序调整：返回按钮在前，菜单在后 */
         .left-buttons {
             display: flex;
             gap: 12px;
@@ -87,10 +83,14 @@
             color: #007aff;
         }
 
+        /* 标题区域：垂直居中，副标题跟随主标题下方 */
         .header-title {
             flex: 1;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             min-width: 0;
+            line-height: 1.2;
         }
         .header-title h1 {
             margin: 0;
@@ -107,18 +107,22 @@
         .header-title .sub {
             font-size: 0.7rem;
             opacity: 0.8;
-            display: inline-block;
+            display: block;
             margin-top: 2px;
             color: #666;
             cursor: pointer;
             background: transparent;
-            padding: 0 4px;
+            padding: 0;
             border-radius: 12px;
             transition: background 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .header-title .sub:hover {
             background: rgba(0,0,0,0.05);
         }
+
         .nav-group {
             display: flex;
             gap: 12px;
@@ -196,7 +200,7 @@
             fill: none;
         }
 
-        /* 主面板：移动端默认全宽，PC端宽度为屏幕宽度的 3/4（75%），居中显示 */
+        /* 主面板：移动端默认全宽，PC端宽度为屏幕宽度的 3/4 */
         .mode-panel {
             flex: 1;
             display: flex;
@@ -214,7 +218,6 @@
             display: none;
         }
 
-        /* PC 端仅修改对话框宽度，导航栏不受影响 */
         @media (min-width: 1024px) {
             .mode-panel {
                 width: 75%;
@@ -404,7 +407,6 @@
             max-height: 110px;
             padding: 8px 0;
         }
-
         .send-btn {
             background: #e6a017;
             border: none;
@@ -449,7 +451,7 @@
             display: inline-block;
         }
 
-        /* 弹窗样式统一 */
+        /* 弹窗样式 */
         .tokens-modal, .confirm-modal, .model-info-modal {
             position: fixed;
             inset: 0;
@@ -480,21 +482,9 @@
             margin: 12px 0 6px;
             font-size: 1rem;
         }
-        .tokens-modal-section {
-            margin-bottom: 16px;
-        }
         .tokens-modal-section ul {
             margin: 6px 0;
             padding-left: 20px;
-        }
-        .tokens-modal-section li {
-            margin: 6px 0;
-            line-height: 1.4;
-        }
-        .note {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 6px;
         }
         .tokens-modal-close, .confirm-modal-close {
             position: absolute;
@@ -517,9 +507,6 @@
             cursor: pointer;
             text-align: center;
         }
-        .tokens-modal-close-btn:hover, .confirm-modal-close-btn:hover {
-            background: #cc8b0e;
-        }
         .confirm-modal-buttons {
             display: flex;
             gap: 12px;
@@ -535,25 +522,11 @@
             font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
         }
         .confirm-modal-buttons button:first-child {
             background: #e6a017;
             color: white;
         }
-        .confirm-modal-buttons button:first-child:hover {
-            background: #cc8b0e;
-            transform: scale(0.96);
-        }
-        .confirm-modal-buttons button:last-child {
-            background: rgba(0, 0, 0, 0.05);
-            color: #333;
-        }
-        .confirm-modal-buttons button:last-child:hover {
-            background: rgba(0, 0, 0, 0.12);
-            transform: scale(0.96);
-        }
-
         .model-info-content h4 {
             margin: 0 0 10px 0;
             color: #e6a017;
@@ -575,7 +548,7 @@
             .left-buttons { gap: 8px; }
             .back-btn-inline, .nav-btn { width: 38px; height: 38px; }
             .header-title h1 { font-size: 1.1rem; }
-            .header-title .sub { font-size: 0.6rem; }
+            .header-title .sub { font-size: 0.6rem; margin-top: 1px; }
             .mode-switch-btn { padding: 4px 10px; font-size: 0.7rem; }
             .config-bar { padding: 6px 12px; gap: 6px; }
             .custom-select-trigger { font-size: 0.7rem; padding: 4px 24px 4px 10px; }
@@ -592,7 +565,6 @@
 <body>
 <div class="app-wrapper">
     <div class="timeline-header" id="timelineHeader">
-        <!-- 左侧按钮组：返回按钮在前，菜单按钮在后 -->
         <div class="left-buttons">
             <button class="back-btn-inline" onclick="history.back()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
             <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
@@ -761,10 +733,7 @@
     async function getGlobalTokens() { const {data,error} = await supabaseClient.from('global_token_stats').select('total_tokens').eq('id',1).single(); return data?.total_tokens||0; }
     async function addGlobalTokens(inc) { const {data,error} = await supabaseClient.rpc('increment_global_tokens',{inc}); return data; }
     async function updateTotalTokensDisplay() { const total = await getGlobalTokens(); document.getElementById('totalTokensDisplaySub').innerText = `累计消耗Tokens: ${total}`; }
-    function showTokensInfo(e) { 
-        if(e) e.stopPropagation();
-        document.getElementById('tokensInfoModal').style.display = 'flex'; 
-    }
+    function showTokensInfo(e) { if(e) e.stopPropagation(); document.getElementById('tokensInfoModal').style.display = 'flex'; }
     function closeTokensInfo() { document.getElementById('tokensInfoModal').style.display = 'none'; }
     document.addEventListener('DOMContentLoaded',()=>{ 
         updateTotalTokensDisplay(); 
@@ -772,8 +741,7 @@
         modal.querySelector('.tokens-modal-close').onclick=closeTokensInfo; 
         modal.querySelector('.tokens-modal-close-btn').onclick=closeTokensInfo; 
         modal.onclick=(e)=>e.target===modal&&closeTokensInfo();
-        const tokensSpan = document.getElementById('totalTokensDisplaySub');
-        tokensSpan.addEventListener('click', showTokensInfo);
+        document.getElementById('totalTokensDisplaySub').addEventListener('click', showTokensInfo);
     });
     function copyToClipboard(text) { navigator.clipboard.writeText(text); const toast = document.getElementById('copyToast'); toast.style.opacity='1'; setTimeout(()=>toast.style.opacity='0',1500); }
     function toggleMenu(e){ e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('active'); }
@@ -832,7 +800,7 @@
     cancelSwitchBtn.addEventListener('click', closeConfirmModal);
     confirmModal.addEventListener('click', (e) => { if(e.target === confirmModal) closeConfirmModal(); });
 
-    // ======================== 模式切换 ========================
+    // 模式切换
     let currentMode = 'chat';
     const chatPanel = document.getElementById('chatPanel');
     const translatePanel = document.getElementById('translatePanel');
@@ -847,31 +815,17 @@
     switchMode('chat');
     initAllCustomSelects();
 
-    // ======================== 聊天模式特有逻辑 ========================
+    // 聊天模式逻辑
     const chatModelSelect = document.getElementById('chatModelSelect');
     const chatUploadBtn = document.getElementById('chatUploadBtn');
     const chatWebSwitch = document.getElementById('chatWebSwitch');
-
     function isDeepSeekModel(modelValue) {
-        return modelValue === 'deepseek-ai/DeepSeek-V3.2' ||
-               modelValue === 'Pro/deepseek-ai/DeepSeek-R1' ||
-               modelValue === 'deepseek-v4-flash' ||
-               modelValue === 'deepseek-v4-pro';
+        return modelValue === 'deepseek-ai/DeepSeek-V3.2' || modelValue === 'Pro/deepseek-ai/DeepSeek-R1' || modelValue === 'deepseek-v4-flash' || modelValue === 'deepseek-v4-pro';
     }
-
     function updateButtonsByModel(modelValue) {
-        if (modelValue === 'Qwen/Qwen3-VL-32B-Instruct') {
-            chatUploadBtn.style.display = 'flex';
-        } else {
-            chatUploadBtn.style.display = 'none';
-        }
-        if (isDeepSeekModel(modelValue)) {
-            chatWebSwitch.style.display = 'flex';
-        } else {
-            chatWebSwitch.style.display = 'none';
-        }
+        chatUploadBtn.style.display = (modelValue === 'Qwen/Qwen3-VL-32B-Instruct') ? 'flex' : 'none';
+        chatWebSwitch.style.display = isDeepSeekModel(modelValue) ? 'flex' : 'none';
     }
-
     const modelInfoMap = {
         'deepseek-ai/DeepSeek-V3.2': { name: 'DeepSeek-V3.2', desc: '深度求索旗舰级大语言模型，面向日常问答、通用Agent任务及复杂推理场景优化。', features: ['架构创新', 'DeepSeek稀疏注意力', '开源策略'] },
         'Pro/deepseek-ai/DeepSeek-R1': { name: 'DeepSeek-R1 (推理模型)', desc: '开源推理大模型，在数学、编程和推理等多个任务上达到与OpenAI o1相当的水平，API调用成本降低90-95%。', features: ['推理深度增强', '编程能力', '幻觉率降低'] },
@@ -885,24 +839,12 @@
     function showModelInfo() {
         const selectedVal = chatModelSelect.value;
         const info = modelInfoMap[selectedVal] || modelInfoMap['deepseek-ai/DeepSeek-V3.2'];
-        modelInfoContent.innerHTML = `
-            <h4>${info.name}</h4>
-            <p>${info.desc}</p>
-            <p><strong>核心能力：</strong> ${info.features.join('、')}</p>
-            <p style="font-size:0.75rem; color:#666;">当前使用的模型版本</p>
-            <button class="close-model-btn" id="closeModelInfoBtn">关闭</button>
-        `;
+        modelInfoContent.innerHTML = `<h4>${info.name}</h4><p>${info.desc}</p><p><strong>核心能力：</strong> ${info.features.join('、')}</p><p style="font-size:0.75rem; color:#666;">当前使用的模型版本</p><button class="close-model-btn" id="closeModelInfoBtn">关闭</button>`;
         modelInfoModal.style.display = 'flex';
         document.getElementById('closeModelInfoBtn').onclick = () => modelInfoModal.style.display = 'none';
         modelInfoModal.onclick = (e) => { if(e.target === modelInfoModal) modelInfoModal.style.display = 'none'; };
     }
-
-    chatModelSelect.addEventListener('change', (e) => {
-        const newModel = e.target.value;
-        updateButtonsByModel(newModel);
-        showModelInfo();
-    });
-
+    chatModelSelect.addEventListener('change', (e) => { updateButtonsByModel(e.target.value); showModelInfo(); });
     updateButtonsByModel(chatModelSelect.value);
 
     const CHAT_API_KEY = 'sk-iahhchqxzvphecyejdjbaglhvoopfrzreuuvrnqeqtlwbmxm';
@@ -924,7 +866,6 @@
     const chatSendBtn = document.getElementById('chatSendBtn');
     const chatFileInput = document.getElementById('chatImageInput');
     const chatPreviewArea = document.getElementById('chatImagePreviewArea');
-
     function renderChatPreview() {
         chatPreviewArea.innerHTML = '';
         if(chatImages.length===0) { chatPreviewArea.style.display='none'; return; }
@@ -1037,16 +978,14 @@
     chatSendBtn.addEventListener('click', handleChatSend);
     chatInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); handleChatSend(); } });
     chatInput.addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,110)+'px'; });
-
     document.getElementById('chatModelInfoBtn').addEventListener('click', showModelInfo);
 
-    // ======================== 翻译模式 ========================
+    // 翻译模式
     const translateMsgArea = document.getElementById('translateMessagesArea');
     const translateInput = document.getElementById('translateInput');
     const translateSend = document.getElementById('translateSendBtn');
     const translateModeSel = document.getElementById('translateModeSelect');
     const styleSel = document.getElementById('styleSelect');
-
     function addTranslateMessage(role, content, isStreamPlaceholder=false) {
         const div = document.createElement('div'); div.className=`message ${role}`;
         const avatar = document.createElement('div'); avatar.className='avatar'; const img = document.createElement('img');
@@ -1062,7 +1001,6 @@
         div.appendChild(bubble); translateMsgArea.appendChild(div); translateMsgArea.scrollTop = translateMsgArea.scrollHeight;
         return {textSpan, messageDiv:div, bubble};
     }
-
     async function translateStream(text, mode, style) {
         const styleMap = {'口语':'日常口语','正式':'正式商务','学术':'学术论文风格','幽默':'幽默风格'};
         const styleInstr = styleMap[style]||'日常口语';
