@@ -383,12 +383,72 @@
 
     <!-- 更新日志内容 -->
     <div class="changelog-container">
-        <!-- ========== v2.1.4 今日更新（置于最顶部） ========== -->
+        <!-- ========== v2.3.31 最新更新（2026-04-30） ========== -->
+        <div class="version-card">
+            <div class="version-header">
+                <div class="version-tag">
+                    v2.3.31
+                    <span class="version-badge">最新</span>
+                </div>
+                <div class="version-date">2026-04-30</div>
+            </div>
+            <ul class="update-list">
+                <li>
+                    <span class="update-icon"><i data-lucide="bell-off"></i></span>
+                    <span class="update-text">移除主页公告栏及相关代码，页面更简洁。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="layers"></i></span>
+                    <span class="update-text">新增“三筒云”卡片，集成私人云盘、时光相册、Ωmen-Cloud 按钮（移除 Emby 影音）；卡片背景添加“三筒云”水印，按钮垂直居中。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="copy"></i></span>
+                    <span class="update-text">头像卡片内的朋友圈按钮、邮箱按钮改为点击直接复制（微信号 July1_Cnc_Y、邮箱 w17679210701@gmail.com），并显示气泡“复制成功”。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="image"></i></span>
+                    <span class="update-text">移除相册卡片、老版翻转时间卡片和时光照相馆卡片。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="activity"></i></span>
+                    <span class="update-text">新增系统状态卡片，展示实时时间、系统运行状态、网络延迟（百度图片测速）、本次加载用时、网站已运行时长、累计访问量。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="shield-plus"></i></span>
+                    <span class="update-text">私人云盘和 Ωmen-Cloud 按钮添加密码验证（密码：yt990701），验证通过后跳转。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="move"></i></span>
+                    <span class="update-text">顶部“技术栈 / 工具库 / AI”卡片跳转改为根目录下 `AI Space.html`。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="droplet"></i></span>
+                    <span class="update-text">朋友圈卡片和系统状态卡片添加水印背景（ETLOGOR.png / hxbg.webp），且设置 `overflow: hidden` 防止水印溢出圆角。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="star"></i></span>
+                    <span class="update-text">菜单栏左侧添加 Logo 按钮（自动旋转动画），增强品牌识别。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="smartphone"></i></span>
+                    <span class="update-text">优化主页在移动端的间距与布局，移除 PC 端自适应残留样式，仅保留移动端专用样式。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="wifi"></i></span>
+                    <span class="update-text">网络延迟测试改用百度 Logo 图片，避免跨域报错，结果更贴近国内网络环境。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="heart"></i></span>
+                    <span class="update-text">其他细节优化：调整头像卡片上外边距、移除冗余 CSS、修复实时时间不更新等问题。</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ========== v2.1.4 之前版本（保留） ========== -->
         <div class="version-card">
             <div class="version-header">
                 <div class="version-tag">
                     v2.1.4
-                    <span class="version-badge">最新</span>
                 </div>
                 <div class="version-date">2025-04-17</div>
             </div>
@@ -411,7 +471,7 @@
                 </li>
                 <li>
                     <span class="update-icon"><i data-lucide="zap"></i></span>
-                    <span class="update-text">翻译模型默认切换为 `deepseek-ai/DeepSeek-V2.5`），并保留流式输出、快速模型映射，提升翻译质量与响应速度，之前的腾讯混元翻译专用模型太垃圾了。</span>
+                    <span class="update-text">翻译模型默认切换为 `deepseek-ai/DeepSeek-V2.5`，并保留流式输出、快速模型映射，提升翻译质量与响应速度。</span>
                 </li>
                 <li>
                     <span class="update-icon"><i data-lucide="smartphone"></i></span>
@@ -420,7 +480,7 @@
             </ul>
         </div>
 
-        <!-- v2.1.3（移除“最新”徽章） -->
+        <!-- v2.1.3 -->
         <div class="version-card">
             <div class="version-header">
                 <div class="version-tag">v2.1.3</div>
@@ -450,7 +510,7 @@
             </ul>
         </div>
 
-        <!-- 版本 0.5.0 -->
+        <!-- 版本 2.0.46 -->
         <div class="version-card">
             <div class="version-header">
                 <div class="version-tag">v2.0.46</div>
@@ -472,7 +532,7 @@
             </ul>
         </div>
 
-        <!-- 版本 0.4.0 -->
+        <!-- 版本 1.1.58 -->
         <div class="version-card">
             <div class="version-header">
                 <div class="version-tag">v1.1.58</div>

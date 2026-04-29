@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>相册</title>
+    <link rel="stylesheet" href="css/common.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- 全局基础样式（浅色背景，与 moments 一致）--- */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            padding: 0 16px 50px 16px;
+        }
+
+        /* --- 导航栏（与 moments 完全一致）--- */
+        .timeline-header {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin: 0 0 24px 0;
+            background: transparent;
+            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
+            border-radius: 34px;
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            overflow: hidden;
+        }
+
+        .displacement-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 100%);
+            pointer-events: none;
+            transition: transform 0.05s linear;
+            z-index: 2;
+            border-radius: 0 0 34px 34px;
+        }
+
+        .displacement-layer::before,
+        .displacement-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 80%);
+            pointer-events: none;
+        }
+
+        .displacement-layer::before {
+            left: 0;
+            border-radius: 34px 0 0 0;
+        }
+
+        .displacement-layer::after {
+            right: 0;
+            border-radius: 0 34px 0 0;
+        }
+
+        /* .timeline-header:hover {
+            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
+        } */
+
+        .timeline-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            filter: blur(4px);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            transform: translateZ(-1px) scale(1.02);
+        }
+
+        .back-btn-inline,
+        .nav-btn {
+            background: rgba(120, 120, 128, 0.2);
+            backdrop-filter: blur(15px);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            flex-shrink: 0;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .back-btn-inline:hover,
+        .nav-btn:hover {
+            background: rgba(120, 120, 128, 0.35);
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn-inline svg,
+        .nav-btn svg {
+            stroke: currentColor;
+            width: 22px;
+            height: 22px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 4px;
+            color: #666;
+        }
+
+        /* 右侧按钮组（与左侧保持对称） */
+        .nav-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .timeline-header {
+                top: 12px;
+                margin-bottom: 16px;
+                padding: 8px 16px;
+                border-radius: 28px;
+            }
+
+            .back-btn-inline,
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .header-title h1 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 20px) + 80px);
+            left: calc(env(safe-area-inset-left, 20px) + 20px);
+            width: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            transform: scale(0.4) translate(-30px, -30px);
+            opacity: 0;
+            transform-origin: top left;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            transform: scale(1) translate(0, 0);
+            opacity: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 15px;
+            border-radius: 16px;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(128, 128, 128, 0.1);
+        }
+
+        /* 主内容容器 */
+        .container {
+            width: 100%;
+            max-width: 440px;
+             margin: 24px auto 0 auto;
+        }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-bottom: 2.5rem;
+        }
+
+        .album-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 28px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            transition: 0.4s;
+            cursor: pointer;
+            color: #1a1a1a;
+        }
+
+        .album-card:hover {
+            transform: translateY(-8px);
+            border-color: #ffcc00;
+        }
+
+        .album-card .icon i {
+            color: #ffcc00;
+        }
+
+        .album-card .name {
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .album-card .count {
+            font-size: 10px;
+            opacity: 0.5;
+            margin-top: 6px;
+        }
+
+        .photo-list {
+            column-count: 2;
+            column-gap: 12px;
+            padding-bottom: 5rem;
+        }
+
+        .photo-item {
+            break-inside: avoid;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .photo-item img {
+            width: 100%;
+            border-radius: 18px;
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+        }
+
+        /* 密码弹窗（适配浅色背景） */
+        #password-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+        }
+        #password-modal.flex { display: flex; }
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border: 1px solid #ffcc00;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            color: #1a1a1a;
+        }
+        #password-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* 上传模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            padding: 25px;
+            color: #1a1a1a;
+        }
+        .action-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 204, 0, 0.6);
+            border-radius: 40px;
+            padding: 12px 0;
+            font-weight: 600;
+            color: #ffcc00;
+            width: 100%;
+            cursor: pointer;
+            text-align: center;
+        }
+        textarea, select, input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            padding: 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+            color: #1a1a1a;
+        }
+
+        /* 全屏预览层 */
+        .photo-viewer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(25px);
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .photo-viewer.active { display: flex; }
+        #main-viewer-img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* 删除模式 */
+        body.delete-mode .album-card,
+        body.delete-mode .photo-item {
+            cursor: pointer;
+            filter: grayscale(0.5);
+            opacity: 0.8;
+        }
+        .album-card.selected,
+        .photo-item.selected {
+            outline: 3px solid #ff4d4d !important;
+            filter: grayscale(0) !important;
+            opacity: 1 !important;
+            transform: scale(0.98);
+        }
+        #delete-mode-btn.active {
+            background: #ff4d4d;
+            color: white;
+        }
+        #delete-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 60px;
+        }
+        #delete-bar {
+            background: #ff4d4d;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        #cancel-delete {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <div class="timeline-header" id="timelineHeader">
+        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
+        <button class="back-btn-inline" id="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <div class="header-title">
+            <h1>相册</h1>
+            <span class="sub" id="photo-subtitle">Cloud Photo Album</span>
+        </div>
+        <div class="nav-group">
+            <button class="nav-btn" id="upload-btn" onclick="openUploadModal()"><i data-lucide="plus"></i></button>
+            <button class="nav-btn" id="delete-mode-btn" onclick="toggleDeleteMode()"><i data-lucide="trash-2"></i></button>
+        </div>
+        <div class="displacement-layer"></div>
+    </div>
+
+    <!-- 下拉菜单 -->
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
+        <a href="moments.html" class="menu-item">
+            <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" />
+                <path d="M16.6357 6.63599L30.7779 20.7781" />
+                <path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" />
+                <path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" />
+                <path d="M24 31L42 31" />
+                <path d="M42.3643 16.636L28.2221 30.7781" />
+                <path d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+            </svg>
+            朋友圈
+        </a>
+        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+        <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
+        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
+        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a>
+    </div>
+
+    <!-- 相册分类视图 -->
+    <div id="category-view" class="container">
+        <div id="album-grid" class="album-grid"></div>
+    </div>
+
+    <!-- 密码弹窗 -->
+    <div id="password-modal">
+        <div class="modal-content">
+            <h3 style="color:#ffcc00; margin-top:0;">请输入访问密码</h3>
+            <input type="password" id="password-input" placeholder="******" maxlength="6">
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeModal()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#333; color:white;">取消</button>
+                <button onclick="submitPassword()" style="flex:1; padding:10px; border-radius:10px; border:none; background:#ffcc00; color:black; font-weight:bold;">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传模态框 -->
+    <div class="modal-overlay" id="upload-modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0; font-size: 20px; text-align:center">上传图片</h2>
+            <select id="upload-folder">
+                <option value="日常">日常</option>
+                <option value="猫">猫</option>
+                <option value="加密相册">加密相册</option>
+            </select>
+            <input type="file" id="upload-file" accept="image/*">
+            <textarea id="upload-description" rows="3" placeholder="描述（可选）"></textarea>
+            <button class="action-btn" onclick="handleUpload()">上传</button>
+            <div onclick="closeUploadModal()" style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.15); border-radius: 40px; padding: 10px 0; margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer;">取消</div>
+        </div>
+    </div>
+
+    <!-- 相册内照片列表视图 -->
+    <div id="photo-viewer-container" class="container hidden">
+        <h2 id="current-album-title" style="color:#ffcc00; text-align:center; margin-bottom:1.5rem; font-size: 1.4rem;"></h2>
+        <div id="photo-list" class="photo-list"></div>
+    </div>
+
+    <!-- 全屏预览 -->
+    <div id="global-photo-viewer" class="photo-viewer" onclick="closeViewer()">
+        <img id="main-viewer-img" src="">
+    </div>
+
+    <!-- 删除控制栏 -->
+    <div id="delete-controls" style="display: none;">
+        <div id="delete-bar" onclick="executeDelete()">确认删除 (<span id="delete-count">0</span>)</div>
+        <div id="cancel-delete" onclick="cancelDeleteMode()">取消</div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 导航栏动态阴影
+        const header = document.getElementById('timelineHeader');
+        let ticking = false;
+        function updateHeaderShadow() {
+            if (!header) return;
+            const scrollY = window.scrollY;
+            const wave = Math.sin(scrollY * 0.02) * 0.5 + 0.5;
+            const blur = 12 + wave * 16;
+            const yOffset = 4 + wave * 8;
+            const highlight = 0.7 + wave * 0.3;
+            header.style.boxShadow = `0 ${yOffset}px ${blur}px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, ${highlight}), inset 0 -1px 0 rgba(0, 0, 0, 0.05)`;
+            ticking = false;
+        }
+        window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(updateHeaderShadow); ticking = true; } });
+        updateHeaderShadow();
+
+        function initEdgeDistortion() {
+            const headerEl = document.querySelector('.timeline-header');
+            const layer = document.querySelector('.displacement-layer');
+            if (!headerEl || !layer) return;
+            let tick = false;
+            window.addEventListener('scroll', () => {
+                if (!tick) {
+                    requestAnimationFrame(() => {
+                        const i = (Math.sin(window.scrollY * 0.03) + 1) / 2;
+                        layer.style.transform = `translateY(${2 + i * 3}px)`;
+                        tick = false;
+                    });
+                    tick = true;
+                }
+            });
+        }
+        initEdgeDistortion();
+
+        // 菜单切换
+        function toggleMenu(e) {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('active');
+        }
+        window.onclick = (e) => {
+            const menu = document.getElementById('dropdown-menu');
+            const trigger = document.getElementById('menu-trigger');
+            if (menu && trigger && !trigger.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        };
+
+        // 返回按钮逻辑（相册列表 / 上一页）
+        const backBtn = document.getElementById('back-btn');
+        function updateBackButton() {
+            const isInAlbum = document.getElementById('photo-viewer-container') && 
+                !document.getElementById('photo-viewer-container').classList.contains('hidden') &&
+                document.getElementById('category-view').classList.contains('hidden');
+            if (isInAlbum) {
+                backBtn.onclick = () => showCategories();
+            } else {
+                backBtn.onclick = () => history.back();
+            }
+        }
+        backBtn.onclick = () => history.back();
+
+        // 加载相册数据
+        let OMEN_STATE = { currentFolder: "", allPhotos: {}, currentIndex: 0 };
+        const CONFIG = {
+            SecretId: 'AKID63lERP6XjnhPrAD0XnqdARSFm35sQipi',
+            SecretKey: 'g7IFwNXS9algMnytYy70f5E7g5FAqIVS',
+            Bucket: 'hiomen-1312408524',
+            Region: 'ap-guangzhou',
+            s: "OTkwNzAx",
+            albumList: ['日常', '猫', '加密相册'],
+            lockFolders: ['加密相册', 'hidden', 'private']
+        };
+        const cos = new COS({ SecretId: CONFIG.SecretId, SecretKey: CONFIG.SecretKey });
+
+        async function loadAlbums() {
+            const grid = document.getElementById('album-grid');
+            grid.innerHTML = `<p style="grid-column: span 2; text-align:center; opacity:0.3; padding:5rem 0;">LOADING GALLERY...</p>`;
+            const { data: photos, error } = await supabaseClient.from('photos').select('*');
+            if (!error && photos && photos.length > 0) {
+                const albumMap = {};
+                photos.forEach(photo => {
+                    const folder = photo.folder;
+                    if (!albumMap[folder]) albumMap[folder] = [];
+                    albumMap[folder].push(photo.url);
+                });
+                OMEN_STATE.allPhotos = albumMap;
+                renderAlbumCards(Object.keys(albumMap));
+            } else {
+                // 后备：从 COS 读取（兼容旧数据）
+                cos.getBucket({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Prefix: '' }, function (err, data) {
+                    if (err) return;
+                    const albumMap = {};
+                    CONFIG.albumList.forEach(name => albumMap[name] = []);
+                    (data.Contents || []).forEach(item => {
+                        if (item.Size > 0) {
+                            const parts = item.Key.split('/');
+                            const folderName = parts.length > 1 ? parts[0] : '默认相册';
+                            const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${item.Key}`;
+                            if (!albumMap[folderName]) albumMap[folderName] = [];
+                            albumMap[folderName].push(url);
+                        }
+                    });
+                    OMEN_STATE.allPhotos = albumMap;
+                    renderAlbumCards(Object.keys(albumMap));
+                });
+            }
+        }
+
+        function renderAlbumCards(folders) {
+            const grid = document.getElementById('album-grid');
+            const iconMap = { '日常': 'aperture', '猫': 'cat', '加密相册': 'shield-check' };
+            let html = folders.map(name => {
+                const iconName = iconMap[name] || 'folder-open';
+                return `<div onclick="handleEntry('${name}')" class="album-card" data-folder="${name}">
+                    <div class="icon"><i data-lucide="${iconName}" style="width:38px; height:38px; stroke-width:1.5px; color:#f5bc00;"></i></div>
+                    <div class="name">${name}</div>
+                    <div class="count">${(OMEN_STATE.allPhotos[name] || []).length} FILE</div>
+                </div>`;
+            }).join('');
+            grid.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function handleEntry(name) {
+            OMEN_STATE.currentFolder = name;
+            if (CONFIG.lockFolders.includes(name)) {
+                document.getElementById('password-modal').classList.add('flex');
+                document.getElementById('password-input').focus();
+            } else {
+                showPhotos(name);
+            }
+        }
+
+        function showPhotos(folderName) {
+            document.getElementById('category-view').classList.add('hidden');
+            document.getElementById('photo-viewer-container').classList.remove('hidden');
+            document.getElementById('current-album-title').innerText = folderName;
+            const list = document.getElementById('photo-list');
+            const photos = OMEN_STATE.allPhotos[folderName] || [];
+            list.innerHTML = photos.map((url, idx) => {
+                const key = url.split('.myqcloud.com/')[1];
+                return `<div class="photo-item" data-key="${key}" data-index="${idx}" onclick="handlePhotoClick(this, '${key}', ${idx})">
+                    <img src="${url}" loading="lazy">
+                </div>`;
+            }).join('');
+            window.scrollTo(0, 0);
+            updateBackButton();
+        }
+
+        function showCategories() {
+            document.getElementById('category-view').classList.remove('hidden');
+            document.getElementById('photo-viewer-container').classList.add('hidden');
+            updateBackButton();
+        }
+
+        function submitPassword() {
+            if (window.btoa(document.getElementById('password-input').value) === CONFIG.s) {
+                closeModal();
+                showPhotos(OMEN_STATE.currentFolder);
+            } else { alert("密码错误"); }
+        }
+        function closeModal() { document.getElementById('password-modal').classList.remove('flex'); }
+
+        // 上传功能
+        function openUploadModal() { document.getElementById('upload-modal').classList.add('active'); }
+        function closeUploadModal() { document.getElementById('upload-modal').classList.remove('active'); }
+        async function handleUpload() {
+            const folder = document.getElementById('upload-folder').value;
+            const file = document.getElementById('upload-file').files[0];
+            const description = document.getElementById('upload-description').value;
+            if (!file) { alert('请选择图片'); return; }
+            if (folder === '加密相册') {
+                const pw = prompt('请输入加密相册密码：');
+                if (!pw) return;
+                const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
+                if (!isCorrect) { alert('密码错误'); return; }
+            }
+            const timestamp = Date.now();
+            const ext = file.name.split('.').pop();
+            const key = `${folder}/${timestamp}.${ext}`;
+            cos.uploadFile({
+                Bucket: CONFIG.Bucket, Region: CONFIG.Region, Key: key, Body: file,
+                onProgress: (info) => console.log('上传进度', info.percent)
+            }, async (err, data) => {
+                if (err) { alert('上传失败：' + err.message); return; }
+                const url = `https://${CONFIG.Bucket}.cos.${CONFIG.Region}.myqcloud.com/${key}`;
+                const { error } = await supabaseClient.from('photos').insert({ folder, key, url, description });
+                if (error) { alert('保存失败：' + error.message); return; }
+                alert('上传成功！');
+                closeUploadModal();
+                loadAlbums();
+            });
+        }
+
+        // 删除模式
+        let isDeleteMode = false;
+        let selectedKeys = new Set();
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            const btn = document.getElementById('delete-mode-btn');
+            const controls = document.getElementById('delete-controls');
+            if (isDeleteMode) {
+                document.body.classList.add('delete-mode');
+                btn.classList.add('active');
+                selectedKeys.clear();
+                updateDeleteBar();
+                controls.style.display = 'flex';
+            } else {
+                document.body.classList.remove('delete-mode');
+                btn.classList.remove('active');
+                controls.style.display = 'none';
+                document.querySelectorAll('.photo-item').forEach(el => el.classList.remove('selected'));
+            }
+        }
+        function cancelDeleteMode() { toggleDeleteMode(); }
+        function updateDeleteBar() { document.getElementById('delete-count').innerText = selectedKeys.size; }
+        function handlePhotoClick(element, key, idx) {
+            if (!isDeleteMode) {
+                openViewer(idx);
+            } else {
+                if (selectedKeys.has(key)) {
+                    selectedKeys.delete(key);
+                    element.classList.remove('selected');
+                } else {
+                    selectedKeys.add(key);
+                    element.classList.add('selected');
+                }
+                updateDeleteBar();
+            }
+        }
+        async function executeDelete() {
+            const pw = prompt(`确定删除 ${selectedKeys.size} 张图片？请输入管理密码：`);
+            if (!pw) return;
+            const { data: isCorrect } = await supabaseClient.rpc('verify_admin', { input_pw: pw });
+            if (!isCorrect) { alert('密码错误'); return; }
+            const keysToDelete = Array.from(selectedKeys);
+            const deletePromises = keysToDelete.map(key => {
+                return new Promise((resolve, reject) => {
+                    cos.deleteObject({ Bucket: CONFIG.Bucket, Region: CONFIG.Region, Key: key }, (err, data) => {
+                        if (err) reject(err); else resolve(data);
+                    });
+                });
+            });
+            try {
+                await Promise.all(deletePromises);
+                const { error } = await supabaseClient.from('photos').delete().in('key', keysToDelete);
+                if (error) throw error;
+                alert('删除成功');
+                await loadAlbums();
+                if (OMEN_STATE.currentFolder) showPhotos(OMEN_STATE.currentFolder);
+                selectedKeys.clear();
+                if (isDeleteMode) toggleDeleteMode();
+            } catch (err) { alert('删除失败：' + err.message); }
+        }
+
+        // 全屏预览与滑动切换
+        function openViewer(index) {
+            const viewer = document.getElementById('global-photo-viewer');
+            const img = document.getElementById('main-viewer-img');
+            const photos = OMEN_STATE.allPhotos[OMEN_STATE.currentFolder];
+            OMEN_STATE.currentIndex = index;
+            img.src = photos[index];
+            viewer.style.display = 'flex';
+            setTimeout(() => viewer.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+        function closeViewer() {
+            const viewer = document.getElementById('global-photo-viewer');
+            viewer.classList.remove('active');
+            setTimeout(() => {
+                viewer.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+        let startX = 0;
+        function initViewerSwipe() {
+            const viewer = document.getElementById('global-photo-viewer');
+            viewer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+            viewer.addEventListener('touchend', (e) => {
+                const diff = e.changedTouches[0].clientX - startX;
+                if (Math.abs(diff) > 50) { diff > 0 ? switchPhoto(-1) : switchPhoto(1); }
+            }, { passive: true });
+        }
+        function switchPhoto(step) {
+            const photos = OMEN_STATE.allPhotos[OMEN_STATE.currentFolder];
+            let newIndex = OMEN_STATE.currentIndex + step;
+            if (newIndex >= 0 && newIndex < photos.length) {
+                const img = document.getElementById('main-viewer-img');
+                img.style.opacity = '0';
+                img.style.transform = step > 0 ? 'translateX(-20px)' : 'translateX(20px)';
+                setTimeout(() => {
+                    OMEN_STATE.currentIndex = newIndex;
+                    img.src = photos[newIndex];
+                    img.style.transform = step > 0 ? 'translateX(20px)' : 'translateX(-20px)';
+                    img.getBoundingClientRect();
+                    img.style.opacity = '1';
+                    img.style.transform = 'translateX(0)';
+                }, 200);
+            }
+        }
+
+        // 加载站点配置（副标题和公告）
+        async function loadSiteConfig() {
+            const { data, error } = await supabaseClient.from('site_config').select('key, value');
+            if (error) return;
+            const config = {};
+            data.forEach(item => config[item.key] = item.value);
+            const subtitleEl = document.getElementById('photo-subtitle');
+            if (subtitleEl) subtitleEl.innerText = config.photo_subtitle || '思想是作品的灵魂，尊重是它应得的回响';
+        }
+
+        window.onload = () => {
+            loadSiteConfig();
+            loadAlbums();
+            initViewerSwipe();
+            lucide.createIcons();
+        };
+    </script>
+    <script src="js/modal.js"></script>
+</body>
+
+</html>
