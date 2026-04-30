@@ -16,7 +16,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HI OMEN</title>
-    <link rel="icon" type="image/png" href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo1.png">
+    <link rel="icon" type="image/png"
+        href="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo1.png">
     <link rel="canonical" href="https://hiomen.cn/pc/index.html">
     <!-- 应用图标 -->
     <link rel="apple-touch-icon"
@@ -1327,6 +1328,7 @@
 
     <script>
         const pageStartTime = performance.timing ? performance.timing.navigationStart : Date.now();
+        const __START_TIME__ = performance.now();
         const html = document.documentElement;
         const body = document.body;
         const themeToggle = document.getElementById('theme-toggle');
@@ -1640,7 +1642,7 @@
         initEdgeDistortion();
 
         window.onload = () => {
-            measureLatencyWithBaidu();
+            measureLatency();
             loadSiteConfig();
             const loaderText = document.querySelector('.loader-text');
             if (loaderText) {
@@ -1687,31 +1689,23 @@
             // }
             measureServerLatency();
 
-            // 2. 计算本次页面加载用时
-            const pageStartTime = performance.timing ? performance.timing.navigationStart : performance.now();
-            window.addEventListener('load', () => {
-                const loadEnd = performance.timing ? performance.timing.loadEventEnd : performance.now();
-                const loadMs = Math.round(loadEnd - pageStartTime);
-                const loadTimeEl = document.getElementById('load-time');
-                if (loadTimeEl) loadTimeEl.innerText = `${loadMs} ms`;
-            });
             if (typeof loadLatestMoment === 'function') loadLatestMoment();
             lucide.createIcons();
 
-            const navEntry = performance.getEntriesByType('navigation')[0];
-            if (navEntry) {
-                document.getElementById('load-time').innerText = `${Math.round(navEntry.loadEventEnd - navEntry.startTime)} ms`;
-            } else {
-                // fallback
-                const loadTime = (performance.timing ? performance.timing.loadEventEnd - performance.timing.navigationStart : 0);
-                document.getElementById('load-time').innerText = `${loadTime} ms`;
-            }
-
+            // 计算页面加载总用时（毫秒）
+            const loadTime = Math.round(performance.now() - __START_TIME__);
+            const loadTimeEl = document.getElementById('load-time');
+            if (loadTimeEl) loadTimeEl.innerText = `${loadTime} ms`;
         };
 
-        // 使用百度图片测速（延迟）
-        function measureLatencyWithBaidu() {
-            const imgUrl = 'https://www.baidu.com/img/flexible/logo/pc/result.png'; // 百度 Logo 图片
+        // 使用国内高速 CDN 1x1 像素图片测速（更准确、更稳定）
+        function measureLatency() {
+            // 建议使用又拍云、七牛云或阿里云公共库的极小文件
+            // 这里使用 jsDelivr 上的 1x1 像素 gif（国内节点较快）
+            const imgUrl = 'https://cdn.jsdelivr.net/gh/apexskier/1x1@master/1x1.gif';
+            // 备选：也可以使用阿里云镜像的空白文件
+            // const imgUrl = 'https://g.alicdn.com/??.png';
+
             const start = performance.now();
             const img = new Image();
             let resolved = false;
@@ -1722,7 +1716,7 @@
                     const target = document.getElementById('network-latency');
                     if (target) target.innerText = '超时';
                 }
-            }, 5000); // 5秒超时
+            }, 5000);
 
             img.onload = () => {
                 if (resolved) return;
