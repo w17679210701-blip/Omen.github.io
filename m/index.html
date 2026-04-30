@@ -60,8 +60,7 @@
             align-items: center;
             font-family: system-ui, -apple-system, sans-serif;
             overflow-x: hidden;
-            padding: 0 20px 50px 20px;
-            /* 左右统一留白 20px */
+            padding: 0 12px 50px 12px;
             transition: background 0.8s ease, color 0.5s ease;
         }
 
@@ -77,21 +76,27 @@
         /* 导航栏容器 */
         .timeline-header {
             position: sticky;
-            top: 20px;
+            top: 12px;
             z-index: 101;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             background: transparent;
             backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
-            border-radius: 34px;
+            border-radius: 28px;
             border: 0.5px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
-            padding: 10px 20px;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
+            /* 改为 flex-start，不再让标题居中 */
             gap: 16px;
+            /* 缩小按钮与标题之间的间距 */
             flex-wrap: wrap;
             overflow: hidden;
+        }
+
+        .timeline-header a:last-child {
+            margin-left: auto;
         }
 
         .displacement-layer {
@@ -176,8 +181,9 @@
 
         /* 标题区域 */
         .header-title {
-            flex: 1;
-            text-align: center;
+            flex: 0 0 auto;
+            text-align: left;
+            margin-left: -2px;
         }
 
         .header-title h1 {
@@ -196,30 +202,6 @@
             display: block;
             margin-top: 4px;
             color: #666;
-        }
-
-        /* 手机端适配 */
-        @media (max-width: 768px) {
-            body {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
-            .timeline-header {
-                top: 12px;
-                margin-bottom: 12px;
-                padding: 8px 16px;
-                border-radius: 28px;
-            }
-
-            .nav-btn {
-                width: 40px;
-                height: 40px;
-            }
-
-            .header-title h1 {
-                font-size: 1.2rem;
-            }
         }
 
         /* --- 2. 核心翻转容器 --- */
@@ -323,19 +305,21 @@
             font-family: 'SF Mono', 'JetBrains Mono', monospace;
             font-size: 14px;
             color: #1a1a1a;
-            background: rgba(0, 0, 0, 0.03);
+            /* background: rgba(0, 0, 0, 0.03); */
             padding: 4px 10px;
             border-radius: 20px;
             display: inline-block;
             min-width: 100px;
-            text-align: center;
+            text-align: right;
         }
 
         /* 特殊状态标识 - 在线圆点 */
         .system-status {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 6px;
+            width: 10%;
         }
 
         .system-status::before {
@@ -364,7 +348,7 @@
         .latency-value,
         .load-value {
             font-weight: 700;
-            color: #900207;
+            color: #2ecc71;
         }
 
         .glass-card {
@@ -854,13 +838,6 @@
             z-index: 2 !important;
         }
 
-        @media (max-width: 480px) {
-            .modal-content {
-                width: 85%;
-                padding: 20px;
-            }
-        }
-
         #loader {
             transition: opacity 0.5s ease, visibility 0.5s ease !important;
             background: rgba(10, 10, 10, 0.9);
@@ -954,22 +931,14 @@
         .ai-text {
             font-size: 1.3rem;
             font-weight: 600;
-            white-space: nowrap;
+            white-space: normal;
             color: #ffffff;
             letter-spacing: 2px;
             position: relative;
             z-index: 2;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        /* 移动端适配：防止文字换行问题 */
-        @media (max-width: 560px) {
-            .ai-text {
-                font-size: 2rem;
-                white-space: normal;
-                text-align: center;
-                padding: 0 12px;
-            }
+            text-align: center;
+            padding: 0 12px;
         }
 
         /* 三筒云卡片 */
@@ -1113,11 +1082,6 @@
             <h1>主页</h1>
             <span class="sub">想骑摩托想到发疯</span>
         </div>
-        <a href="index.html" class="nav-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z" />
-            </svg>
-        </a>
         <div class="displacement-layer"></div>
     </div>
     <div id="loader">
@@ -1125,27 +1089,6 @@
     </div>
     <!-- 下拉菜单 -->
     <div class="dropdown-menu" id="dropdown-menu">
-        <!-- <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a> -->
-        <!-- <a href="moments.html" class="menu-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 48 48" fill="none"
-                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path
-                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
-                <path d="M31 7V24" />
-                <path d="M16.6357 6.63599L30.7779 20.7781" />
-                <path d="M7 17H24" />
-                <path d="M20.3643 17.636L6.22212 31.7781" />
-                <path d="M17 25V42" />
-                <path d="M17.6357 27.636L31.7779 41.7781" />
-                <path d="M24 31L42 31" />
-                <path d="M42.3643 16.636L28.2221 30.7781" />
-                <path
-                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
-            </svg>
-            朋友圈
-        </a> -->
-        <!-- <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a> -->
-        <!-- <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a> -->
         <a href="tools.html" class="menu-item"><i data-lucide="link" size="18"></i>导航站</a>
         <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台</a>
         <a href="log.html" class="menu-item"><i data-lucide="file-text" size="18"></i>log</a>
@@ -1262,7 +1205,105 @@
             </div>
         </div>
 
-        <!-- 科幻粒子卡片（AI 入口） -->
+        <!-- 系统状态卡片（新样式） -->
+        <div class="glass-card system-status-card">
+            <div class="status-grid">
+                <!-- 实时时间 -->
+                <div class="status-row">
+                    <span class="status-label">
+                        <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                            <path d="M7 4H41" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M7 44H41" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M11 44C13.6667 30.6611 18 23.9944 24 24C30 24.0056 34.3333 30.6722 37 44H11Z"
+                                fill="none" stroke="#333" stroke-width="4" stroke-linejoin="round" />
+                            <path d="M37 4C34.3333 17.3389 30 24.0056 24 24C18 23.9944 13.6667 17.3278 11 4H37Z"
+                                fill="none" stroke="#333" stroke-width="4" stroke-linejoin="round" />
+                            <path d="M21 15H27" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M19 38H29" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        实时时间
+                    </span>
+                    <span class="status-value" id="status-live-clock">--:--:--</span>
+                </div>
+                <!-- 系统运行状态 -->
+                <div class="status-row">
+                    <span class="status-label">
+                        <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/%E7%B4%A0%E6%9D%90/logo1.png"
+                            width="20" height="20"
+                            style="display: inline-block; vertical-align: middle; margin-right: 6px; border-radius: 0;"
+                            alt="">
+                        系统运行状态
+                    </span>
+                    <span class="status-value system-status" id="system-status">在线</span>
+                </div>
+                <!-- 本次加载用时 -->
+                <div class="status-row">
+                    <span class="status-label">
+                        <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                            <path
+                                d="M34.0234 6.68921C31.0764 4.97912 27.6525 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 20.3727 43.0344 16.9709 41.3461 14.0377"
+                                stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M31.9498 16.0503C31.9498 16.0503 28.5621 25.0948 27.0001 26.6569C25.438 28.219 22.9053 28.219 21.3432 26.6569C19.7811 25.0948 19.7811 22.5621 21.3432 21C22.9053 19.4379 31.9498 16.0503 31.9498 16.0503Z"
+                                fill="none" stroke="#333" stroke-width="4" stroke-linejoin="round" />
+                        </svg>
+                        本次加载用时
+                    </span>
+                    <span class="status-value load-value" id="load-time">计算中...</span>
+                </div>
+                <!-- 网站已运行 -->
+                <div class="status-row">
+                    <span class="status-label">
+                        <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                            <path d="M5.81836 6.72729V14H13.0911" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M4 24C4 35.0457 12.9543 44 24 44V44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C16.598 4 10.1351 8.02111 6.67677 13.9981"
+                                stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M24.005 12L24.0038 24.0088L32.4832 32.4882" stroke="#333" stroke-width="4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        网站已运行
+                    </span>
+                    <span class="status-value" id="status-runtime">0天 00时 00分 00秒</span>
+                </div>
+                <!-- 累计访问量 -->
+                <div class="status-row">
+                    <span class="status-label">
+                        <svg width="20" height="20" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                            <path
+                                d="M24.7778 7C13.7321 7 4.77783 15.9543 4.77783 27C4.77783 32.2301 6.49127 37.4362 9.77783 41H39.7778C43.0644 37.4362 44.7778 32.2301 44.7778 27C44.7778 15.9543 35.8235 7 24.7778 7Z"
+                                stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="24.7778" cy="30" r="4" fill="none" stroke="#333" stroke-width="4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M24.7778 20V26" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M24.7778 12V14" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M9.77783 28H11.7778" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M13.7778 18L15.192 19.4142" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M37.7778 28H39.7778" stroke="#333" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M34.7778 19.4141L36.192 17.9998" stroke="#333" stroke-width="4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        累计访问量
+                    </span>
+                    <span class="status-value" id="status-visit-count">--</span>
+                </div>
+            </div>
+        </div>
+
         <div class="ai-card" id="aiCard" onclick="window.location.href='AI Space.html'">
             <div class="ai-text">✨ 二筒AI机器人 ✨</div>
         </div>
@@ -1285,35 +1326,6 @@
             </div>
         </a>
 
-        <!-- 系统状态卡片（新样式） -->
-        <div class="glass-card system-status-card">
-            <div class="status-grid">
-                <div class="status-row">
-                    <span class="status-label">🕒 实时时间</span>
-                    <span class="status-value" id="status-live-clock">--:--:--</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">⚙️ 系统运行状态</span>
-                    <span class="status-value system-status" id="system-status">在线</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">📶 网络延迟 (Cloudflare)</span>
-                    <span class="status-value" id="network-latency">未测</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">⏱️ 本次加载用时</span>
-                    <span class="status-value load-value" id="load-time">计算中...</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">📅 网站已运行</span>
-                    <span class="status-value" id="status-runtime">0天 00时 00分 00秒</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">👀 累计访问量</span>
-                    <span class="status-value" id="status-visit-count">--</span>
-                </div>
-            </div>
-        </div>
         <!-- 三筒云卡片 -->
         <div class="glass-card santong-cloud-card">
             <div class="cloud-buttons">
@@ -1642,7 +1654,7 @@
         initEdgeDistortion();
 
         window.onload = () => {
-            measureLatency();
+
             loadSiteConfig();
             const loaderText = document.querySelector('.loader-text');
             if (loaderText) {
@@ -1672,22 +1684,6 @@
             updateVisitCount();
             updateRuntime();
             setTimeout(showPage, 200);
-            // 测量到 GitHub 仓库的延迟（通过请求 raw 文件）
-            // async function measureServerLatency() {
-            //     const fileUrl = 'https://github.com/w17679210701-blip/Omen.github.io.git/ping.txt';
-            //     const start = performance.now();
-            //     try {
-            //         const response = await fetch(fileUrl, { cache: 'no-cache' });
-            //         if (!response.ok) throw new Error();
-            //         // 读取部分字节即可（可选，不读取也可完成请求）
-            //         await response.blob(); // 强制完成下载
-            //         const latency = Math.round(performance.now() - start);
-            //         document.getElementById('server-latency').innerText = `${latency} ms`;
-            //     } catch (e) {
-            //         document.getElementById('server-latency').innerText = '测量失败';
-            //     }
-            // }
-            measureServerLatency();
 
             if (typeof loadLatestMoment === 'function') loadLatestMoment();
             lucide.createIcons();
@@ -1698,84 +1694,7 @@
             if (loadTimeEl) loadTimeEl.innerText = `${loadTime} ms`;
         };
 
-        // 使用国内高速 CDN 1x1 像素图片测速（更准确、更稳定）
-        function measureLatency() {
-            // 建议使用又拍云、七牛云或阿里云公共库的极小文件
-            // 这里使用 jsDelivr 上的 1x1 像素 gif（国内节点较快）
-            const imgUrl = 'https://cdn.jsdelivr.net/gh/apexskier/1x1@master/1x1.gif';
-            // 备选：也可以使用阿里云镜像的空白文件
-            // const imgUrl = 'https://g.alicdn.com/??.png';
 
-            const start = performance.now();
-            const img = new Image();
-            let resolved = false;
-
-            const timeout = setTimeout(() => {
-                if (!resolved) {
-                    resolved = true;
-                    const target = document.getElementById('network-latency');
-                    if (target) target.innerText = '超时';
-                }
-            }, 5000);
-
-            img.onload = () => {
-                if (resolved) return;
-                resolved = true;
-                clearTimeout(timeout);
-                const latency = Math.round(performance.now() - start);
-                const target = document.getElementById('network-latency');
-                if (target) target.innerText = `${latency} ms`;
-            };
-            img.onerror = () => {
-                if (resolved) return;
-                resolved = true;
-                clearTimeout(timeout);
-                const target = document.getElementById('network-latency');
-                if (target) target.innerText = '加载失败';
-            };
-            // 加随机参数避免缓存
-            img.src = imgUrl + '?t=' + Date.now();
-        }
-
-        async function measureServerLatency() {
-            const start = performance.now();
-            try {
-                await window.db.from('site_config').select('key', { head: true, limit: 1 });
-                const latency = Math.round(performance.now() - start);
-                document.getElementById('server-latency').innerText = `${latency} ms`;
-            } catch (e) {
-                document.getElementById('server-latency').innerText = '测量失败';
-            }
-        }
-
-        //         // 测速辅助函数：下载一个已知大小的文件（5MB），计算速度和延迟
-        //         async function runNetworkTest() {
-        //             const testUrl = 'https://speed.cloudflare.com/__down?bytes=5000000';  // 5MB 文件
-        //             const startTime = performance.now();
-
-        //             try {
-        //                 // 1. 发送 HEAD 请求测延迟（实际发起的 TCP 连接延迟）
-        //                 const latencyStart = performance.now();
-        //                 await fetch(testUrl, { method: 'HEAD', cache: 'no-cache' });
-        //                 const latency = Math.round(performance.now() - latencyStart);
-        // const target = document.getElementById('network-latency');
-        // if (target) target.innerText = `${latency} ms`;
-        //                 // 2. 下载文件测速度
-        //                 const downloadStart = performance.now();
-        //                 const response = await fetch(testUrl, { cache: 'no-cache' });
-        //                 const data = await response.arrayBuffer();
-        //                 const downloadEnd = performance.now();
-        //                 const duration = (downloadEnd - downloadStart) / 1000;  // 秒
-        //                 const bytes = data.byteLength;
-        //                 const mbps = (bytes * 8) / duration / 1e6;
-        //                 const speedMbps = Math.round(mbps * 100) / 100;
-        //                 document.getElementById('net-speed').innerHTML = `${speedMbps} Mbps`;
-        //             } catch (err) {
-        //                 document.getElementById('net-latency').innerText = '失败';
-        //                 document.getElementById('net-speed').innerHTML = '不可测';
-        //                 console.error('测速失败:', err);
-        //             }
-        //         }
 
         window.onclick = function (e) {
             const menu = document.getElementById('dropdown-menu');
@@ -1783,34 +1702,6 @@
                 menu.classList.remove('active');
             }
         };
-
-        // async function measureLatency() {
-        //     const url = 'https://cloudflare.com/cdn-cgi/trace';  // 极小的文本响应，支持跨域
-        //     const start = performance.now();
-        //     try {
-        //         await fetch(url, { method: 'HEAD', cache: 'no-cache' });
-        //         const latency = Math.round(performance.now() - start);
-        //         return latency;
-        //     } catch (e) {
-        //         return null;
-        //     }
-        // }
-
-        // async function measureBandwidth() {
-        //     const url = 'https://speed.cloudflare.com/__down?bytes=500000';  // 0.5 MB
-        //     const start = performance.now();
-        //     try {
-        //         const response = await fetch(url, { cache: 'no-cache' });
-        //         const data = await response.arrayBuffer();
-        //         const duration = performance.now() - start;  // 单位 ms
-        //         const bytes = data.byteLength;               // 实际下载字节数
-        //         const bits = bytes * 8;
-        //         const mbps = (bits / (duration / 1000)) / 1e6;
-        //         return Math.round(mbps * 100) / 100;        // 保留两位小数
-        //     } catch (e) {
-        //         return null;
-        //     }
-        // }
     </script>
 </body>
 
