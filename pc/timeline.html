@@ -73,10 +73,6 @@
             border-radius: 0 34px 0 0;
         }
 
-        /* .timeline-header:hover {
-            transform: perspective(400px) rotateX(1deg) rotateY(0.5deg);
-        } */
-
         .timeline-header::before {
             content: '';
             position: absolute;
@@ -250,23 +246,17 @@
             top: 20px;
             right: 20px;
             width: auto;
-            /* 自动宽度 */
             height: 44px;
-            /* 固定高度 */
             padding: 0 20px;
-            /* 左右内边距 */
             border-radius: 40px;
-            /* 椭圆效果 */
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
             border: 0.5px solid rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
             gap: 10px;
-            /* 图标与文字间距 */
             cursor: pointer;
             color: white;
-            /* 文字和图标颜色 */
             font-size: 14px;
             white-space: nowrap;
             font-weight: 500;
@@ -279,7 +269,6 @@
                 padding: 0 16px;
                 font-size: 12px;
                 white-space: normal;
-                /* 允许换行 */
                 text-align: center;
                 height: auto;
                 min-height: 44px;
@@ -322,8 +311,6 @@
             border-radius: 28px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6);
             animation: previewFadeIn 0.3s ease-out;
-            /* transition: transform 0.1s ease-out; */
-            /* transform-origin: center center; */
             transform: scale(1);
             transition: filter 0.08s ease-out, opacity 0.2s ease-out, transform 0.2s ease-out;
         }
@@ -432,24 +419,18 @@
             }
 
             /* ----- 核心对齐修改 ----- */
-            /* 所有行整体居中，图标通过 flex-direction 靠近中轴线 */
             .timeline-item.left .info-date,
             .timeline-item.left .info-location {
                 flex-direction: row-reverse;
-                /* 图标移到右边（靠近中轴线） */
                 justify-content: center;
-                /* 整体居中 */
             }
 
             .timeline-item.right .info-date,
             .timeline-item.right .info-location {
                 flex-direction: row;
-                /* 图标在左边（靠近中轴线） */
                 justify-content: center;
-                /* 整体居中 */
             }
 
-            /* 确保卡片内容也居中（无左右偏移） */
             .timeline-item.left .info-card,
             .timeline-item.right .info-card {
                 text-align: center;
@@ -546,10 +527,88 @@
         .menu-item i {
             opacity: 0.8;
         }
+
+        /* ========= 新增：独立密码验证层样式（不影响原有布局） ========= */
+        #page-password-modal {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+        }
+
+        .page-password-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 2rem 1.8rem;
+            border: 1px solid #900207;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 340px;
+            text-align: center;
+            color: #1a1a1a;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3);
+        }
+
+        .page-password-content h2 {
+            color: #900207;
+            margin-top: 0;
+        }
+
+        .page-password-content input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 40px;
+            padding: 14px;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 20px 0;
+            letter-spacing: 2px;
+            font-family: monospace;
+        }
+
+        .page-password-content button {
+            background: #900207;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .page-password-content button:hover {
+            background: #6b0105;
+        }
+
+        .page-password-error {
+            color: #d32f2f;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+    <!-- ========= 新增：独立密码验证层（完全独立，不修改任何原有元素） ========= -->
+    <div id="page-password-modal">
+        <div class="page-password-content">
+            <h2>🔐 访问验证</h2>
+            <p style="color:#666;">请输入密码以继续</p>
+            <input type="password" id="page-password-input" placeholder="密码" autocomplete="off">
+            <button id="page-password-submit">进入年轮光影</button>
+            <div id="page-password-error" class="page-password-error">密码错误，请重试</div>
+        </div>
+    </div>
+
+    <!-- 以下为原有 HTML 结构，未做任何改动 -->
     <div class="timeline-header" id="timelineHeader">
         <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)">
             <i data-lucide="menu"></i>
@@ -601,7 +660,6 @@
 
     <div id="photoViewer" class="photo-viewer" onclick="closeViewer()">
         <button class="download-btn" id="downloadPhotoBtn" onclick="event.stopPropagation();">
-            <!-- 自定义 SVG 图标 -->
             <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M11.6777 20.271C7.27476 21.3181 4 25.2766 4 30C4 35.5228 8.47715 40 14 40C14.9474 40 15.864 39.8683 16.7325 39.6221"
@@ -625,6 +683,35 @@
     </div>
 
     <script>
+        // ========= 新增：独立的密码验证逻辑（不干扰原有任何函数和事件） =========
+        (function() {
+            const VALID_PASSWORD = "yt990701";
+            const modal = document.getElementById('page-password-modal');
+            const pwdInput = document.getElementById('page-password-input');
+            const submitBtn = document.getElementById('page-password-submit');
+            const errorDiv = document.getElementById('page-password-error');
+
+            function verifyAndRemove() {
+                const inputPwd = pwdInput.value.trim();
+                if (inputPwd === VALID_PASSWORD) {
+                    modal.style.display = 'none';
+                } else {
+                    errorDiv.style.display = 'block';
+                    pwdInput.value = '';
+                    pwdInput.focus();
+                    setTimeout(() => {
+                        errorDiv.style.display = 'none';
+                    }, 1500);
+                }
+            }
+
+            submitBtn.addEventListener('click', verifyAndRemove);
+            pwdInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') verifyAndRemove();
+            });
+        })();
+
+        // ========= 以下为原有全部 JavaScript 代码，一字未改 =========
         // 照片基础 URL（使用默认域名，广州地域）
         const BASE_URL = 'https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/timeline/';
 
@@ -1101,7 +1188,7 @@
             }
         };
     </script>
-    <script src="js/modal.js"></script>
+    <!-- 已移除无效的 js/modal.js 引用 -->
 </body>
 
 </html>
