@@ -994,6 +994,62 @@
             background: rgba(0, 0, 0, 0.05);
         }
 
+        /* AI短片作品卡片（六筒剧场） */
+        .ai-film-card {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px !important;
+            /* 与 glass-card 一致 */
+        }
+
+        .ai-film-card::after {
+            content: "六筒剧场";
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #900207;
+            opacity: 0.12;
+            pointer-events: none;
+            white-space: nowrap;
+            font-family: system-ui, -apple-system, sans-serif;
+            z-index: 0;
+        }
+
+        .ai-film-card .cloud-buttons {
+            display: flex;
+            justify-content: flex-start;
+            position: relative;
+            z-index: 1;
+            gap: 12px;
+        }
+
+        .ai-film-card .cloud-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border: 0.5px solid rgba(0, 0, 0, 0.08);
+            border-radius: 60px;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            width: auto;
+            max-width: none;
+        }
+
+        .ai-film-card .cloud-btn:active {
+            transform: scale(0.96);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
         /* 复制成功气泡提示 */
         .copy-toast {
             position: fixed;
@@ -1335,6 +1391,14 @@
                     Ωmen-Cloud</div>
             </div>
         </div>
+
+        <!-- AI短片作品卡片（六筒剧场） -->
+        <div class="glass-card ai-film-card">
+            <div class="cloud-buttons">
+                <div class="cloud-btn" onclick="location.href='AITV.html'">AI短片作品-《好孩子》</div>
+            </div>
+        </div>
+
     </div>
     </div>
 
