@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI短片 · 绝世好猫</title>
+    <!-- Lucide 图标库 (用于菜单图标) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+            color: #1e293b;
+            padding: 20px 16px 50px 16px;
+        }
+
+        /* ----- 导航栏 (仿 moments 风格，仅左侧菜单+返回+标题) ----- */
+        .timeline-header {
+            position: sticky;
+            top: 20px;
+            z-index: 200;
+            background: transparent;
+            backdrop-filter: blur(30px) saturate(120%) brightness(0.9);
+            border-radius: 34px;
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .timeline-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            filter: blur(4px);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            transform: translateZ(-1px) scale(1.02);
+        }
+
+        .back-btn-inline,
+        .nav-btn {
+            background: rgba(120, 120, 128, 0.2);
+            backdrop-filter: blur(15px);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            flex-shrink: 0;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .back-btn-inline:hover,
+        .nav-btn:hover {
+            background: rgba(120, 120, 128, 0.35);
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn-inline svg,
+        .nav-btn svg {
+            stroke: currentColor;
+            width: 22px;
+            height: 22px;
+        }
+
+        .header-title {
+            flex: 0 1 auto;
+            text-align: left;
+            margin-right: auto;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header-title .sub {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            display: block;
+            margin-top: 4px;
+            color: #333;
+        }
+
+        /* 下拉菜单 (模仿原版朋友圈菜单，可复用) */
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 20px) + 80px);
+            left: calc(env(safe-area-inset-left, 20px) + 20px);
+            width: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            transform: scale(0.4) translate(-30px, -30px);
+            opacity: 0;
+            transform-origin: top left;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            transform: scale(1) translate(0, 0);
+            opacity: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 15px;
+            border-radius: 16px;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(128, 128, 128, 0.1);
+        }
+
+        /* ----- 短剧展示内容区域 (卡片风格，简洁) ----- */
+        .showcase-card {
+            max-width: 800px;
+            margin: 0 auto;
+            transform: translateY(20px);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 1.5rem;
+        }
+
+        .video-wrapper {
+            border-radius: 1.2rem;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 1.5rem;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16 / 9;
+            object-fit: contain;
+            background: #0f172a;
+        }
+
+        .work-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+        }
+
+        .synopsis {
+            font-size: 1rem;
+            line-height: 1.55;
+            color: #334155;
+            margin-bottom: 1.8rem;
+            border-left: 3px solid #3b82f6;
+            padding-left: 1rem;
+            background: #f8fafc;
+            border-radius: 0 12px 12px 0;
+            white-space: pre-wrap;
+        }
+
+        .related-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1e293b;
+        }
+
+        .single-image {
+            margin-top: 0.5rem;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+            background: #f1f5f9;
+        }
+
+        .single-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.2s ease;
+        }
+
+        .single-image img:hover {
+            transform: scale(1.01);
+        }
+
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .img-card {
+            flex: 1;
+            min-width: 150px;
+            background: #f1f5f9;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .img-card img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            display: block;
+        }
+
+        .img-caption {
+            padding: 0.5rem;
+            font-size: 0.7rem;
+            text-align: center;
+            color: #475569;
+            background: white;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 0 12px 30px 12px;
+            }
+
+            .showcase-card {
+                padding: 1rem;
+            }
+
+            .work-title {
+                font-size: 1.5rem;
+            }
+
+            .image-grid {
+                flex-direction: column;
+            }
+
+            .timeline-header {
+                padding: 6px 14px;
+                margin-bottom: 16px;
+            }
+
+            .back-btn-inline,
+            .nav-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .header-title h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 顶部导航栏：仅左侧菜单按钮、返回按钮、标题 (完全符合用户要求) -->
+    <div class="timeline-header" id="timelineHeader">
+        <button class="nav-btn" id="menu-trigger" onclick="toggleMenu(event)"><i data-lucide="menu"></i></button>
+        <button class="back-btn-inline" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <div class="header-title">
+            <h1>AI短片作品</h1>
+            <span class="sub">AITV</span>
+        </div>
+        <div class="displacement-layer"
+            style="position: absolute; bottom:0; left:0; right:0; height:6px; background: linear-gradient(to top, rgba(0,0,0,0.08), transparent); pointer-events: none;">
+        </div>
+    </div>
+
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="index.html" class="menu-item"><i data-lucide="home" size="18"></i>主页</a>
+        <!-- <a href="moments.html" class="menu-item">
+            <svg width="25" height="25" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3">
+                <path
+                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" />
+                <path d="M31 7V24" />
+                <path d="M16.6357 6.63599L30.7779 20.7781" />
+                <path d="M7 17H24" />
+                <path d="M20.3643 17.636L6.22212 31.7781" />
+                <path d="M17 25V42" />
+                <path d="M17.6357 27.636L31.7779 41.7781" />
+                <path d="M24 31L42 31" />
+                <path d="M42.3643 16.636L28.2221 30.7781" />
+                <path
+                    d="M24 31C27.866 31 31 27.866 31 24C31 20.134 27.866 17 24 17C20.134 17 17 20.134 17 24C17 27.866 20.134 31 24 31Z" />
+            </svg>
+            朋友圈
+        </a>
+        <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a> -->
+        <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
+        <!-- <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
+        <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
+        <a href="test.html" class="menu-item"><i data-lucide="flask-conical" size="18"></i>TEST</a> -->
+    </div>
+
+    <div class="showcase-card">
+        <!-- 视频区 -->
+        <div class="video-wrapper">
+            <video controls preload="metadata"
+                poster="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E5%88%9B%E4%BD%9C%E7%B4%A0%E6%9D%90/%E5%B0%8F%E7%8C%AB%E5%9C%A8%E5%9C%B0%E4%B8%8A2.png">
+                <source
+                    src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E6%88%90%E7%89%87/%E4%B8%83%E7%AD%92%E5%BE%81%E5%A9%9A.mp4"
+                    type="video/mp4">
+                您的浏览器不支持 HTML5 视频。
+            </video>
+        </div>
+
+        <!-- 标题 -->
+        <h1 class="work-title">🎬 《绝世好猫》</h1>
+
+        <!-- 简介 -->
+        <div class="synopsis">
+            完成时间：2026年9月10日
+            AI制作，仅供娱乐
+            创作灵感突发，并不是真的要征婚啊喂
+        </div>
+
+        <!-- 相关图片区域 -->
+        <div class="related-title">
+            📸 创作相关
+        </div>
+        <div class="single-image">
+            <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E5%88%9B%E4%BD%9C%E7%B4%A0%E6%9D%90/%E5%B0%8F%E7%8C%AB%E5%9C%A8%E5%9C%B0%E4%B8%8A2.png" alt="创作相关图片">
+        </div>
+    </div>
+
+    <script>
+        // 初始化 lucide 图标（菜单图标）
+        lucide.createIcons();
+
+        // 菜单展开/收起逻辑
+        function toggleMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('dropdown-menu');
+            menu.classList.toggle('active');
+        }
+
+        // 点击页面其他位置关闭菜单
+        window.onclick = function (e) {
+            const menu = document.getElementById('dropdown-menu');
+            const trigger = document.getElementById('menu-trigger');
+            if (menu && trigger && !trigger.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        };
+
+        // 可选：导航栏滚动阴影效果 (轻量)
+        const header = document.querySelector('.timeline-header');
+        let ticking = false;
+        function updateHeaderShadow() {
+            if (!header) return;
+            const scrollY = window.scrollY;
+            const intensity = Math.min(0.2, scrollY / 300);
+            header.style.boxShadow = `0 8px 28px rgba(0,0,0,${0.08 + intensity}), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.02)`;
+            ticking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateHeaderShadow);
+                ticking = true;
+            }
+        });
+        updateHeaderShadow();
+    </script>
+</body>
+
+</html>
