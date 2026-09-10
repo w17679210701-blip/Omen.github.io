@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>网站管理后台</title>
+    <link rel="stylesheet" href="css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- 全局基础样式（与 index 一致的浅色背景）--- */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 主容器 — 毛玻璃卡片，与 index 风格一致 */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 30px 24px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #1a1a1a;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .section {
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #ffcc00;
+            font-size: 1.2rem;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 16px;
+            padding: 12px 14px;
+            color: #1a1a1a;
+            font-size: 14px;
+            margin-bottom: 16px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #ffcc00;
+            background: rgba(255, 204, 0, 0.05);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #ffcc00;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            margin-bottom: 12px;
+        }
+
+        button:hover {
+            background: #e6b800;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .error {
+            color: #ff4d4d;
+            font-size: 13px;
+            margin-top: -12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .success {
+            color: #34c759;
+            text-align: center;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        .login-form {
+            text-align: center;
+        }
+
+        .login-form input {
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 悬浮提示弹窗（浅色风格） */
+        .toast-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 28px;
+            padding: 16px 32px;
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+            animation: fadeInOut 2s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+                visibility: hidden;
+            }
+        }
+
+        .visitor-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .visitor-table th,
+        .visitor-table td {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .visitor-table th {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1a1a1a;
+        }
+
+        .visitor-table td {
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>⚙️ 网站管理后台</h1>
+
+        <!-- 登录界面 -->
+        <div id="login-panel">
+            <div class="login-form">
+                <input type="text" id="admin-account" placeholder="账号" autocomplete="off">
+                <input type="password" id="admin-password" placeholder="密码" autocomplete="off">
+                <button onclick="login()">登录</button>
+                <button onclick="location.href='index.html'"
+                    style="background: rgba(0,0,0,0.05); color:#1a1a1a; border:1px solid rgba(0,0,0,0.1);">取消</button>
+                <div id="login-error" class="error"></div>
+            </div>
+        </div>
+
+        <!-- 管理界面（初始隐藏） -->
+        <div id="admin-panel" class="hidden">
+            <div class="section">
+                <h2>🏠 主页设置</h2>
+                <label>标题</label>
+                <input type="text" id="home_title">
+                <label>副标题</label>
+                <input type="text" id="home_subtitle">
+                <label>头像 URL</label>
+                <input type="text" id="home_avatar">
+                <label>昵称</label>
+                <input type="text" id="home_name">
+            </div>
+            <div class="section">
+                <h2>📱 朋友圈设置</h2>
+                <label>副标题</label>
+                <input type="text" id="moments_subtitle">
+            </div>
+            <div class="section">
+                <h2>🖼️ 相册设置</h2>
+                <label>副标题</label>
+                <input type="text" id="photo_subtitle">
+            </div>
+            <div class="section">
+                <h2>📢 通用公告栏（三站同步）</h2>
+                <textarea id="common_notice" rows="3" placeholder="公告内容，将同时更新主页、朋友圈、相册的公告栏"></textarea>
+            </div>
+
+            <div class="section">
+                <h2>📸 时光照相馆访问记录</h2>
+                <button id="refresh-visitors" style="margin-bottom: 12px;">刷新记录</button>
+                <div id="visitors-list" style="max-height: 300px; overflow-y: auto;">
+                    <table class="visitor-table" id="visitor-table">
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>访问时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitor-tbody">
+                            <tr>
+                                <td colspan="2">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button onclick="saveConfig()">保存修改</button>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+            <button onclick="location.href='index.html'" class="logout-btn" style="margin-top: 12px;">返回主页</button>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://hmsovwceyinvwgplgywr.supabase.co';
+        const supabaseKey = 'sb_publishable_n4PuuvoT5HLgcKbPM41BkQ_XbKctJtS';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentAccount = '';
+        let currentPassword = '';
+
+        async function login() {
+            const account = document.getElementById('admin-account').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
+            if (!account || !password) {
+                document.getElementById('login-error').innerText = '请输入账号和密码';
+                return;
+            }
+            const { data, error } = await supabaseClient.rpc('verify_admin_account', {
+                acc: account,
+                pwd: password
+            });
+            if (error) {
+                console.error('验证失败', error);
+                document.getElementById('login-error').innerText = '验证出错，请重试';
+                return;
+            }
+            if (data === true) {
+                currentAccount = account;
+                currentPassword = password;
+                document.getElementById('login-panel').style.display = 'none';
+                document.getElementById('admin-panel').classList.remove('hidden');
+                loadConfig();
+                loadVisitors();
+
+            } else {
+                document.getElementById('login-error').innerText = '账号或密码错误';
+            }
+        }
+
+        async function loadConfig() {
+            const { data, error } = await supabaseClient.from('site_config').select('key, value');
+            if (error) {
+                console.error('加载配置失败', error);
+                return;
+            }
+            const config = {};
+            data.forEach(item => config[item.key] = item.value);
+
+            document.getElementById('home_title').value = config.home_title || '';
+            document.getElementById('home_subtitle').value = config.home_subtitle || '';
+            document.getElementById('home_avatar').value = config.home_avatar || '';
+            document.getElementById('home_name').value = config.home_name || '';
+            document.getElementById('moments_subtitle').value = config.moments_subtitle || '';
+            document.getElementById('photo_subtitle').value = config.photo_subtitle || '';
+            document.getElementById('common_notice').value = config.home_notice || '';
+        }
+        async function saveConfig() {
+            const commonNotice = document.getElementById('common_notice').value;
+            const updates = {
+                home_title: document.getElementById('home_title').value,
+                home_subtitle: document.getElementById('home_subtitle').value,
+                home_avatar: document.getElementById('home_avatar').value,
+                home_name: document.getElementById('home_name').value,
+                moments_subtitle: document.getElementById('moments_subtitle').value,
+                photo_subtitle: document.getElementById('photo_subtitle').value,
+                home_notice: commonNotice,
+                moments_notice: commonNotice,
+                photo_notice: commonNotice,
+            };
+            const { data, error } = await supabaseClient.rpc('update_site_config', {
+                acc: currentAccount,
+                pwd: currentPassword,
+                updates: updates
+            });
+            const existingToast = document.querySelector('.toast-message');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = data === true ? '✅ 保存成功！' : '❌ 保存失败，请检查密码或网络。';
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast && toast.parentNode) toast.remove();
+            }, 2000);
+        }
+
+        function logout() {
+            currentAccount = '';
+            currentPassword = '';
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('login-panel').style.display = 'block';
+            document.getElementById('admin-account').value = '';
+            document.getElementById('admin-password').value = '';
+            document.getElementById('login-error').innerText = '';
+        }
+
+        // 加载时光照相馆访问记录
+        async function loadVisitors() {
+            const tbody = document.getElementById('visitor-tbody');
+            tbody.innerHTML = '<tr><td colspan="2">加载中...</td></tr>';
+            try {
+                const { data, error } = await supabaseClient.rpc('get_timeline_visitors', {
+                    admin_acc: currentAccount,
+                    admin_pwd: currentPassword
+                });
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="2">暂无记录</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(row => `
+            <tr>
+                <td>${escapeHtml(row.name)}</td>
+                <td>${new Date(row.visited_at).toLocaleString()}</td>
+            </tr>
+        `).join('');
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="2">加载失败，请检查权限</td></tr>';
+            }
+        }
+        document.getElementById('refresh-visitors')?.addEventListener('click', loadVisitors);
+
+        // 简单的防XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+    </script>
+    <script src="js/modal.js"></script>
+</body>
+
+</html>
