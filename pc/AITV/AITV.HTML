@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品集 · AI短片 | PC</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #eef2f5, #d9e0e8);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+            color: #1e293b;
+            padding: 40px 32px;
+            min-height: 100vh;
+        }
+
+        /* ----- PC 顶部导航栏（宽屏）----- */
+        .pc-header {
+            position: sticky;
+            top: 24px;
+            z-index: 200;
+            max-width: 1400px;
+            margin: 0 auto 32px auto;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 34px;
+            border: 0.5px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pc-header .back-btn {
+            background: rgba(120, 120, 128, 0.15);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #007aff;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .pc-header .back-btn:hover {
+            background: rgba(120, 120, 128, 0.3);
+            transform: scale(0.96);
+        }
+
+        .pc-header .back-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+        }
+
+        .pc-header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: 0.5px;
+            margin-right: 8px;
+        }
+
+        .pc-header .header-sub {
+            font-size: 0.8rem;
+            color: #64748b;
+            letter-spacing: 2px;
+            padding-left: 16px;
+            border-left: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .pc-header nav {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .pc-header nav a {
+            text-decoration: none;
+            color: #334155;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.5);
+            border: 0.5px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .pc-header nav a:hover {
+            background: rgba(144, 2, 7, 0.1);
+            color: #900207;
+            transform: translateY(-1px);
+        }
+
+        /* ----- 页面大标题 ----- */
+        .page-hero {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .page-hero h2 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #0f172a, #475569);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .page-hero p {
+            font-size: 0.95rem;
+            color: #64748b;
+            letter-spacing: 4px;
+        }
+
+        /* ----- 作品网格（PC 三列）----- */
+        .portfolio-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .work-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .work-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 45px -14px rgba(0, 0, 0, 0.18);
+        }
+
+        .work-cover {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #0f172a;
+            overflow: hidden;
+        }
+
+        .work-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .work-card:hover .work-cover img {
+            transform: scale(1.05);
+        }
+
+        .play-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 22px;
+            opacity: 0.9;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        .work-card:hover .play-badge {
+            transform: translate(-50%, -50%) scale(1.12);
+            opacity: 1;
+        }
+
+        .work-info {
+            padding: 22px 24px 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .work-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+            letter-spacing: -0.2px;
+        }
+
+        .work-desc {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: #475569;
+            margin-bottom: 18px;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .work-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 14px;
+        }
+
+        .work-tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            letter-spacing: 2px;
+        }
+
+        /* 响应式：中等屏两列 */
+        @media (max-width: 1100px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pc-header nav a {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 小屏模拟移动端（可选） */
+        @media (max-width: 720px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .pc-header {
+                flex-wrap: wrap;
+                padding: 10px 16px;
+            }
+
+            .pc-header nav {
+                width: 100%;
+                margin-left: 0;
+                justify-content: flex-start;
+                margin-top: 8px;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-hero h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- PC 顶部导航 -->
+    <header class="pc-header">
+        <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <h1>作品集</h1>
+        <span class="header-sub">AI SHORT FILMS</span>
+        <nav>
+            <a href="index.html">主页</a>
+            <a href="about.html">关于我</a>
+        </nav>
+    </header>
+
+    <!-- 页面大标题 -->
+    <div class="page-hero">
+        <h2>AI 短片作品集</h2>
+        <p>— 用 AI 讲述每一个故事 —</p>
+    </div>
+
+    <!-- 作品网格 -->
+    <div class="portfolio-grid">
+
+        <a href="qitong01.html" class="work-card">
+            <div class="work-cover">
+                <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E5%88%9B%E4%BD%9C%E7%B4%A0%E6%9D%90/%E5%B0%8F%E7%8C%AB%E5%9C%A8%E5%9C%B0%E4%B8%8A2.png"
+                    alt="绝世好猫">
+                <div class="play-badge">▶</div>
+            </div>
+            <div class="work-info">
+                <div class="work-title">《绝世好猫》</div>
+                <div class="work-desc">一部猫的产品短片，顺便征婚（假的）</div>
+                <div class="work-meta">
+                    <span class="work-tag">AI 短片</span>
+                    <span>2026-09-10</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 作品 1 -->
+        <a href="runtian.html" class="work-card">
+            <div class="work-cover">
+                <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E6%B6%A6%E7%94%B0%E5%B0%81%E9%9D%A2.png"
+                    alt="静下来净下来">
+                <div class="play-badge">▶</div>
+            </div>
+            <div class="work-info">
+                <div class="work-title">《静下来净下来》</div>
+                <div class="work-desc">一部关于内心平静的AI短片</div>
+                <div class="work-meta">
+                    <span class="work-tag">AI 短片</span>
+                    <span>2026-09-10</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 作品 2 -->
+        <a href="goodboy.html" class="work-card">
+            <div class="work-cover">
+                <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E9%95%9C%E5%8F%B71_1.png"
+                    alt="好孩子">
+                <div class="play-badge">▶</div>
+            </div>
+            <div class="work-info">
+                <div class="work-title">《好孩子》demo</div>
+                <div class="work-desc">男主因无法管教自己的孩子等家庭琐事而找到心理医生大发牢骚，结果让一个大男人唧唧歪歪的竟然是一只小猫。</div>
+                <div class="work-meta">
+                    <span class="work-tag">AI 短片</span>
+                    <span>2026-08-20</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 作品 3 -->
+        <a href="bailang.html" class="work-card">
+            <div class="work-cover">
+                <img src="https://hiomen-1312408524.cos.ap-guangzhou.myqcloud.com/AITV/%E5%88%9B%E4%BD%9C%E7%B4%A0%E6%9D%90/%E7%99%BD%E7%8B%BC%E5%B0%81%E9%9D%A2"
+                    alt="我救的白狼是公爵">
+                <div class="play-badge">▶</div>
+            </div>
+            <div class="work-info">
+                <div class="work-title">《我救的白狼是公爵》demo</div>
+                <div class="work-desc">奇幻题材AI短片，一个关于救赎与身份的温柔故事，在寒冷雪原中点燃一段温暖的相遇。</div>
+                <div class="work-meta">
+                    <span class="work-tag">AI 短片</span>
+                    <span>2026-07-15</span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+
+    <div class="footer-note">持续更新中 ·  ❤️</div>
+
+    <script>
+        // 初始化 Lucide 图标（如有需要可添加）
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

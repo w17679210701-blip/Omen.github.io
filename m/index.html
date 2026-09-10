@@ -1122,6 +1122,51 @@
         .logo-btn:active {
             transform: scale(0.96);
         }
+
+        /* AI作品集整卡入口 */
+        .portfolio-card {
+            padding: 8px 24px;
+            height: 125px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 40px -14px rgba(0, 0, 0, 0.15);
+        }
+
+        .portfolio-card:active {
+            transform: scale(0.98);
+        }
+
+        .portfolio-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #900207;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .portfolio-card::before {
+            content: "AI作品集";
+            position: absolute;
+            bottom: 5px;
+            right: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #900207;
+            opacity: 0.2;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 0;
+        }
     </style>
 </head>
 
@@ -1392,7 +1437,12 @@
             </div>
         </div>
 
-        <!-- AI短片作品卡片（六筒剧场） -->
+        <!-- AI作品集入口（整卡可点击） -->
+        <div class="glass-card portfolio-card" onclick="window.location.href='AITV/AITV.html'">
+            <div class="portfolio-text">AI作品集</div>
+        </div>
+
+        <!-- AI短片作品卡片（六筒剧场）
         <div class="glass-card ai-film-card">
             <div class="cloud-buttons">
                 <div class="cloud-btn" onclick="location.href='AITV/goodboy.html'">好孩子</div>
@@ -1406,7 +1456,7 @@
             <div class="cloud-buttons">
                 <div class="cloud-btn" onclick="location.href='AITV/qitong01.html'">绝世好猫</div>
             </div>
-        </div>
+        </div> -->
 
     </div>
     </div>
