@@ -325,6 +325,64 @@
             flex: 1;
         }
 
+        /* --- 作品名可点击链接 --- */
+        .work-link {
+            color: #007aff;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(0, 122, 255, 0.45);
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .work-link:hover {
+            color: #ff9500;
+            border-bottom-color: #ff9500;
+        }
+
+        .work-link:active {
+            opacity: 0.6;
+        }
+
+        /* --- 作品集按钮 --- */
+        .works-btn-wrap {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: center;
+        }
+
+        .works-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 26px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-decoration: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #ffd633, #ffb300);
+            box-shadow: 0 4px 14px rgba(255, 179, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .works-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(255, 179, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .works-btn:active {
+            transform: scale(0.97);
+        }
+
+        .works-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: #1a1a1a;
+            stroke-width: 2.2;
+        }
+
         .footer-note {
             margin-top: 50px;
             font-size: 12px;
@@ -375,6 +433,7 @@
             朋友圈
         </a>
         <a href="photo.html" class="menu-item"><i data-lucide="image" size="18"></i>相册</a>
+        <a href="works.html" class="menu-item"><i data-lucide="clapperboard" size="18"></i>作品集</a>
         <a href="about.html" class="menu-item"><i data-lucide="user" size="18"></i>关于我</a>
         <a href="admin.html" class="menu-item"><i data-lucide="settings" size="18"></i>后台管理</a>
         <a href="links.html" class="menu-item"><i data-lucide="link" size="18"></i>友情链接</a>
@@ -383,12 +442,46 @@
 
     <!-- 更新日志内容 -->
     <div class="changelog-container">
-        <!-- ========== v2.3.31 最新更新（2026-04-30） ========== -->
+        <!-- ========== v2.3.32 最新更新（2026-09-10） ========== -->
+        <div class="version-card">
+            <div class="version-header">
+                <div class="version-tag">
+                    v2.3.32
+                    <span class="version-badge">最新</span>
+                </div>
+                <div class="version-date">2026-09-10</div>
+            </div>
+            <ul class="update-list">
+                <li>
+                    <span class="update-icon"><i data-lucide="layout-dashboard"></i></span>
+                    <span class="update-text">优化页面布局，整体结构更清晰，浏览体验更顺畅。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="folder-open"></i></span>
+                    <span class="update-text">新增独立的作品集页面，集中展示个人创作内容。</span>
+                </li>
+                <li>
+                    <span class="update-icon"><i data-lucide="clapperboard"></i></span>
+                    <span class="update-text">
+                        作品集上线《<a class="work-link" href="AITV/runtian.html">净下来静下来</a>》和《<a class="work-link"
+                            href="AITV/qitong01.html">绝世好猫</a>》AI 短片，点击作品名字即可跳转观看；也可点击下方作品集按钮查看更多作品。
+                    </span>
+                </li>
+            </ul>
+            <!-- 作品集按钮：链接地址按实际文件名调整 -->
+            <div class="works-btn-wrap">
+                <a class="works-btn" href="AITV/AITV.HTML">
+                    <i data-lucide="clapperboard"></i>
+                    查看更多作品
+                </a>
+            </div>
+        </div>
+
+        <!-- ========== v2.3.31（2026-04-30） ========== -->
         <div class="version-card">
             <div class="version-header">
                 <div class="version-tag">
                     v2.3.31
-                    <span class="version-badge">最新</span>
                 </div>
                 <div class="version-date">2026-04-30</div>
             </div>
